@@ -1,0 +1,128 @@
+@import "mixin.styl";
+/* 项目编辑器 */
+.u-panel-style
+  border: 1px solid #E9E9E9
+  box-shadow: 0 4px 8px rgba(0, 0, 0, .05)
+  .panel-body
+    padding: 25px
+
+.item-editor-layer
+  display: none
+  position: absolute
+  z-index: 1000
+  top: 0
+  left: 0
+  width: 100%
+  min-width: 640px;
+  min-height: 100%
+  padding-top: 54px
+  box-sizing: border-box
+  background: #f7f7f7
+  .item-button-group
+    box-sizing: border-box
+    position: fixed
+    z-index: 1000
+    top: 0
+    left: 0
+    width: 100%
+    padding: 12px
+    background: #f7f7f7
+    .btn
+      min-width: 74px
+  .item-container
+    padding: 8px 0 50px
+    .item-list-wrapper
+      padding: 50px 70px
+
+.item-list-wrapper
+  .item-list
+    margin: 0
+    padding: 0
+    list-style: none;
+    color: #000
+    .item
+      clearfix()
+      margin-bottom: 20px
+      &:hover
+        cursor: pointer
+      &:last-child
+        margin-bottom: 0
+    .checkbox
+      float: left
+      display: block
+      margin: 0
+      margin-left: -24px
+      margin-top: 2px
+      width: 16px
+      height: 16px
+      background: url(../images/checkbox.png) 0 top / 100% auto no-repeat
+      cursor: pointer
+      [type=checkbox]
+        display: none
+      &.checked
+        background-position: 0 bottom
+    .item-content
+      font-size: 12px
+      line-height: 1.5
+      color: #333
+      text-align: justify
+      .item-editor-wrap
+        display: none
+      p
+        margin: 5px 0
+      img
+        vertical-align: top
+        max-width: 100%
+  .item-pager .form-inline
+    margin-top: 20px
+    line-height: 34px
+    text-align: center
+
+    .pager-text
+      font-size: 12px
+      color: #999
+      vertical-align: top
+      &:last-child
+        margin-left: 30px
+    .pagination
+      margin: 0 4px
+      vertical-align: top
+      .glyphicon
+        font-size: 12px
+      li
+        a
+        span
+          color: #666
+      .active
+        a
+        span
+          border-color: #ddd
+          background: #fff
+          color: #21BD6D
+      .disabled
+        a
+        span
+          color: #999
+    .form-control
+      width: 48px
+      padding: 6px 1px
+      text-align: center
+      vertical-align: top
+    .btn
+      width: 48px
+      height: 34px
+      font-size: 12px
+      vertical-align: top
+.u-btn-group
+  text-align: center
+  font-size: 0
+  .btn
+    margin: 0 10px
+    width: 84px
+
+.editor-btn-group
+  margin-top: 6px
+  text-align: right
+  font-size: 0
+  .btn
+    margin-left: 10px

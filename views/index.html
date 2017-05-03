@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="description" content="">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="renderer" content="webkit">
+  <title>开源社会网 - 创建项目</title>
+
+  <link rel="stylesheet" href="/bootstrap/css/bootstrap.css" />
+  <link rel="stylesheet" href="/styles/style.css">
+  <link rel="stylesheet" href="/styles/item-editor.css">
+
+  <!--[if IE 8]>
+  <script src="/scripts/common/es5-shim.js"></script>
+  <script src="/scripts/common/json2.js"></script>
+  <![endif]-->
+  <script>
+    window.PID = 111111112222
+  </script>
+</head>
+<body>
+<header class="navbar navbar-inverse">
+  <div class="container">
+    <div class="u-logo-wrapper pull-left">
+      <a href="#">
+        <img alt="开源社会网" src="/images/logo.png">
+        <span>开源社会网</span>
+        <span>|</span>
+        <span>创建项目</span>
+      </a>
+    </div>
+    <div class="u-user pull-right">
+      <img src="/images/avatar.png" alt="">
+      <span>李长如长如…</span>
+    </div>
+  </div>
+</header>
+<main class="main">
+  <div class="container">
+    <div class="panel u-panel-style">
+      <div class="panel-body">
+        <form id="create-form" action="/" class="u-create-project-form form-horizontal">
+          <div class="form-group">
+            <label for="projectName" class="col-sm-2 control-label">名称</label>
+            <div id="projectName-wrapper" class="col-sm-3">
+              <input id="projectName" name="projectName" type="text" class="form-control">
+              <span class="help-block">
+                    <span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span>
+                    <span>请填写名称</span>
+                  </span>
+            </div>
+            <label class="col-sm-2 control-label">行业分类</label>
+            <div class="col-sm-2 u-select-control">
+              <select id="firstClassId" name="firstClassId" class="form-control">
+                <option value="1">行业分类_1_1</option>
+                <option value="2">行业分类_1_2</option>
+                <option value="3">行业分类_1_3</option>
+                <option value="4">行业分类_1_4</option>
+                <option value="5">行业分类_1_5</option>
+              </select>
+            </div>
+            <div class="col-sm-3 u-select-control">
+              <select id="secondClassId" name="secondClassId" class="form-control">
+                <option value="1">行业分类_2_1</option>
+                <option value="2">行业分类_2_2</option>
+                <option value="3">行业分类_2_3</option>
+                <option value="4">行业分类_2_4</option>
+                <option value="5">行业分类_2_5</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="projectIntro" class="col-sm-2 control-label">简介</label>
+            <div id="projectIntro-wrapper" class="col-sm-10">
+              <textarea class="form-control" id="projectIntro" name="projectIntro" rows="4" placeholder="100个汉字或200个字符"></textarea>
+              <span class="help-block">
+                <span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span>
+                <span id="projectIntro-error-txt">请填写名称</span>
+              </span>
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="col-sm-2 control-label">项目性质</label>
+            <div class="col-sm-10">
+              <div class="radio-inline">
+                <label>
+                  <input type="radio" name="isSecreted" value="1" checked> 公开
+                </label>
+                <span class="text-muted">公开的项目所有人可阅读内容</span>
+              </div>
+              <div class="radio-inline">
+                <label>
+                  <input type="radio" name="isSecreted" value="2"> 私密
+                </label>
+                <span class="text-muted">必须项目参与者才能阅读内容</span>
+              </div>
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="col-sm-2 control-label">项目规则</label>
+            <div class="col-sm-10 u-from-radio">
+              <div class="form-inline">
+                <span class="form-control-static">投票规则</span>
+              </div>
+              <div class="form-inline">
+                <span class="form-control-static text-muted">项目管理者中同意的人数占全部管理者的比例&nbsp;&nbsp;&nbsp;&nbsp;≥&nbsp;&nbsp;&nbsp;&nbsp;</span>
+                <select id="mgr_scale_rule_1" name="mgr_scale_rule_1" class="form-control">
+                  <option value="51">51%</option>
+                  <option value="66">66%</option>
+                  <option value="100">100%</option>
+                </select>
+              </div>
+              <div class="form-inline">
+                <span class="form-control-static text-muted">第一管理者是否必须同意</span>
+                <div class="radio-inline">
+                  <label>
+                    <input type="radio" name="mgr_first_rule_1" value="1" checked> 是
+                  </label>
+                </div>
+                <div class="radio-inline">
+                  <label>
+                    <input type="radio" name="mgr_first_rule_1" value="0"> 否
+                  </label>
+                </div>
+              </div>
+              <div class="form-inline u-form-divider">
+                <span class="form-control-static">批准参与者规则</span>
+              </div>
+              <div class="form-inline">
+                <span class="form-control-static text-muted">项目管理者中同意的人数占全部管理者的比例&nbsp;&nbsp;&nbsp;&nbsp;≥&nbsp;&nbsp;&nbsp;&nbsp;</span>
+                <div class="radio-inline u-radio-select">
+                  <label>
+                    <input type="radio" id="mgr_no_approve_1" name="mgr_no_approve" value="1" checked>&nbsp;
+                  </label>
+                </div>
+                <select id="mgr_scale_rule_2" name="mgr_scale_rule_2" class="form-control">
+                  <option value="20">20%</option>
+                  <option value="30">30%</option>
+                  <option value="40">40%</option>
+                  <option value="50">50%</option>
+                  <option value="60">60%</option>
+                </select>
+                <div class="radio-inline">
+                  <label>
+                    <input type="radio" id="mgr_no_approve_2" name="mgr_no_approve" value="0"> 不需要审批
+                  </label>
+                </div>
+                <div id="mgr_no_approve-wrapper" class="form-inline u-radio-layer">
+                  <div class="u-layer"></div>
+                  <span class="form-control-static text-muted">第一管理者是否必须同意</span>
+                  <div class="radio-inline">
+                    <label>
+                      <input type="radio" name="mgr_first_rule_2" value="1" checked> 是
+                    </label>
+                  </div>
+                  <div class="radio-inline">
+                    <label>
+                      <input type="radio" name="mgr_first_rule_2" value="0"> 否
+                    </label>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+    <div class="u-btn-group">
+      <button type="button" class="btn btn-default">取消</button>
+      <button id="btn-save" type="button" class="btn btn-default">暂存</button>
+      <button id="btn-next" type="button" class="btn btn-success">下一步</button>
+    </div>
+  </div>
+</main>
+
+<script src="/scripts/common/jquery.js"></script>
+<script src="/scripts/common/modernizr.js"></script>
+<script src="/scripts/common/require.js"></script>
+<script src="/scripts/common/require.config.js"></script>
+<script src="/scripts/common/ueditor.config.js"></script>
+<script src="/ueditor/ueditor.all.js"></script>
+
+<script src="/bootstrap/js/bootstrap.js"></script>
+<script src="/scripts/main.js"></script>
+</body>
+</html>

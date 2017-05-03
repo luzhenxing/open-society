@@ -1,0 +1,35 @@
+{
+  "dependencies": {
+    "babel": "^6.23.0",
+    "babel-preset-es2015": "^6.24.1",
+    "del": "^2.2.2",
+    "express": "^4.15.2",
+    "gulp": "^3.9.1",
+    "gulp-autoprefixer": "^3.1.1",
+    "gulp-babel": "^6.1.2",
+    "gulp-clean": "^0.3.2",
+    "gulp-if": "^2.0.2",
+    "gulp-plumber": "^1.1.0",
+    "gulp-stylus": "^2.6.0",
+    "run-sequence": "^1.2.2",
+    "stylus": "^0.54.5"
+  },
+  "scripts": {
+    "dev": "node server.js"
+  },
+  "name": "open-society",
+  "description": "开源社会网 fe",
+  "version": "1.0.0",
+  "main": "server.js",
+  "devDependencies": {},
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/luzhenxing/open-society.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/luzhenxing/open-society/issues"
+  },
+  "homepage": "https://github.com/luzhenxing/open-society#readme"
+}

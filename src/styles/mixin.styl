@@ -1,0 +1,84 @@
+/* margin */
+for i in 0 .. 10
+  .mt{i * 5}
+    margin-top: i * 5px !important
+  .mr{i * 5}
+    margin-right: i * 5px !important
+  .mb{i * 5}
+    margin-bottom: i * 5px !important
+  .ml{i * 5}
+    margin-left: i * 5px !important
+  .pt{i * 5}
+    padding-top: i * 5px !important
+  .pr{i * 5}
+    padding-right: i * 5px !important
+  .pb{i * 5}
+    padding-bottom: i * 5px !important
+  .pl{i * 5}
+    padding-left: i * 5px !important
+
+/* font size */
+for size in 6 .. 18
+  .fz{size * 2}
+    font-size: size * 2px !important
+
+
+clearfix()
+  zoom: 1
+  &:after
+    content: ''
+    display: block
+    padding: 0
+    margin: 0
+    height: 0
+    clear: both
+
+.loading
+  padding: 10px
+  text-align: center
+  img
+    vertical-align: top
+    width: 30px
+    height: 30px
+
+/* animated */
+.animated {
+  animation-duration: .5s;
+  animation-fill-mode: both;
+}
+
+.animated.infinite {
+  animation-iteration-count: infinite;
+}
+
+.animated.hinge {
+  animation-duration: 2s;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+.fadeIn {
+  animation-name: fadeIn;
+}
+
+@keyframes fadeOut {
+  from {
+    opacity: 1;
+  }
+
+  to {
+    opacity: 0;
+  }
+}
+
+.fadeOut {
+  animation-name: fadeOut;
+}
