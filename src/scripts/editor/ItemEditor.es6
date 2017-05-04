@@ -448,7 +448,7 @@ define(['scripts/editor/editorTpl', 'scripts/common/plupload/plupload', 'scripts
           })
       },
       renderPage({curPage, limit, count}) {
-        const total = Math.ceil(count / (limit))
+        const total = Math.ceil(count / limit)
         this.total = total
         if (total === 1) {
           // 只有一页无需翻页

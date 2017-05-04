@@ -1,0 +1,66 @@
+clearfix()
+  zoom: 1
+  &:after
+    content: ''
+    display: block
+    height: 0
+    clear: both
+
+.text-ellipse
+  white-space: nowrap
+  overflow: hidden
+  text-overflow: ellipsis
+
+a
+a:hover
+  color: #333
+
+.detail-main
+  margin: 0 auto
+  padding: 30px 0
+  width: 1100px
+.detail-header
+  position: relative
+  .title
+    margin: 0
+    font-size: 24px
+
+  .oper
+    margin-top: 18px
+    line-height: 30px
+    font-size: 14px
+    .iconfont
+    span
+      vertical-align: top
+    .iconfont
+      margin-right: 4px
+    a
+      display: inline-block
+      margin-right: 16px
+      &.btn-detail
+        box-sizing: border-box
+        border: 1px solid #21BD6D
+        width: 124px
+        height: 30px
+        line-height: 30px
+        text-align: center
+        border-radius: 4px
+        color: #21BD6D
+        &.btn-detail.btn-create
+          position: absolute
+          top: 0
+          right: 0
+          margin-right: 0
+          width: 200px
+          height: 36px
+          line-height: 36px
+          background: #21BD6D
+          color: #FFF
+
+  dl.info
+    clearfix()
+    dt
+      float: left
+
+.detail-article
+  width: 640px

@@ -461,52 +461,6 @@
   vertical-align: top;
   max-width: 100%;
 }
-.item-list-wrapper .item-pager .form-inline {
-  margin-top: 20px;
-  line-height: 34px;
-  text-align: center;
-}
-.item-list-wrapper .item-pager .form-inline .pager-text {
-  font-size: 12px;
-  color: #999;
-  vertical-align: top;
-}
-.item-list-wrapper .item-pager .form-inline .pager-text:last-child {
-  margin-left: 30px;
-}
-.item-list-wrapper .item-pager .form-inline .pagination {
-  margin: 0 4px;
-  vertical-align: top;
-}
-.item-list-wrapper .item-pager .form-inline .pagination .glyphicon {
-  font-size: 12px;
-}
-.item-list-wrapper .item-pager .form-inline .pagination li a,
-.item-list-wrapper .item-pager .form-inline .pagination li span {
-  color: #666;
-}
-.item-list-wrapper .item-pager .form-inline .pagination .active a,
-.item-list-wrapper .item-pager .form-inline .pagination .active span {
-  border-color: #ddd;
-  background: #fff;
-  color: #21bd6d;
-}
-.item-list-wrapper .item-pager .form-inline .pagination .disabled a,
-.item-list-wrapper .item-pager .form-inline .pagination .disabled span {
-  color: #999;
-}
-.item-list-wrapper .item-pager .form-inline .form-control {
-  width: 48px;
-  padding: 6px 1px;
-  text-align: center;
-  vertical-align: top;
-}
-.item-list-wrapper .item-pager .form-inline .btn {
-  width: 48px;
-  height: 34px;
-  font-size: 12px;
-  vertical-align: top;
-}
 .u-btn-group {
   text-align: center;
   font-size: 0;

@@ -8,6 +8,7 @@ app.use('/bootstrap', express.static('dist/bootstrap'))
 app.use('/scripts', express.static('dist/scripts'))
 app.use('/styles', express.static('dist/styles'))
 app.use('/images', express.static('dist/images'))
+app.use('/fonts', express.static('dist/fonts'))
 app.use('/ueditor', express.static('ueditor'))
 app.use('/', express.static('views'))
 

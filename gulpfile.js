@@ -17,9 +17,9 @@ gulp.task('js', () => {
 })
 
 gulp.task('css', () => {
-  return gulp.src('src/styles/**/*.styl')
+  return gulp.src('src/styles/**/*.*')
     .pipe(plumber())
-    .pipe(stylus())
+    .pipe(gulpif(/\.styl$/, stylus()))
     .pipe(autoprefixer({browsers: ['> 1%', 'last 2 versions', 'Firefox ESR']}))
     .pipe(gulp.dest(`${DEST}/styles`))
 })
@@ -39,14 +39,19 @@ gulp.task('ueditor', () => {
     .pipe(gulp.dest(`${DEST}/ueditor`))
 })
 
+gulp.task('fonts', () => {
+  return gulp.src('./src/fonts/**/**.*')
+    .pipe(gulp.dest(`${DEST}/fonts`))
+})
+
 gulp.task('clean', () => del(['dist']))
 
 gulp.task('build', () => {
-  runSequence(['clean'], ['js', 'css', 'images', 'bootstrap'])
+  runSequence(['clean'], ['js', 'css', 'images', 'bootstrap', 'fonts'])
 })
 
 gulp.task('dist', () => {
-  runSequence(['clean'], ['js', 'css', 'images', 'bootstrap', 'ueditor'])
+  runSequence(['clean'], ['js', 'css', 'images', 'bootstrap', 'fonts', 'ueditor'])
 })
 
 gulp.task('watch', () => {

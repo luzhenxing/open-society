@@ -5,7 +5,18 @@ body
 textarea
   resize: none
 
-.radio-inline,
+a
+a:hover
+  text-decoration: none
+
+dl
+dt
+dd
+  margin: 0
+  padding: 0
+  font-weight: normal
+
+.radio-inline
 .checkbox-inline
   cursor: default
 
@@ -117,3 +128,44 @@ textarea
     margin: 0 10px
     width: 134px
     height: 40px
+
+.item-pager .form-inline
+  margin-top: 20px
+  line-height: 34px
+  text-align: center
+
+  .pager-text
+    font-size: 12px
+    color: #999
+    vertical-align: top
+    &:last-child
+      margin-left: 30px
+  .pagination
+    margin: 0 4px
+    vertical-align: top
+    .glyphicon
+      font-size: 12px
+    li
+      a
+      span
+        color: #666
+    .active
+      a
+      span
+        border-color: #ddd
+        background: #fff
+        color: #21BD6D
+    .disabled
+      a
+      span
+        color: #999
+  .form-control
+    width: 48px
+    padding: 6px 1px
+    text-align: center
+    vertical-align: top
+  .btn
+    width: 48px
+    height: 34px
+    font-size: 12px
+    vertical-align: top
