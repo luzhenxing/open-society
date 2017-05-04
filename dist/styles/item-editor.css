@@ -301,6 +301,12 @@
 .fz36 {
   font-size: 36px !important;
 }
+.fl {
+  float: left;
+}
+.fr {
+  float: right;
+}
 .loading {
   padding: 10px;
   text-align: center;

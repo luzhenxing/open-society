@@ -25,8 +25,8 @@ gulp.task('css', () => {
 })
 
 gulp.task('images', () => {
- return gulp.src('src/images/**/**.*')
-   .pipe(gulp.dest(`${DEST}/images`))
+  return gulp.src('src/images/**/**.*')
+    .pipe(gulp.dest(`${DEST}/images`))
 })
 
 gulp.task('bootstrap', () => {
@@ -51,15 +51,15 @@ gulp.task('build', () => {
 })
 
 gulp.task('dist', () => {
-  runSequence(['clean'], ['js', 'css', 'images', 'bootstrap', 'fonts', 'ueditor'])
+  runSequence(['clean'],
+    ['js', 'css', 'images', 'bootstrap', 'fonts', 'ueditor'])
 })
 
 gulp.task('watch', () => {
   gulp.watch('src/scripts/**/*.es6', ['js']).on('change', (event) => {
-    console.log(event)
-      console.log('File ' + event.path + ' was ' + event.type + ', running tasks...');
+    console.log(`编译 ${event.path} ...`)
   })
   gulp.watch('src/styles/**/*.styl', ['css']).on('change', (event) => {
-    console.log('File ' + event.path + ' was ' + event.type + ', running tasks...');
+    console.log(`编译 ${event.path} ...`)
   })
 })

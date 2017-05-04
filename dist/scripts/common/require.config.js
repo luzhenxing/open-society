@@ -1,5 +1,5 @@
 requirejs.config({
-  // baseUrl: '//common1.qyerstatic.com/home',
+  baseUrl: '//127.0.0.1:3000/',
   paths: {
     // 'plupload': 'plupload/plupload'
   }

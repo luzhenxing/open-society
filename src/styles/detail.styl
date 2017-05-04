@@ -13,17 +13,21 @@ clearfix()
 
 a
 a:hover
+a:active
   color: #333
 
 .detail-main
   margin: 0 auto
   padding: 30px 0
   width: 1100px
+
 .detail-header
   position: relative
+  color: #666
   .title
     margin: 0
     font-size: 24px
+    color: #333
 
   .oper
     margin-top: 18px
@@ -37,6 +41,7 @@ a:hover
     a
       display: inline-block
       margin-right: 16px
+      color: #666
       &.btn-detail
         box-sizing: border-box
         border: 1px solid #21BD6D
@@ -59,8 +64,134 @@ a:hover
 
   dl.info
     clearfix()
+    line-height: 18px
     dt
       float: left
+    &.info-fl
+      padding-left: 3em
+      dt
+        margin-left: -3em
+
+  .fold
+    margin-top: 6px
+    display: block
+    .iconfont
+      font-size: 12px
+    a
+      color: #666
+
+.detail-container
+  padding-top: 30px
+
+.detail-nav
+  border-bottom: 1px solid #E7E7EB
+  height: 46px
+  line-height: 46px
+  font-size: 0
+  a
+    display: inline-block
+    box-sizing: border-box
+    font-size: 14px
+    width: 150px
+    height: 45px
+    line-height: 45px
+    text-align: center
+    color: #666
+    &.current
+      border-width: 2px 1px 1px
+      border-style: solid
+      border-color: #21BD6D #E7E7EB #FFF #E7E7EB
+      height: 46px
+      font-weight: bold
+      color: #21BD6D
+
+.detail-content
+  clearfix()
 
 .detail-article
+  float: left
   width: 640px
+
+.detail-item
+  margin-top: 16px
+  text-align: justify
+  .detail-item-inner
+    img
+      vertical-align: top
+      border: 0
+      max-width: 100%
+  .detail-item-oper
+    text-align: right
+    color: #1BA860
+    a
+      margin-left: 12px
+      color: #1BA860
+      .iconfont
+      span
+        vertical-align: top
+      .iconfont
+        margin-right: 4px
+
+.detail-aside
+  float: right
+  position: relative
+  margin-top: 70px
+  width: 430px
+
+.detail-aside-layer
+  border-radius: 4px
+  box-shadow: 0 2px 4px 2px rgba(0, 0, 0, 0.1)
+  padding-bottom: 20px
+  .header
+    box-sizing: border-box
+    height: 48px
+    line-height: 48px
+    border-bottom: 1px solid #E0E2E3
+    a
+      border-left: 1px solid #E0E2E3
+      padding: 0 12px
+      color: #999
+      &.current
+        color: #00AD5A
+      &:first-child
+        border-left: 0
+  .pagination > li > a
+  .pagination > li > span
+    padding: 6px
+
+  .content
+    padding: 20px 20px 0;
+    overflow: auto
+
+    dl.item
+      margin-bottom: 10px
+      padding-bottom: 10px
+      border-bottom: 1px solid #E0E2E3
+      &:last-child
+        margin-bottom: 0
+        padding-bottom: 0
+        border-bottom: 0
+      dt
+        padding-bottom: 4px
+        .time
+          float: right
+          color: #999
+      dd
+        padding-bottom: 4px
+        text-align: justify
+        p
+          margin: 0
+        .item-inner
+          img
+            vertical-align: top
+            border: 0
+            max-width: 100%
+        .item-oper
+          margin-top: 8px
+          text-align: right
+          color: #999
+          a
+            margin-left: 12px
+            color: #999
+            .icon-dianzan1
+              color: #21BD6D

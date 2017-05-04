@@ -301,6 +301,12 @@
 .fz36 {
   font-size: 36px !important;
 }
+.fl {
+  float: left;
+}
+.fr {
+  float: right;
+}
 .loading {
   padding: 10px;
   text-align: center;
@@ -371,7 +377,8 @@ textarea {
   resize: none;
 }
 a,
-a:hover {
+a:hover,
+a:active {
   text-decoration: none;
 }
 dl,
@@ -397,7 +404,6 @@ dd {
 }
 .navbar a {
   color: #fff;
-  text-decoration: none;
 }
 .navbar .u-logo-wrapper {
   font-size: 20px;
@@ -509,6 +515,9 @@ dd {
   margin-top: 20px;
   line-height: 34px;
   text-align: center;
+}
+.item-pager .form-inline .form-control {
+  display: inline-block;
 }
 .item-pager .form-inline .pager-text {
   font-size: 12px;
