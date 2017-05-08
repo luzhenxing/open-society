@@ -34,7 +34,6 @@ define(() => {
               <button type="button" class="btn btn-default hook-cancel-save">取消</button>
               <button type="button" class="btn btn-default hook-save">暂存</button>
               <button type="button" class="btn btn-default hook-prev">上一步</button>
-              <button type="button" class="btn btn-default hook-review">预览</button>
               <button type="button" class="btn btn-success hook-submit">提交</button>
             </div>
           </div>
@@ -43,7 +42,7 @@ define(() => {
     },
     item({id, itemId, type, content}) {
       return `
-      <div id="item_${id}" class="item" data-type-itemid="${itemId ||
+      <div id="item_${id}" class="item" data-itemid="${itemId ||
       ''}" data-type="${type}">
         <label class="checkbox" for="checkbox_${id}">
           <input class="hook-item-checkbox" id="checkbox_${id}" type="checkbox">
@@ -105,13 +104,13 @@ define(() => {
           <span class="pager-text">第${curPage}页</span>
           <ul class="pagination">
             <li class="${curPage === 1 ? 'disabled': ''}">
-              <a href="javascript:;" class="hook-go" data-page="1" aria-label="Previous">
+              <a href="javascript:;" class="hook-go" data-page="${curPage === 1 ? '1': (curPage - 1)}" aria-label="Previous">
                 <span aria-hidden="true" class="glyphicon glyphicon-triangle-left"></span>
               </a>
             </li>
             ${pagination()}
             <li class="${curPage === total ? 'disabled': ''}">
-              <a href="javascript:;" class="hook-go" data-page="${total}" aria-label="Next">
+              <a href="javascript:;" class="hook-go" data-page="${curPage === total ? curPage: (curPage + 1)}" aria-label="Next">
                 <span aria-hidden="true" class="glyphicon glyphicon-triangle-right"></span>
               </a>
             </li>

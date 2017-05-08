@@ -3,21 +3,21 @@ requirejs(['scripts/create-form',
   'scripts/fetch',
   'scripts/select-category'], (form, ItemEditor, fetch) => {
 
-  let itemEditor = new ItemEditor()
+
   // 暂存
   $('#btn-save').on('click', () => {
     form.getFormData().then(data => {
-      console.log(data)
       return fetch.tempSaveProject(data)
-    }).then(data => {
-      console.log(data)
+    }).then(message => {
+      alert(message)
     })
   })
 
   // 下一步
   $('#btn-next').on('click', () => {
     form.getFormData().then(data => {
-      console.log(data)
+      window.PROJECT_DATA = data;
+      let itemEditor = new ItemEditor()
       itemEditor.show()
     })
   })

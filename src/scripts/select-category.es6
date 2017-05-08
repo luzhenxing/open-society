@@ -5,8 +5,17 @@ define(['scripts/fetch'], (fetch) => {
 
   const renderCategory = ($cate, fetch_type, key) => {
     return fetch[fetch_type](key).then(data => {
-      $cate.html(template('tpl-select-option', data))
+      $cate.html(tpl(data))
     })
+  }
+
+  const tpl = (datas) => {
+    let inner = ''
+    datas.forEach(item => {
+      inner += `<option value="${item.id}">${item.className}</option>`
+    })
+
+    return inner;
   }
 
   $cate1.on('change', function () {

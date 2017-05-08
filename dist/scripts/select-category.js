@@ -7,8 +7,17 @@ define(['scripts/fetch'], function (fetch) {
 
   var renderCategory = function renderCategory($cate, fetch_type, key) {
     return fetch[fetch_type](key).then(function (data) {
-      $cate.html(template('tpl-select-option', data));
+      $cate.html(tpl(data));
     });
+  };
+
+  var tpl = function tpl(datas) {
+    var inner = '';
+    datas.forEach(function (item) {
+      inner += '<option value="' + item.id + '">' + item.className + '</option>';
+    });
+
+    return inner;
   };
 
   $cate1.on('change', function () {

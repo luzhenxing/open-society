@@ -1,6 +1,6 @@
 'use strict';
 
-define(['scripts/editor/editorTpl', 'scripts/common/plupload/plupload', 'scripts/fetch'], function (tpl, plupload, fetch) {
+define(['scripts/editor/editorTpl', 'plupload', 'scripts/fetch'], function (tpl, plupload, fetch) {
 
   var isShowUEditor = false,
       listPage = 1;
@@ -52,27 +52,33 @@ define(['scripts/editor/editorTpl', 'scripts/common/plupload/plupload', 'scripts
 
       this.$itemEditor.appendTo('body');
       this.bindEvent();
-      // this.addItem()
-      this.itemLists(listPage);
+      this.addItem();
+      // this.itemLists(listPage)
     },
     bindEvent: function bindEvent() {
       var _this2 = this;
 
       this.$itemEditor.find('[data-toggle="tooltip"]').tooltip();
 
-      this.$itemEditor.on('click', '.hook-add-item', function () {
+      this.$itemEditor
+      // 添加段落
+      .on('click', '.hook-add-item', function () {
         if (_this2.arrCheckedItem.length !== 1 && !$.isEmptyObject(_this2.objItemSet)) {
           alert('请选择一个段落进行添加');
         } else {
           _this2.addItem(_this2.arrCheckedItem[0]);
         }
-      }).on('click', '.hook-delete-item', function () {
+      })
+      // 删除段落
+      .on('click', '.hook-delete-item', function () {
         if (!_this2.arrCheckedItem.length) {
           alert('请选择要删除的段落');
         } else {
           _this2.deleteItem();
         }
-      }).on('click', '.hook-coalesce-item', function () {
+      })
+      // 合并段落
+      .on('click', '.hook-coalesce-item', function () {
         if (_this2.arrCheckedItem.length < 2) {
           alert('请选择要合并的段落');
         } else if (!_this2.isAdjoin()) {
@@ -80,52 +86,79 @@ define(['scripts/editor/editorTpl', 'scripts/common/plupload/plupload', 'scripts
         } else {
           _this2.coalesceItem();
         }
-      }).on('click', '.hook-import-item', function () {
+      })
+      // 导入
+      .on('click', '.hook-import-item', function () {
         // if (this.arrCheckedItem.length !== 1 &&
         //   !$.isEmptyObject(this.objItemSet)) {
         //   alert('请选择一个段落进行导入')
         // } else {
-        _this2.importItem();
+        // this.importItem()
         // }
-      }).on('click', '.hook-cancel-save', this.hide.bind(this));
+      })
+      // 取消
+      .on('click', '.hook-cancel-save,.hook-prev', this.hide.bind(this))
+      // 暂存
+      .on('click', '.hook-save', function () {
+        fetch.tempSaveProject(window.PROJECT_DATA).then(function (message) {
+          alert(message);
+        });
+      })
+      // 提交 创建项目
+      .on('click', '.hook-submit', function () {
+        fetch.saveProject(window.PROJECT_DATA).then(function (message) {
+          alert(message);
+        });
+      });
 
-      // this.bindUpload()
+      this.bindUpload();
       this.bindPager();
     },
     bindUpload: function bindUpload() {
+      var _this3 = this;
+
       var uploader = new plupload.Uploader({ //实例化一个plupload上传对象
         browse_button: 'browse',
-        url: 'upload.html',
+        url: 'http://47.93.77.208:8080/api/v1/projects/files',
         flash_swf_url: 'scripts/common/plupload/Moxie.swf',
         silverlight_xap_url: 'scripts/common/plupload/Moxie.xap',
         max_retries: 3,
         multi_selection: false,
         filters: {
           mime_types: [{ title: 'Word file', extensions: 'doc,docx' }],
-          max_file_size: '4mb'
+          max_file_size: '10mb'
         }
       });
       uploader.init(); //初始化
 
       uploader.bind('FilesAdded', function (uploader, files) {
-        console.log(files);
         console.log('file add');
+        uploader.settings.multipart_params.proid = window.PID;
+        uploader.settings.multipart_params.paraCode = _this3.$itemContainer.find('.checkbox.checked:last').closest('.item').data('itemid') || 'end';
+
         // 开始上传
-        // uploader.start()
+        uploader.start();
       });
       uploader.bind('BeforeUpload', function (uploader, file) {
         console.log('upload before');
       });
+      uploader.bind('UploadComplete', function (uploader, files) {
+        _this3.itemLists(listPage);
+        console.log('UploadComplete');
+      });
+      uploader.bind('Error', function (uploader, errObject) {
+        console.log('Error');
+      });
     },
     bindPager: function bindPager() {
-      var _this3 = this;
+      var _this4 = this;
 
       this.pager = new Pager({
         $pager: this.$itemPager
       });
 
       $(this.pager).on('pager', function (e, page) {
-        _this3.itemLists(page);
+        _this4.itemLists(page);
       });
     },
     show: function show() {
@@ -170,21 +203,30 @@ define(['scripts/editor/editorTpl', 'scripts/common/plupload/plupload', 'scripts
 
     // 删除段落
     deleteItem: function deleteItem() {
-      // this.arrCheckedItem.forEach(id => {
-      //   console.log(id)
-      //   this.objItemSet[id].ueditor = null
-      //   this.objItemSet[id].$item.remove()
-      //   delete this.objItemSet[id]
-      // })
-      // this.arrCheckedItem.length = 0
-      this.arrCheckedItem.forEach(function (itemId) {});
-      console.log(this.arrCheckedItem);
-      console.log(this.objItemSet);
+      var _this5 = this;
+
+      fetch.deleteItem({
+        paraCodes: this.arrCheckedItem.join(','),
+        page: listPage
+      }).then(function (data) {
+        _this5.arrCheckedItem.length = 0;
+        _this5.showPager(data);
+        _this5.renderItem(data);
+      });
     },
 
     // 合并段落
     coalesceItem: function coalesceItem() {
-      console.log(this.arrCheckedItem);
+      var _this6 = this;
+
+      fetch.coalesceItem({
+        paraCodes: this.arrCheckedItem,
+        page: listPage
+      }).then(function (data) {
+        _this6.arrCheckedItem.length = 0;
+        _this6.showPager(data);
+        _this6.renderItem(data);
+      });
     },
 
     // 导入段落
@@ -194,7 +236,7 @@ define(['scripts/editor/editorTpl', 'scripts/common/plupload/plupload', 'scripts
 
     // 段落列表
     itemLists: function itemLists() {
-      var _this4 = this;
+      var _this7 = this;
 
       var page = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 1;
 
@@ -202,12 +244,12 @@ define(['scripts/editor/editorTpl', 'scripts/common/plupload/plupload', 'scripts
       fetch.itemList({
         page: page
       }).then(function (data) {
-        _this4.showPager(data);
-        _this4.renderItem(data);
+        _this7.showPager(data);
+        _this7.renderItem(data);
       });
     },
     renderItem: function renderItem(_ref) {
-      var _this5 = this;
+      var _this8 = this;
 
       var sliceList = _ref.sliceList;
 
@@ -216,14 +258,15 @@ define(['scripts/editor/editorTpl', 'scripts/common/plupload/plupload', 'scripts
       this.arrCheckedItem.length = 0;
       sliceList.forEach(function (slice) {
         var item = new Item({
-          objItemSet: _this5.objItemSet,
-          arrCheckedItem: _this5.arrCheckedItem,
-          $box: _this5.$itemContainer,
+          objItemSet: _this8.objItemSet,
+          arrCheckedItem: _this8.arrCheckedItem,
+          $box: _this8.$itemContainer,
           type: 'edit',
           itemId: slice.id,
           content: slice.content
         });
-        _this5.objItemSet[item.itemId] = item;
+        _this8.objItemSet[item.itemId] = item;
+        _this8.pushItem(item);
       });
     },
 
@@ -239,7 +282,12 @@ define(['scripts/editor/editorTpl', 'scripts/common/plupload/plupload', 'scripts
     // 提交
     submit: function submit() {},
     pushItem: function pushItem(item) {
+      console.log(item);
       $(item).on('item.check', function (checked) {});
+      $(item).on('item.add', function () {
+        console.log('添加成功');
+        // this.itemLists(listPage)
+      });
     }
   };
 
@@ -299,7 +347,7 @@ define(['scripts/editor/editorTpl', 'scripts/common/plupload/plupload', 'scripts
       }
     },
     bindEvent: function bindEvent() {
-      var _this6 = this;
+      var _this9 = this;
 
       var _this = this;
       this.$item
@@ -315,29 +363,29 @@ define(['scripts/editor/editorTpl', 'scripts/common/plupload/plupload', 'scripts
         if (isShowUEditor) {
           return false;
         }
-        if (_this6.ueditor) {
-          _this6.setContent(_this6.content);
+        if (_this9.ueditor) {
+          _this9.setContent(_this9.content);
           // this.setUEditorHeight()
         } else {
-          _this6.initEditor();
+          _this9.initEditor();
         }
-        _this6.showEditor();
+        _this9.showEditor();
       })
       // 保存内容
       .on('click', '.hook-editor-save', function () {
-        _this6.content = _this6.getContent();
+        _this9.content = _this9.getContent();
         // 没有itemId为新增
-        if (_this6.itemId === '') {
-          _this6.saveItem();
+        if (_this9.itemId === '') {
+          _this9.addItem();
         } else {
-          _this6.updateItem();
+          _this9.updateItem();
         }
       })
       // 取消保存
       .on('click', '.hook-editor-cancel', this.cancelSave.bind(this));
     },
     initEditor: function initEditor() {
-      var _this7 = this;
+      var _this10 = this;
 
       var height = Math.max(UEDITOR_MIN_HEIGHT, this.$item.height());
       this.ueditor = UE.getEditor('editor_' + this.id, {
@@ -346,7 +394,7 @@ define(['scripts/editor/editorTpl', 'scripts/common/plupload/plupload', 'scripts
       });
 
       this.ueditor.addListener('contentchange', function () {
-        _this7.$item.find('.hook-editor-save').prop('disabled', _this7.isContentEmpty());
+        _this10.$item.find('.hook-editor-save').prop('disabled', _this10.isContentEmpty());
       });
     },
 
@@ -380,35 +428,36 @@ define(['scripts/editor/editorTpl', 'scripts/common/plupload/plupload', 'scripts
       this.$editorWrap.hide();
       this.$itemInner.show();
     },
-    saveItem: function saveItem() {
-      var _this8 = this;
+    addItem: function addItem() {
+      var _this11 = this;
 
-      fetch.saveItem({
+      fetch.addItem({
         paraCode: this.targetId,
         content: this.content,
         page: listPage
       }).then(function (data) {
-        console.log(data);
-        _this8.type = 'edit';
-        _this8.itemId = data.id;
-        _this8.$item.data('type', _this8.type);
-        _this8.$itemInner.html(_this8.content);
-        _this8.objItemSet[_this8.itemId] = _this8;
-        _this8.showInner();
+        _this11.type = 'edit';
+        _this11.itemId = data.paraCode;
+        _this11.$item.data('type', _this11.type);
+        _this11.$item.data('itemid', _this11.itemId);
+        _this11.$itemInner.html(_this11.content);
+        _this11.objItemSet[_this11.itemId] = _this11;
+        _this11.showInner();
         setUEditorStatus(false);
-        console.log(_this8.objItemSet);
+        console.log(_this11.objItemSet);
+        $(_this11).trigger('item.add');
       });
     },
     updateItem: function updateItem() {
-      var _this9 = this;
+      var _this12 = this;
 
       fetch.updateItem({
         paraCode: this.itemId,
         content: this.content
       }).then(function (data) {
         console.log(data);
-        _this9.$itemInner.html(_this9.content);
-        _this9.showInner();
+        _this12.$itemInner.html(_this12.content);
+        _this12.showInner();
         setUEditorStatus(false);
       });
     },
@@ -463,14 +512,14 @@ define(['scripts/editor/editorTpl', 'scripts/common/plupload/plupload', 'scripts
       this.bindEvent();
     },
     bindEvent: function bindEvent() {
-      var _this10 = this;
+      var _this13 = this;
 
       var _this = this;
       this.$pager.on('click', 'li:not(.disabled,.active) > .hook-go', function () {
         $(_this).trigger('pager', [$(this).data('page')]);
       }).on('click', '.hook-btn-go', function () {
-        var page = parseInt(_this10.$pager.find('.hook-page-text').val());
-        if (!window.isNaN(page) && page > 0 && page <= _this10.total) {
+        var page = parseInt(_this13.$pager.find('.hook-page-text').val());
+        if (!window.isNaN(page) && page > 0 && page <= _this13.total) {
           $(_this).trigger('pager', [page]);
         }
       });

@@ -1,4 +1,4 @@
-define(['scripts/editor/editorTpl', 'scripts/common/plupload/plupload', 'scripts/fetch'],
+define(['scripts/editor/editorTpl', 'plupload', 'scripts/fetch'],
   (tpl, plupload, fetch) => {
 
     let isShowUEditor = false,
@@ -51,13 +51,14 @@ define(['scripts/editor/editorTpl', 'scripts/common/plupload/plupload', 'scripts
 
         this.$itemEditor.appendTo('body')
         this.bindEvent()
-        // this.addItem()
-        this.itemLists(listPage)
+        this.addItem()
+        // this.itemLists(listPage)
       },
       bindEvent() {
         this.$itemEditor.find('[data-toggle="tooltip"]').tooltip()
 
         this.$itemEditor
+          // 添加段落
           .on('click', '.hook-add-item', () => {
             if (this.arrCheckedItem.length !== 1 &&
               !$.isEmptyObject(this.objItemSet)) {
@@ -65,8 +66,8 @@ define(['scripts/editor/editorTpl', 'scripts/common/plupload/plupload', 'scripts
             } else {
               this.addItem(this.arrCheckedItem[0])
             }
-
           })
+          // 删除段落
           .on('click', '.hook-delete-item', () => {
             if (!this.arrCheckedItem.length) {
               alert('请选择要删除的段落')
@@ -74,32 +75,48 @@ define(['scripts/editor/editorTpl', 'scripts/common/plupload/plupload', 'scripts
               this.deleteItem()
             }
           })
+          // 合并段落
           .on('click', '.hook-coalesce-item', () => {
             if (this.arrCheckedItem.length < 2) {
               alert('请选择要合并的段落')
-            } else if (! this.isAdjoin()) {
+            } else if (!this.isAdjoin()) {
               alert('请选择相邻的段落')
             } else {
               this.coalesceItem()
             }
           })
+          // 导入
           .on('click', '.hook-import-item', () => {
             // if (this.arrCheckedItem.length !== 1 &&
             //   !$.isEmptyObject(this.objItemSet)) {
             //   alert('请选择一个段落进行导入')
             // } else {
-            this.importItem()
+            // this.importItem()
             // }
           })
-          .on('click', '.hook-cancel-save', this.hide.bind(this))
+          // 取消
+          .on('click', '.hook-cancel-save,.hook-prev', this.hide.bind(this))
+          // 暂存
+          .on('click', '.hook-save', () => {
+            fetch.tempSaveProject(window.PROJECT_DATA).then(message => {
+              alert(message)
+            })
+          })
+          // 提交 创建项目
+          .on('click', '.hook-submit', () => {
+            fetch.saveProject(window.PROJECT_DATA).then(message => {
+              alert(message)
+            })
+          })
 
-        // this.bindUpload()
+
+        this.bindUpload()
         this.bindPager()
       },
       bindUpload() {
         const uploader = new plupload.Uploader({ //实例化一个plupload上传对象
           browse_button: 'browse',
-          url: 'upload.html',
+          url: `http://47.93.77.208:8080/api/v1/projects/files`,
           flash_swf_url: 'scripts/common/plupload/Moxie.swf',
           silverlight_xap_url: 'scripts/common/plupload/Moxie.xap',
           max_retries: 3,
@@ -108,20 +125,31 @@ define(['scripts/editor/editorTpl', 'scripts/common/plupload/plupload', 'scripts
             mime_types: [
               {title: 'Word file', extensions: 'doc,docx'}
             ],
-            max_file_size: '4mb'
+            max_file_size: '10mb'
           }
         })
         uploader.init() //初始化
 
         uploader.bind('FilesAdded', (uploader, files) => {
-          console.log(files)
           console.log('file add')
+          uploader.settings.multipart_params.proid = window.PID
+          uploader.settings.multipart_params.paraCode = this.$itemContainer.find('.checkbox.checked:last').closest('.item').data('itemid') || 'end'
+
           // 开始上传
-          // uploader.start()
+          uploader.start()
+
         })
         uploader.bind('BeforeUpload', (uploader, file) => {
           console.log('upload before')
         })
+        uploader.bind('UploadComplete', (uploader, files) => {
+          this.itemLists(listPage)
+          console.log('UploadComplete')
+        })
+        uploader.bind('Error', (uploader, errObject) => {
+          console.log('Error')
+        })
+
       },
       bindPager() {
         this.pager = new Pager({
@@ -140,22 +168,23 @@ define(['scripts/editor/editorTpl', 'scripts/common/plupload/plupload', 'scripts
       },
       isAdjoin() {
         let adjoin = true
-        const checkedItem = this.$itemContainer.find('.item').filter(function() {
+        const checkedItem = this.$itemContainer.find('.item')
+          .filter(function () {
             return $(this).find('.checkbox').hasClass('checked')
-        })
+          })
 
-        checkedItem.each(function(i) {
+        checkedItem.each(function (i) {
           if (i === checkedItem.length - 1) {
             return false
           }
-          if (! $(this).next().find('.checkbox').hasClass('checked')) {
+          if (!$(this).next().find('.checkbox').hasClass('checked')) {
             adjoin = false
             return adjoin
           }
         })
         return adjoin
         console.log('adjoin: ', adjoin)
-        console.log('item: ' , checkedItem)
+        console.log('item: ', checkedItem)
       },
       // 添加段落
       addItem(targetId = '') {
@@ -170,23 +199,26 @@ define(['scripts/editor/editorTpl', 'scripts/common/plupload/plupload', 'scripts
       },
       // 删除段落
       deleteItem() {
-        // this.arrCheckedItem.forEach(id => {
-        //   console.log(id)
-        //   this.objItemSet[id].ueditor = null
-        //   this.objItemSet[id].$item.remove()
-        //   delete this.objItemSet[id]
-        // })
-        // this.arrCheckedItem.length = 0
-        this.arrCheckedItem.forEach(itemId => {
-
+        fetch.deleteItem({
+          paraCodes: this.arrCheckedItem.join(','),
+          page: listPage
+        }).then(data => {
+          this.arrCheckedItem.length = 0
+          this.showPager(data)
+          this.renderItem(data)
         })
-        console.log(this.arrCheckedItem)
-        console.log(this.objItemSet)
 
       },
       // 合并段落
       coalesceItem() {
-        console.log(this.arrCheckedItem)
+        fetch.coalesceItem({
+          paraCodes: this.arrCheckedItem,
+          page: listPage
+        }).then(data => {
+          this.arrCheckedItem.length = 0
+          this.showPager(data)
+          this.renderItem(data)
+        })
       },
       // 导入段落
       importItem() {
@@ -216,6 +248,7 @@ define(['scripts/editor/editorTpl', 'scripts/common/plupload/plupload', 'scripts
             content: slice.content
           })
           this.objItemSet[item.itemId] = item
+          this.pushItem(item)
         })
       },
       // 分页
@@ -225,8 +258,13 @@ define(['scripts/editor/editorTpl', 'scripts/common/plupload/plupload', 'scripts
       // 提交
       submit() {},
       pushItem(item) {
+        console.log(item)
         $(item).on('item.check', (checked) => {
 
+        })
+        $(item).on('item.add', () => {
+          console.log('添加成功')
+          // this.itemLists(listPage)
         })
       }
     }
@@ -312,7 +350,7 @@ define(['scripts/editor/editorTpl', 'scripts/common/plupload/plupload', 'scripts
             this.content = this.getContent()
             // 没有itemId为新增
             if (this.itemId === '') {
-              this.saveItem()
+              this.addItem()
             } else {
               this.updateItem()
             }
@@ -359,21 +397,22 @@ define(['scripts/editor/editorTpl', 'scripts/common/plupload/plupload', 'scripts
         this.$editorWrap.hide()
         this.$itemInner.show()
       },
-      saveItem() {
-        fetch.saveItem({
+      addItem() {
+        fetch.addItem({
           paraCode: this.targetId,
           content: this.content,
           page: listPage
         }).then(data => {
-          console.log(data)
           this.type = 'edit'
-          this.itemId = data.id
+          this.itemId = data.paraCode
           this.$item.data('type', this.type)
+          this.$item.data('itemid', this.itemId)
           this.$itemInner.html(this.content)
           this.objItemSet[this.itemId] = this
           this.showInner()
           setUEditorStatus(false)
           console.log(this.objItemSet)
+          $(this).trigger('item.add')
         })
       },
       updateItem() {

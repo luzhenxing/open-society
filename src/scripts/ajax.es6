@@ -2,14 +2,16 @@ define(() => {
   return {
     ajaxData(url, data = {}, type = 'GET'){
       const promise = $.Deferred()
+
       $.ajax({
         url,
-        data,
         type,
+        data,
+        contentType: 'application/json; charset=UTF-8',
         dataType: 'json',
         success(result) {
           if (result.code === '000000') {
-            promise.resolve(result.datas)
+            promise.resolve(result.datas || result.message)
           } else {
             throw new Error(result.message)
             promise.reject(result)
@@ -22,10 +24,13 @@ define(() => {
       return this.ajaxData(url, data, 'GET')
     },
     postData(url, data = {}) {
-      return this.ajaxData(url, data, 'POST')
+      return this.ajaxData(url, JSON.stringify(data), 'POST')
     },
     putData(url, data = {}) {
-      return this.ajaxData(url, data, 'PUT')
+      return this.ajaxData(url, JSON.stringify(data), 'PUT')
+    },
+    deleteData(url, data = {}) {
+      return this.ajaxData(`${url}?paraCodes=${data.paraCodes}&page=${data.page}`, '', 'DELETE')
     }
   }
 })
