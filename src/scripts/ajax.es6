@@ -1,6 +1,7 @@
 define(() => {
   return {
     ajaxData(url, data = {}, type = 'GET'){
+      let token = `Bearer${$.cookie('X-Authorization')}`
       const promise = $.Deferred()
 
       $.ajax({
@@ -8,6 +9,9 @@ define(() => {
         type,
         data,
         contentType: 'application/json; charset=UTF-8',
+        // headers: {
+        //   'X-Authorization': token
+        // },
         dataType: 'json',
         success(result) {
           if (result.code === '000000') {

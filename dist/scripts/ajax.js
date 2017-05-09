@@ -6,6 +6,7 @@ define(function () {
       var data = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
       var type = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : 'GET';
 
+      var token = 'Bearer' + $.cookie('X-Authorization');
       var promise = $.Deferred();
 
       $.ajax({
@@ -13,6 +14,9 @@ define(function () {
         type: type,
         data: data,
         contentType: 'application/json; charset=UTF-8',
+        // headers: {
+        //   'X-Authorization': token
+        // },
         dataType: 'json',
         success: function success(result) {
           if (result.code === '000000') {
