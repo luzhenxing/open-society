@@ -404,6 +404,9 @@
 .item-editor-layer .item-button-group .btn {
   min-width: 74px;
 }
+.item-editor-layer .item-button-group .iconfont {
+  font-size: 12px;
+}
 .item-editor-layer .item-container {
   padding: 8px 0 50px;
 }
@@ -482,4 +485,18 @@
 }
 .editor-btn-group .btn {
   margin-left: 10px;
+}
+.btn-wrapper {
+  display: inline-block;
+}
+.btn-wrapper:hover .tooltip {
+  display: block;
+}
+.btn-wrapper .tooltip {
+  display: none;
+  position: absolute;
+  left: 50%;
+  margin-left: -47px;
+  width: 94px;
+  opacity: 1;
 }

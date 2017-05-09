@@ -6,21 +6,29 @@ define(() => {
         <div id="item-editor-layer" class="item-editor-layer">
           <div class="item-button-group text-center">
             <button type="button" class="btn btn-sm btn-default hook-add-item">
-              <span class="glyphicon glyphicon-star" aria-hidden="true"></span>
+              <i class="iconfont icon-tianjiaduan" aria-hidden="true"></i>
               添加段
             </button>
             <button type="button" class="btn btn-sm btn-default hook-delete-item">
-              <span class="glyphicon glyphicon-star" aria-hidden="true"></span>
+              <i class="iconfont icon-shanchuduan" aria-hidden="true"></i>
               删除段
             </button>
             <button type="button" class="btn btn-sm btn-default hook-coalesce-item">
-              <span class="glyphicon glyphicon-star" aria-hidden="true"></span>
+              <i class="iconfont icon-hebing" aria-hidden="true"></i>
               合并
             </button>
-            <button id="browse" type="button" class="btn btn-sm btn-default hook-import-item" data-toggle="tooltip" data-placement="bottom" title="支持Word文件">
-              <span class="glyphicon glyphicon-star" aria-hidden="true"></span>
-              导入
-            </button>
+            <div class="btn-wrapper">
+              <button id="browse" type="button" class="btn btn-sm btn-default hook-import-item" title="支持Word文件">
+                <i class="iconfont icon-daoru" aria-hidden="true"></i>
+                导入
+              </button>
+              <div class="tooltip bottom" role="tooltip">
+                <div class="tooltip-arrow"></div>
+                <div class="tooltip-inner">支持Word文件</div>
+              </div>
+            </div>
+            
+            
           </div>
           <div class="item-container container">
             <div class="panel u-panel-style">

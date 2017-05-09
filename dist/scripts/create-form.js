@@ -54,11 +54,6 @@ define(function () {
   var getData = function getData() {
     var params = {
       id: window.PID,
-      userId: window.USER_ID,
-      userName: window.USER_NAME,
-      creatorId: window.CREATOR_ID,
-      creatorName: window.CREATOR_NAME,
-      status: window.STATUS,
       projectName: $projectName.val().trim(),
       projectIntro: $projectIntro.val().trim(),
       firstClassId: $('#firstClassId').val(),

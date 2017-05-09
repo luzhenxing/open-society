@@ -4,9 +4,7 @@ requirejs(['scripts/create-form', 'scripts/editor/ItemEditor', 'scripts/fetch', 
 
   // 暂存
   $('#btn-save').on('click', function () {
-    form.getFormData().then(function (data) {
-      return fetch.tempSaveProject(data);
-    }).then(function (message) {
+    form.getFormData().then(fetch.tempSaveProject).then(function (message) {
       alert(message);
     });
   });
@@ -15,10 +13,10 @@ requirejs(['scripts/create-form', 'scripts/editor/ItemEditor', 'scripts/fetch', 
   $('#btn-next').on('click', function () {
     form.getFormData().then(function (data) {
       window.PROJECT_DATA = data;
-      var itemEditor = new ItemEditor();
+      if (!window.itemEditor) {
+        window.itemEditor = new ItemEditor();
+      }
       itemEditor.show();
     });
   });
-
-  // itemEditor.show()
 });

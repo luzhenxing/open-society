@@ -29,6 +29,8 @@
     background: #f7f7f7
     .btn
       min-width: 74px
+    .iconfont
+      font-size: 12px
   .item-container
     padding: 8px 0 50px
     .item-list-wrapper
@@ -86,3 +88,16 @@
   font-size: 0
   .btn
     margin-left: 10px
+
+.btn-wrapper
+  display: inline-block
+  &:hover
+    .tooltip
+      display: block
+  .tooltip
+    display: none
+    position: absolute
+    left: 50%
+    margin-left: -47px
+    width: 94px
+    opacity: 1

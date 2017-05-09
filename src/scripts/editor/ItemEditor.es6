@@ -55,7 +55,7 @@ define(['scripts/editor/editorTpl', 'plupload', 'scripts/fetch'],
         // this.itemLists(listPage)
       },
       bindEvent() {
-        this.$itemEditor.find('[data-toggle="tooltip"]').tooltip()
+        // this.$itemEditor.find('[data-toggle="tooltip"]').tooltip()
 
         this.$itemEditor
           // 添加段落
@@ -139,8 +139,8 @@ define(['scripts/editor/editorTpl', 'plupload', 'scripts/fetch'],
           uploader.start()
 
         })
-        uploader.bind('BeforeUpload', (uploader, file) => {
-          console.log('upload before')
+        uploader.bind('UploadProgress', (uploader, file) => {
+          console.log('upload progress', file.percent)
         })
         uploader.bind('UploadComplete', (uploader, files) => {
           this.itemLists(listPage)
@@ -258,10 +258,7 @@ define(['scripts/editor/editorTpl', 'plupload', 'scripts/fetch'],
       // 提交
       submit() {},
       pushItem(item) {
-        console.log(item)
-        $(item).on('item.check', (checked) => {
-
-        })
+        $(item).on('item.check', (checked) => {})
         $(item).on('item.add', () => {
           console.log('添加成功')
           // this.itemLists(listPage)
@@ -308,7 +305,6 @@ define(['scripts/editor/editorTpl', 'plupload', 'scripts/fetch'],
 
         this.bindEvent()
 
-        console.log(this.targetId)
         if (this.targetId !== '') {
           renderDom(this.$item, this.objItemSet[this.targetId].$item, 'after')
         } else {

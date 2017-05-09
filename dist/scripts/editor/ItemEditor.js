@@ -58,7 +58,7 @@ define(['scripts/editor/editorTpl', 'plupload', 'scripts/fetch'], function (tpl,
     bindEvent: function bindEvent() {
       var _this2 = this;
 
-      this.$itemEditor.find('[data-toggle="tooltip"]').tooltip();
+      // this.$itemEditor.find('[data-toggle="tooltip"]').tooltip()
 
       this.$itemEditor
       // 添加段落
@@ -139,8 +139,8 @@ define(['scripts/editor/editorTpl', 'plupload', 'scripts/fetch'], function (tpl,
         // 开始上传
         uploader.start();
       });
-      uploader.bind('BeforeUpload', function (uploader, file) {
-        console.log('upload before');
+      uploader.bind('UploadProgress', function (uploader, file) {
+        console.log('upload progress', file.percent);
       });
       uploader.bind('UploadComplete', function (uploader, files) {
         _this3.itemLists(listPage);
@@ -282,7 +282,6 @@ define(['scripts/editor/editorTpl', 'plupload', 'scripts/fetch'], function (tpl,
     // 提交
     submit: function submit() {},
     pushItem: function pushItem(item) {
-      console.log(item);
       $(item).on('item.check', function (checked) {});
       $(item).on('item.add', function () {
         console.log('添加成功');
@@ -332,7 +331,6 @@ define(['scripts/editor/editorTpl', 'plupload', 'scripts/fetch'], function (tpl,
 
       this.bindEvent();
 
-      console.log(this.targetId);
       if (this.targetId !== '') {
         renderDom(this.$item, this.objItemSet[this.targetId].$item, 'after');
       } else {

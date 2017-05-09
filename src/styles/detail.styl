@@ -123,14 +123,13 @@ a:active
   .detail-item-oper
     text-align: right
     color: #1BA860
-    a
+    .oper
       margin-left: 12px
-      color: #1BA860
+      a
+        color: #1BA860
       .iconfont
       span
         vertical-align: top
-      .iconfont
-        margin-right: 4px
 
 .detail-aside
   float: right
@@ -160,10 +159,12 @@ a:active
     padding: 6px
 
   .content
-    padding: 20px 20px 0;
+    padding: 0 20px
     overflow: auto
+    max-height: 300px
 
     dl.item
+      margin-top: 20px
       margin-bottom: 10px
       padding-bottom: 10px
       border-bottom: 1px solid #E0E2E3
@@ -187,7 +188,7 @@ a:active
             border: 0
             max-width: 100%
         .item-oper
-          margin-top: 8px
+          margin-top: 4px
           text-align: right
           color: #999
           a
