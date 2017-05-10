@@ -167,6 +167,12 @@ define(['scripts/editor/editorTpl', 'plupload', 'scripts/fetch'], function (tpl,
     hide: function hide() {
       this.$itemEditor.hide();
     },
+    clean: function clean() {
+      this.objItemSet = {};
+      this.arrCheckedItem = [];
+      this.$itemContainer.empty();
+      this.$itemPager.empty();
+    },
     isAdjoin: function isAdjoin() {
       var adjoin = true;
       var checkedItem = this.$itemContainer.find('.item').filter(function () {

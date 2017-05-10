@@ -166,6 +166,12 @@ define(['scripts/editor/editorTpl', 'plupload', 'scripts/fetch'],
       hide() {
         this.$itemEditor.hide()
       },
+      clean() {
+        this.objItemSet = {}
+        this.arrCheckedItem = []
+        this.$itemContainer.empty()
+        this.$itemPager.empty()
+      },
       isAdjoin() {
         let adjoin = true
         const checkedItem = this.$itemContainer.find('.item')

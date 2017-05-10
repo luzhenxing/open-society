@@ -47,7 +47,7 @@ define(function () {
     deleteData: function deleteData(url) {
       var data = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
 
-      return this.ajaxData(url + '?paraCodes=' + data.paraCodes + '&page=' + data.page, '', 'DELETE');
+      return this.ajaxData(url + '?' + $.param(data), '', 'DELETE');
     }
   };
 });

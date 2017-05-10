@@ -52,7 +52,7 @@
     //     'print', 'preview', 'searchreplace', 'drafts', 'help'
     // ]]
     , toolbars: [
-      ['fontsize', 'bold', 'italic', 'underline', '|', 'indent', '|', 'simpleupload', 'inserttable', 'link', 'unlink', 'map']
+      ['undo', 'redo', 'formatmatch', '|', 'fontsize', 'bold', 'italic', 'underline', 'superscript', 'subscript', '|', 'indent', 'insertunorderedlist', 'justifyleft', 'justifycenter', 'justifyright', '|', 'simpleupload', 'inserttable', 'link', 'unlink', 'map']
     ]
 
     //当鼠标放在工具栏上时显示的tooltip提示,留空支持自动多语言配置，否则以配置值为准

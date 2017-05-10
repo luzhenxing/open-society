@@ -130,7 +130,7 @@ div.edui-box {
 .edui-default .edui-toolbar .edui-splitbutton,
 .edui-default .edui-toolbar .edui-menubutton,
 .edui-default .edui-toolbar .edui-combox {
-  margin: 1px;
+  margin: 1px 4px;
 }
 
 /*UI工具栏、编辑区域、底部*/

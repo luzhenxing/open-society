@@ -1,7 +1,24 @@
 define(() => {
 
   return {
-    itemEditorLayer() {
+    itemEditorLayer(type) {
+      const bottomBtn = () => {
+        let tpl = `
+          <button type="button" class="btn btn-default hook-cancel-save">取消</button>
+          <button type="button" class="btn btn-default hook-save">暂存</button>
+          <button type="button" class="btn btn-default hook-prev">上一步</button>
+          <button type="button" class="btn btn-success hook-submit">提交</button>
+        `
+
+        if (type == 'revise') {
+          tpl = `
+            <button type="button" class="btn btn-default hook-cancel-save">取消</button>
+            <button type="button" class="btn btn-default hook-save">暂存</button>
+            <button type="button" class="btn btn-success hook-submit">提交</button>
+          `
+        }
+        return tpl
+      }
       return `
         <div id="item-editor-layer" class="item-editor-layer">
           <div class="item-button-group text-center">
@@ -27,8 +44,6 @@ define(() => {
                 <div class="tooltip-inner">支持Word文件</div>
               </div>
             </div>
-            
-            
           </div>
           <div class="item-container container">
             <div class="panel u-panel-style">
@@ -39,10 +54,7 @@ define(() => {
               </div>
             </div>
             <div class="u-btn-group text-center">
-              <button type="button" class="btn btn-default hook-cancel-save">取消</button>
-              <button type="button" class="btn btn-default hook-save">暂存</button>
-              <button type="button" class="btn btn-default hook-prev">上一步</button>
-              <button type="button" class="btn btn-success hook-submit">提交</button>
+              ${bottomBtn()}
             </div>
           </div>
         </div>

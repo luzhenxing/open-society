@@ -5,7 +5,10 @@ define(['scripts/ajax'], ajax => {
       projects: `${origin}/api/v1/projects`,
       tempProjects: `${origin}/api/v1/temp-projects`,
       paragraphs: `${origin}/api/v1/projects/${window.PID}/paragraphs`,
-      mergeParagraphs: `${origin}/api/v1/projects/${window.PID}/merge-paragraphs`
+      mergeParagraphs: `${origin}/api/v1/projects/${window.PID}/merge-paragraphs`,
+      revises: `${origin}/api/v1/revises`,
+      mergeRevises: `${origin}/api/v1/merge-revises`,
+      parasRevises:`${origin}/api/v1/paras-revises`
     },
     generateRandomAlphaNum = (len) => {
       let rdmString = ''
@@ -50,6 +53,27 @@ define(['scripts/ajax'], ajax => {
     // 获取段落列表
     itemList(data = {}) {
       return ajax.getData(urls.paragraphs, data)
+    },
+
+    // 段落新增段添加
+    addRevises(data) {
+      return ajax.postData(urls.revises, data)
+    },
+    // 段落新增段修改
+    updateRevises(data) {
+      return ajax.putData(urls.revises, data)
+    },
+    // 段落新增段合并
+    coalesceRevise(data) {
+      return ajax.putData(urls.mergeRevises, data)
+    },
+    // 段落新增段删除
+    deleteRevise(data) {
+      return ajax.deleteData(urls.revises, data)
+    },
+    // 段落的添加列表
+    reviseList(data) {
+      return ajax.getData(urls.parasRevises, data)
     }
   }
 })

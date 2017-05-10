@@ -1,8 +1,9 @@
 'use strict';
 
-requirejs(['scripts/editor/ItemEditor', 'scripts/fetch'], function (ItemEditor, fetch) {
+requirejs(['scripts/editor/ReviseEditor', 'scripts/fetch'], function (ReviseEditor, fetch) {
   var $foldUp = $('.fold-up'),
-      $foldDown = $('.fold-down');
+      $foldDown = $('.fold-down'),
+      reviseEditor = new ReviseEditor();
 
   $foldUp.on('click', function () {
     $('.hook-fold').addClass('hidden');
@@ -28,5 +29,11 @@ requirejs(['scripts/editor/ItemEditor', 'scripts/fetch'], function (ItemEditor, 
     if (scrollTop >= this.scrollHeight - height && direction === 1) {
       return false;
     }
+  });
+
+  $('.detail-article').on('click', '.hook-add', function (e) {
+    var $Item = $(this).closest('.detail-item'),
+        paraCode = $Item.data('paracode');
+    reviseEditor.show(paraCode);
   });
 });

@@ -34,7 +34,7 @@ define(() => {
       return this.ajaxData(url, JSON.stringify(data), 'PUT')
     },
     deleteData(url, data = {}) {
-      return this.ajaxData(`${url}?paraCodes=${data.paraCodes}&page=${data.page}`, '', 'DELETE')
+      return this.ajaxData(`${url}?${$.param(data)}`, '', 'DELETE')
     }
   }
 })

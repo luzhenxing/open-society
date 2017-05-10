@@ -7,7 +7,10 @@ define(['scripts/ajax'], function (ajax) {
     projects: origin + '/api/v1/projects',
     tempProjects: origin + '/api/v1/temp-projects',
     paragraphs: origin + '/api/v1/projects/' + window.PID + '/paragraphs',
-    mergeParagraphs: origin + '/api/v1/projects/' + window.PID + '/merge-paragraphs'
+    mergeParagraphs: origin + '/api/v1/projects/' + window.PID + '/merge-paragraphs',
+    revises: origin + '/api/v1/revises',
+    mergeRevises: origin + '/api/v1/merge-revises',
+    parasRevises: origin + '/api/v1/paras-revises'
   },
       generateRandomAlphaNum = function generateRandomAlphaNum(len) {
     var rdmString = '';
@@ -59,6 +62,32 @@ define(['scripts/ajax'], function (ajax) {
       var data = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
 
       return ajax.getData(urls.paragraphs, data);
+    },
+
+
+    // 段落新增段添加
+    addRevises: function addRevises(data) {
+      return ajax.postData(urls.revises, data);
+    },
+
+    // 段落新增段修改
+    updateRevises: function updateRevises(data) {
+      return ajax.putData(urls.revises, data);
+    },
+
+    // 段落新增段合并
+    coalesceRevise: function coalesceRevise(data) {
+      return ajax.putData(urls.mergeRevises, data);
+    },
+
+    // 段落新增段删除
+    deleteRevise: function deleteRevise(data) {
+      return ajax.deleteData(urls.revises, data);
+    },
+
+    // 段落的添加列表
+    reviseList: function reviseList(data) {
+      return ajax.getData(urls.parasRevises, data);
     }
   };
 });

@@ -1,7 +1,8 @@
-requirejs(['scripts/editor/ItemEditor', 'scripts/fetch'],
-  (ItemEditor, fetch) => {
+requirejs(['scripts/editor/ReviseEditor', 'scripts/fetch'],
+  (ReviseEditor, fetch) => {
     const $foldUp = $('.fold-up'),
-      $foldDown = $('.fold-down')
+      $foldDown = $('.fold-down'),
+      reviseEditor = new ReviseEditor()
 
     $foldUp.on('click', () => {
       $('.hook-fold').addClass('hidden')
@@ -27,5 +28,11 @@ requirejs(['scripts/editor/ItemEditor', 'scripts/fetch'],
       if (scrollTop >= (this.scrollHeight - height) && direction === 1) {
         return false
       }
+    })
+
+    $('.detail-article').on('click', '.hook-add', function(e) {
+      let $Item = $(this).closest('.detail-item'),
+        paraCode = $Item.data('paracode');
+      reviseEditor.show(paraCode)
     })
   })
