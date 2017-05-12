@@ -9,32 +9,55 @@
 .item-editor-layer
   display: none
   position: fixed
-  z-index: 1000
+  z-index: 10000
   top: 0
   left: 0
   width: 100%
-  min-width: 640px;
+  min-width: 1000px;
   min-height: 100%
-  padding-top: 54px
   box-sizing: border-box
-  background: #f7f7f7
-  .item-button-group
-    box-sizing: border-box
-    position: fixed
-    z-index: 1000
-    top: 0
-    left: 0
-    width: 100%
-    padding: 12px
-    background: #f7f7f7
-    .btn
-      min-width: 74px
-    .iconfont
-      font-size: 12px
-  .item-container
-    padding: 8px 0 50px
-    .item-list-wrapper
-      padding: 50px 70px
+  background: rgba(0,0,0,.6)
+  .item-editor-container
+    position: absolute
+    top: 50%
+    left: 50%
+    margin-top: -340px
+    margin-left: -500px
+    width: 1000px
+    height: 680px
+    background: #F4F5F9
+    .item-editor-header
+      padding: 0 16px
+      height: 50px
+      background: #F4F5F9
+      h3
+        margin: 0
+        line-height: 50px
+        font-size: 14px
+    .item-editor-content
+      border-bottom: 1px solid #E9E9ED
+      height: 450px
+      overflow-x: hidden
+      overflow-y: auto
+      background: #fff
+
+    .item-button-group
+      box-sizing: border-box
+      width: 100%
+      height: 56px
+      line-height: 56px
+      text-align: center
+      background: #fff
+
+      .btn
+        min-width: 74px
+      .iconfont
+        font-size: 12px
+    .item-container
+      .item-list-wrapper
+        padding: 0 40px
+    .item-bottom
+      height: 200px
 
 .item-list-wrapper
   .item-list
@@ -76,6 +99,7 @@
         vertical-align: top
         max-width: 100%
 .u-btn-group
+  padding-top: 15px
   text-align: center
   font-size: 0
   .btn

@@ -513,8 +513,11 @@ dd {
   width: 134px;
   height: 40px;
 }
+.item-pager {
+  background: #fff;
+}
 .item-pager .form-inline {
-  margin-top: 20px;
+  padding: 10px 0;
   line-height: 34px;
   text-align: center;
 }
@@ -550,13 +553,13 @@ dd {
 .item-pager .form-inline .pagination .disabled span {
   color: #999;
 }
-.item-pager .form-inline .form-control {
+.item-pager .form-control {
   width: 48px;
   padding: 6px 1px;
   text-align: center;
   vertical-align: top;
 }
-.item-pager .form-inline .btn {
+.item-pager .btn {
   width: 48px;
   height: 34px;
   font-size: 12px;

@@ -102,13 +102,23 @@ define(['scripts/editor/editorTpl', 'plupload', 'scripts/fetch'], function (tpl,
       .on('click', '.hook-cancel-save,.hook-prev', this.hide.bind(this))
       // 暂存
       .on('click', '.hook-save', function () {
-        fetch.tempSaveProject(window.PROJECT_DATA).then(function (message) {
+        fetch.tempSaveRevises({
+          "id": window.PID,
+          "paraCode": _this2.paraCode
+          // "userId": window.userId,
+          // "userName": window.userName
+        }).then(function (message) {
           alert(message);
         });
       })
-      // 提交 创建项目
+      // 段落新增段提交
       .on('click', '.hook-submit', function () {
-        fetch.saveProject(window.PROJECT_DATA).then(function (message) {
+        fetch.saveRevises({
+          "id": window.PID,
+          "paraCode": _this2.paraCode
+          // "userId": window.userId,
+          // "userName": window.userName
+        }).then(function (message) {
           alert(message);
         });
       });
@@ -165,8 +175,9 @@ define(['scripts/editor/editorTpl', 'plupload', 'scripts/fetch'], function (tpl,
     },
     show: function show(paraCode) {
       this.paraCode = paraCode;
-      this.addItem();
+      // this.addItem()
       this.$itemEditor.fadeIn(100);
+      this.itemLists(listPage);
     },
     hide: function hide() {
       this.$itemEditor.hide();
@@ -226,7 +237,7 @@ define(['scripts/editor/editorTpl', 'plupload', 'scripts/fetch'], function (tpl,
         proId: this.proId,
         paraCode: this.paraCode,
         reviseIds: this.arrCheckedItem.join(','),
-        userId: window.userId,
+        // userId: window.userId,
         page: listPage
       }).then(function (data) {
         _this5.arrCheckedItem.length = 0;
@@ -241,7 +252,7 @@ define(['scripts/editor/editorTpl', 'plupload', 'scripts/fetch'], function (tpl,
 
       fetch.coalesceRevise({
         id: this.proId,
-        userId: window.userId,
+        // userId: window.userId,
         paraCode: this.paraCode,
         reviseIds: this.arrCheckedItem,
         page: listPage
@@ -265,6 +276,9 @@ define(['scripts/editor/editorTpl', 'plupload', 'scripts/fetch'], function (tpl,
 
       listPage = page;
       fetch.reviseList({
+        proId: window.PID,
+        // userId: window.userId,
+        paraCode: this.paraCode,
         page: page
       }).then(function (data) {
         _this7.showPager(data);

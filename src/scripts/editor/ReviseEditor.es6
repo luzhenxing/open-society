@@ -100,13 +100,23 @@ define(['scripts/editor/editorTpl', 'plupload', 'scripts/fetch'],
           .on('click', '.hook-cancel-save,.hook-prev', this.hide.bind(this))
           // 暂存
           .on('click', '.hook-save', () => {
-            fetch.tempSaveProject(window.PROJECT_DATA).then(message => {
+            fetch.tempSaveRevises({
+              "id": window.PID,
+              "paraCode": this.paraCode
+              // "userId": window.userId,
+              // "userName": window.userName
+            }).then(message => {
               alert(message)
             })
           })
-          // 提交 创建项目
+          // 段落新增段提交
           .on('click', '.hook-submit', () => {
-            fetch.saveProject(window.PROJECT_DATA).then(message => {
+            fetch.saveRevises({
+              "id": window.PID,
+              "paraCode": this.paraCode
+              // "userId": window.userId,
+              // "userName": window.userName
+            }).then(message => {
               alert(message)
             })
           })
@@ -164,8 +174,9 @@ define(['scripts/editor/editorTpl', 'plupload', 'scripts/fetch'],
       },
       show(paraCode) {
         this.paraCode = paraCode
-        this.addItem()
+        // this.addItem()
         this.$itemEditor.fadeIn(100)
+        this.itemLists(listPage)
       },
       hide() {
         this.$itemEditor.hide()
@@ -220,7 +231,7 @@ define(['scripts/editor/editorTpl', 'plupload', 'scripts/fetch'],
           proId: this.proId,
           paraCode: this.paraCode,
           reviseIds: this.arrCheckedItem.join(','),
-          userId: window.userId,
+          // userId: window.userId,
           page: listPage
         }).then(data => {
           this.arrCheckedItem.length = 0
@@ -233,7 +244,7 @@ define(['scripts/editor/editorTpl', 'plupload', 'scripts/fetch'],
       coalesceItem() {
         fetch.coalesceRevise({
           id: this.proId,
-          userId: window.userId,
+          // userId: window.userId,
           paraCode: this.paraCode,
           reviseIds: this.arrCheckedItem,
           page: listPage
@@ -251,6 +262,9 @@ define(['scripts/editor/editorTpl', 'plupload', 'scripts/fetch'],
       itemLists(page = 1) {
         listPage = page
         fetch.reviseList({
+          proId: window.PID,
+          // userId: window.userId,
+          paraCode: this.paraCode,
           page
         }).then(data => {
           this.showPager(data)

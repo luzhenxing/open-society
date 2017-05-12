@@ -2,63 +2,75 @@ define(() => {
 
   return {
     itemEditorLayer(type) {
-      const bottomBtn = () => {
-        let tpl = `
+      let title = '创建项目',
+        bottomBtns = `
           <button type="button" class="btn btn-default hook-cancel-save">取消</button>
           <button type="button" class="btn btn-default hook-save">暂存</button>
           <button type="button" class="btn btn-default hook-prev">上一步</button>
           <button type="button" class="btn btn-success hook-submit">提交</button>
         `
-
-        if (type == 'revise') {
-          tpl = `
-            <button type="button" class="btn btn-default hook-cancel-save">取消</button>
-            <button type="button" class="btn btn-default hook-save">暂存</button>
-            <button type="button" class="btn btn-success hook-submit">提交</button>
-          `
-        }
-        return tpl
+      if (type == 'revise') {
+        title = '添加'
+        bottomBtns = `
+          <button type="button" class="btn btn-default hook-cancel-save">取消</button>
+          <button type="button" class="btn btn-default hook-save">暂存</button>
+          <button type="button" class="btn btn-success hook-submit">提交</button>
+        `
       }
       return `
         <div id="item-editor-layer" class="item-editor-layer">
-          <div class="item-button-group text-center">
-            <button type="button" class="btn btn-sm btn-default hook-add-item">
-              <i class="iconfont icon-tianjiaduan" aria-hidden="true"></i>
-              添加段
-            </button>
-            <button type="button" class="btn btn-sm btn-default hook-delete-item">
-              <i class="iconfont icon-shanchuduan" aria-hidden="true"></i>
-              删除段
-            </button>
-            <button type="button" class="btn btn-sm btn-default hook-coalesce-item">
-              <i class="iconfont icon-hebing" aria-hidden="true"></i>
-              合并
-            </button>
-            <div class="btn-wrapper">
-              <button id="browse" type="button" class="btn btn-sm btn-default hook-import-item" title="支持Word文件">
-                <i class="iconfont icon-daoru" aria-hidden="true"></i>
-                导入
+          <div class="item-editor-container">
+            <div class="item-editor-header">
+              <h3>${title}</h3>
+            </div>
+            <div class="item-button-group text-center">
+              <button type="button" class="btn btn-sm btn-default hook-add-item">
+                <i class="iconfont icon-tianjiaduan" aria-hidden="true"></i>
+                添加段
               </button>
-              <div class="tooltip bottom" role="tooltip">
-                <div class="tooltip-arrow"></div>
-                <div class="tooltip-inner">支持Word文件</div>
-              </div>
-            </div>
-          </div>
-          <div class="item-container container">
-            <div class="panel u-panel-style">
-              <div class="panel-body item-list-wrapper">
-                <div class="item-list">
+              <button type="button" class="btn btn-sm btn-default hook-delete-item">
+                <i class="iconfont icon-shanchuduan" aria-hidden="true"></i>
+                删除段
+              </button>
+              <button type="button" class="btn btn-sm btn-default hook-coalesce-item">
+                <i class="iconfont icon-hebing" aria-hidden="true"></i>
+                合并
+              </button>
+              <div class="btn-wrapper">
+                <button id="browse" type="button" class="btn btn-sm btn-default hook-import-item" title="支持Word文件">
+                  <i class="iconfont icon-daoru" aria-hidden="true"></i>
+                  导入
+                </button>
+                <div class="tooltip bottom" role="tooltip">
+                  <div class="tooltip-arrow"></div>
+                  <div class="tooltip-inner">支持Word文件</div>
                 </div>
-                <div class="item-pager"></div> 
               </div>
             </div>
-            <div class="u-btn-group text-center">
-              ${bottomBtn()}
+            <div class="item-editor-content">
+              
+              <div class="item-container">
+                <div class="item-list-wrapper">
+                  <div class="item-list">
+                  </div>
+                </div>
+                
+              </div>
             </div>
+            <div class="item-editor-bottom">
+              <div class="item-pager"></div> 
+              <div class="u-btn-group text-center">
+                ${bottomBtns}
+              </div>
+            </div>
+            
           </div>
+          
         </div>
       `
+    },
+    itemReviseEditorLayer() {
+
     },
     item({id, itemId, type, content}) {
       return `
@@ -124,13 +136,16 @@ define(() => {
           <span class="pager-text">第${curPage}页</span>
           <ul class="pagination">
             <li class="${curPage === 1 ? 'disabled': ''}">
-              <a href="javascript:;" class="hook-go" data-page="${curPage === 1 ? '1': (curPage - 1)}" aria-label="Previous">
+              <a href="javascript:;" class="hook-go" data-page="${curPage === 1
+        ? '1'
+        : (curPage - 1)}" aria-label="Previous">
                 <span aria-hidden="true" class="glyphicon glyphicon-triangle-left"></span>
               </a>
             </li>
             ${pagination()}
             <li class="${curPage === total ? 'disabled': ''}">
-              <a href="javascript:;" class="hook-go" data-page="${curPage === total ? curPage: (curPage + 1)}" aria-label="Next">
+              <a href="javascript:;" class="hook-go" data-page="${curPage ===
+      total ? curPage: (curPage + 1)}" aria-label="Next">
                 <span aria-hidden="true" class="glyphicon glyphicon-triangle-right"></span>
               </a>
             </li>
