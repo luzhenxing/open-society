@@ -127,7 +127,7 @@ define(['scripts/editor/editorTpl', 'plupload', 'scripts/fetch'],
       bindUpload() {
         const uploader = new plupload.Uploader({ //实例化一个plupload上传对象
           browse_button: 'browse',
-          url: `http://47.93.77.208:8080/api/v1/projects/files`,
+          url: `http://47.93.77.208:8080/api/v1/revises/files`,
           flash_swf_url: 'scripts/common/plupload/Moxie.swf',
           silverlight_xap_url: 'scripts/common/plupload/Moxie.xap',
           max_retries: 3,
