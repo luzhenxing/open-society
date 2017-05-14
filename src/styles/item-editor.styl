@@ -25,7 +25,7 @@
     margin-left: -500px
     width: 1000px
     height: 680px
-    background: #F4F5F9
+    background: #fff
     .item-editor-header
       padding: 0 16px
       height: 50px
@@ -35,11 +35,17 @@
         line-height: 50px
         font-size: 14px
     .item-editor-content
-      border-bottom: 1px solid #E9E9ED
+      //border-bottom: 1px solid #E9E9ED
+
       height: 450px
       overflow-x: hidden
       overflow-y: auto
       background: #fff
+
+    .item-editor-bottom
+      .u-btn-group
+        background: #F4F5F9
+
 
     .item-button-group
       box-sizing: border-box
@@ -98,10 +104,18 @@
       img
         vertical-align: top
         max-width: 100%
+
+.u-pager
+  height: 50px
+  .item-pager
+    border-bottom: 1px solid #e9e9ed;
+
 .u-btn-group
-  padding-top: 15px
+  padding: 15px 0
   text-align: center
   font-size: 0
+  background: #F4F5F9
+
   .btn
     margin: 0 10px
     width: 84px

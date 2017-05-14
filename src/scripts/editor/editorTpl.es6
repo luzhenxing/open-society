@@ -58,7 +58,10 @@ define(() => {
               </div>
             </div>
             <div class="item-editor-bottom">
-              <div class="item-pager"></div> 
+              <div class="u-pager">
+                <div class="item-pager"></div>
+              </div>
+               
               <div class="u-btn-group text-center">
                 ${bottomBtns}
               </div>
@@ -70,7 +73,29 @@ define(() => {
       `
     },
     itemReviseEditorLayer() {
-
+      return `
+        <div id="item-editor-layer" class="item-editor-layer">
+          <div class="item-editor-container">
+            <div class="item-editor-header">
+              <h3>修订</h3>
+            </div>
+            <div class="item-editor-content" style="height: 560px;">
+              <div class="item-container item-revise-container">
+                <div id="editor_revise" class="item-editor"></div>
+              </div>
+            </div>
+            <div class="item-editor-bottom">
+              <div class="u-btn-group text-center">
+                <button type="button" class="btn btn-default hook-cancel-save">取消</button>
+                <button type="button" class="btn btn-default hook-delete">删除段</button>
+                <button type="button" class="btn btn-success hook-submit">提交</button>
+              </div>
+            </div>
+            
+          </div>
+          
+        </div>
+      `
     },
     item({id, itemId, type, content}) {
       return `

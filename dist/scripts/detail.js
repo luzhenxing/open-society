@@ -1,9 +1,10 @@
 'use strict';
 
-requirejs(['scripts/editor/ReviseEditor', 'scripts/fetch'], function (ReviseEditor, fetch) {
+requirejs(['scripts/editor/ReviseEditor', 'scripts/editor/ItemReviseEditor', 'scripts/fetch'], function (ReviseEditor, ItemReviseEditor, fetch) {
   var $foldUp = $('.fold-up'),
       $foldDown = $('.fold-down'),
-      reviseEditor = new ReviseEditor();
+      reviseEditor = new ReviseEditor(),
+      itemReviseEditor = new ItemReviseEditor();
 
   $foldUp.on('click', function () {
     $('.hook-fold').addClass('hidden');
@@ -32,8 +33,14 @@ requirejs(['scripts/editor/ReviseEditor', 'scripts/fetch'], function (ReviseEdit
   });
 
   $('.detail-article').on('click', '.hook-add', function (e) {
-    var $Item = $(this).closest('.detail-item'),
-        paraCode = $Item.data('paracode');
+    var $item = $(this).closest('.detail-item'),
+        paraCode = $item.data('paracode');
     reviseEditor.show(paraCode);
+  }).on('click', '.hook-revise', function () {
+    var $item = $(this).closest('.detail-item'),
+        paraCode = $item.data('paracode'),
+        content = $item.find('.detail-item-inner').html();
+
+    itemReviseEditor.show(paraCode, content);
   });
 });

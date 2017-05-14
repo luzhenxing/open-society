@@ -12,7 +12,8 @@ define(['scripts/ajax'], function (ajax) {
     mergeRevises: origin + '/api/v1/merge-revises',
     parasRevises: origin + '/api/v1/paras-revises',
     submitRevises: origin + '/api/v1/submit-revises',
-    tempSubmitRevises: origin + '/api/v1/temp-paras-revises'
+    tempSubmitRevises: origin + '/api/v1/temp-paras-revises',
+    paragraphRevises: origin + '/api/v1/paragraph-revises'
   },
       generateRandomAlphaNum = function generateRandomAlphaNum(len) {
     var rdmString = '';
@@ -100,6 +101,16 @@ define(['scripts/ajax'], function (ajax) {
     // 段落新增段暂存
     tempSaveRevises: function tempSaveRevises(data) {
       return ajax.postData(urls.tempSubmitRevises, data);
+    },
+
+    // 段落的修订删除
+    deleteParagraphRevises: function deleteParagraphRevises(data) {
+      return ajax.deleteData(urls.paragraphRevises, data);
+    },
+
+    // 段落的修订修改
+    saveParagraphRevises: function saveParagraphRevises(data) {
+      return ajax.putData(urls.paragraphRevises, data);
     }
   };
 });

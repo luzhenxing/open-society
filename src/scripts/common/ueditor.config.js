@@ -20,7 +20,7 @@
    * window.UEDITOR_HOME_URL = "/xxxx/xxxx/";
    */
   // 线上使用的地址
-  window.UEDITOR_HOME_URL = '/ueditor/';
+  window.UEDITOR_HOME_URL = '/dist/ueditor/';
   // 线下使用的路径
   // window.UEDITOR_HOME_URL = "//static.qyer.com/static/newbbs/common/models/common/component/editor/";
   var URL = window.UEDITOR_HOME_URL || getUEBasePath();

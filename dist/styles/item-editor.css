@@ -398,7 +398,7 @@
   margin-left: -500px;
   width: 1000px;
   height: 680px;
-  background: #f4f5f9;
+  background: #fff;
 }
 .item-editor-layer .item-editor-container .item-editor-header {
   padding: 0 16px;
@@ -411,11 +411,13 @@
   font-size: 14px;
 }
 .item-editor-layer .item-editor-container .item-editor-content {
-  border-bottom: 1px solid #e9e9ed;
   height: 450px;
   overflow-x: hidden;
   overflow-y: auto;
   background: #fff;
+}
+.item-editor-layer .item-editor-container .item-editor-bottom .u-btn-group {
+  background: #f4f5f9;
 }
 .item-editor-layer .item-editor-container .item-button-group {
   box-sizing: border-box;
@@ -494,10 +496,17 @@
   vertical-align: top;
   max-width: 100%;
 }
+.u-pager {
+  height: 50px;
+}
+.u-pager .item-pager {
+  border-bottom: 1px solid #e9e9ed;
+}
 .u-btn-group {
-  padding-top: 15px;
+  padding: 15px 0;
   text-align: center;
   font-size: 0;
+  background: #f4f5f9;
 }
 .u-btn-group .btn {
   margin: 0 10px;
