@@ -36,7 +36,7 @@ define(() => {
                 <i class="iconfont icon-hebing" aria-hidden="true"></i>
                 合并
               </button>
-              <div class="btn-wrapper">
+              <div id="browse-wrapper" class="btn-wrapper">
                 <button id="browse" type="button" class="btn btn-sm btn-default hook-import-item" title="支持Word文件">
                   <i class="iconfont icon-daoru" aria-hidden="true"></i>
                   导入

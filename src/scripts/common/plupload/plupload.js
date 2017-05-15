@@ -1,31 +1,16 @@
 /**
  * Plupload - multi-runtime File Uploader
- * v3.1.0
+ * v3.0-beta1
  *
- * Copyright 2017, Ephox
- * Released under AGPLv3 License.
+ * Copyright 2013, Moxiecode Systems AB
+ * Released under GPL License.
  *
  * License: http://www.plupload.com/license
  * Contributing: http://www.plupload.com/contributing
  *
- * Date: 2017-03-07
+ * Date: 2016-08-24
  */
 ;var MXI_DEBUG = true;
-;(function (global, factory) {
-	var extract = function() {
-		var ctx = {};
-		factory.apply(ctx, arguments);
-		return ctx.plupload;
-	};
-	
-	if (typeof define === "function" && define.amd) {
-		define("plupload", [], extract);
-	} else if (typeof module === "object" && module.exports) {
-		module.exports = extract();
-	} else {
-		global.plupload = extract();
-	}
-}(this || window, function() {
 /**
  * Compiled inline version. (Library mode)
  */
@@ -150,7 +135,7 @@ define('moxie/core/utils/Basic', [], function() {
 		// the snippet below is awesome, however it fails to detect null, undefined and arguments types in IE lte 8
 		return ({}).toString.call(o).match(/\s([a-z|A-Z]+)/)[1].toLowerCase();
 	}
-
+		
 	/**
 	Extends the specified object with another object(s).
 
@@ -161,7 +146,7 @@ define('moxie/core/utils/Basic', [], function() {
 	@return {Object} Same as target, the extended object.
 	*/
 	function extend() {
-		return merge(false, false, arguments);
+		return merge(false, arguments);
 	}
 
 
@@ -175,65 +160,24 @@ define('moxie/core/utils/Basic', [], function() {
 	@return {Object} Same as target, the extended object.
 	*/
 	function extendIf() {
-		return merge(true, false, arguments);
+		return merge(true, arguments);
 	}
 
 
-	function extendImmutable() {
-		return merge(false, true, arguments);
-	}
 
-
-	function extendImmutableIf() {
-		return merge(true, true, arguments);
-	}
-
-
-	function clone(value) {
-		switch (typeOf(value)) {
-			case 'array':
-				return merge(false, true, [[], value]);
-
-			case 'object':
-				return merge(false, true, [{}, value]);
-
-			default:
-				return value;
-		}
-	}
-
-
-	function shallowCopy(obj) {
-		switch (typeOf(obj)) {
-			case 'array':
-				return Array.prototype.slice.call(obj);
-
-			case 'object':
-				return extend({}, obj);
-		}
-		return obj;
-	}
-
-
-	function merge(strict, immutable, args) {
+	function merge(strict, args) {
 		var undef;
 		var target = args[0];
 
 		each(args, function(arg, i) {
 			if (i > 0) {
 				each(arg, function(value, key) {
-					var isComplex = inArray(typeOf(value), ['array', 'object']) !== -1;
-
 					if (value === undef || strict && target[key] === undef) {
 						return true;
 					}
 
-					if (isComplex && immutable) {
-						value = shallowCopy(value);
-					}
-
-					if (typeOf(target[key]) === typeOf(value) && isComplex) {
-						merge(strict, immutable, [target[key], value]);
+					if (typeOf(target[key]) === typeOf(value) && inArray(typeOf(value), ['array', 'object']) !== -1) {
+						merge(strict, [target[key], value]);
 					} else {
 						target[key] = value;
 					}
@@ -247,7 +191,7 @@ define('moxie/core/utils/Basic', [], function() {
 
 	/**
 	A way to inherit one `class` from another in a consisstent way (more or less)
-
+	
 	@method inherit
 	@static
 	@since >1.4.1
@@ -266,25 +210,16 @@ define('moxie/core/utils/Basic', [], function() {
 		// give child `class` a place to define its own methods
 		function ctor() {
 			this.constructor = child;
-
-			if (MXI_DEBUG) {
-				var getCtorName = function(fn) {
-					var m = fn.toString().match(/^function\s([^\(\s]+)/);
-					return m ? m[1] : false;
-				};
-
-				this.ctorName = getCtorName(child);
-			}
 		}
 		ctor.prototype = parent.prototype;
 		child.prototype = new ctor();
 
 		// keep a way to reference parent methods
-		child.super = parent.prototype;
+		child.__parent__ = parent.prototype;
 		return child;
 	}
 
-
+		
 	/**
 	Executes the callback function for each item in array/object. If you return false in the
 	callback it will break the loop.
@@ -326,7 +261,7 @@ define('moxie/core/utils/Basic', [], function() {
 
 	/**
 	Checks if object is empty.
-
+	
 	@method isEmptyObj
 	@static
 	@param {Object} o Object to check.
@@ -383,7 +318,7 @@ define('moxie/core/utils/Basic', [], function() {
 
 	/**
 	Recieve an array of functions (usually async) to call in parallel, each  function
-	receives a callback as first argument that it should call, when it completes. After
+	receives a callback as first argument that it should call, when it completes. After 
 	everything is complete, main callback is called. Passing truthy value to the
 	callback as a first argument will interrupt the process and invoke main callback
 	immediately.
@@ -401,7 +336,7 @@ define('moxie/core/utils/Basic', [], function() {
 				if (error) {
 					return cb(error);
 				}
-
+				
 				var args = [].slice.call(arguments);
 				args.shift(); // strip error - undefined or not
 
@@ -411,15 +346,15 @@ define('moxie/core/utils/Basic', [], function() {
 				if (count === num) {
 					cbArgs.unshift(null);
 					cb.apply(this, cbArgs);
-				}
+				} 
 			});
 		});
 	}
-
-
+	
+	
 	/**
 	Find an element in array and return it's index if present, otherwise return -1.
-
+	
 	@method inArray
 	@static
 	@param {Mixed} needle Element to find
@@ -431,7 +366,7 @@ define('moxie/core/utils/Basic', [], function() {
 			if (Array.prototype.indexOf) {
 				return Array.prototype.indexOf.call(array, needle);
 			}
-
+		
 			for (var i = 0, length = array.length; i < length; i++) {
 				if (array[i] === needle) {
 					return i;
@@ -465,7 +400,7 @@ define('moxie/core/utils/Basic', [], function() {
 		for (var i in needles) {
 			if (inArray(needles[i], array) === -1) {
 				diff.push(needles[i]);
-			}
+			}	
 		}
 		return diff.length ? diff : false;
 	}
@@ -489,11 +424,11 @@ define('moxie/core/utils/Basic', [], function() {
 		});
 		return result.length ? result : null;
 	}
-
-
+	
+	
 	/**
 	Forces anything into an array.
-
+	
 	@method toArray
 	@static
 	@param {Object} obj Object with length field.
@@ -508,14 +443,14 @@ define('moxie/core/utils/Basic', [], function() {
 
 		return arr;
 	}
-
-
+	
+			
 	/**
 	Generates an unique ID. The only way a user would be able to get the same ID is if the two persons
-	at the same exact millisecond manage to get the same 5 random numbers between 0-65535; it also uses
-	a counter so each ID is guaranteed to be unique for the given page. It is more probable for the earth
+	at the same exact millisecond manage to get the same 5 random numbers between 0-65535; it also uses 
+	a counter so each ID is guaranteed to be unique for the given page. It is more probable for the earth 
 	to be hit with an asteroid.
-
+	
 	@method guid
 	@static
 	@param {String} prefix to prepend (by default 'o' will be prepended).
@@ -524,22 +459,22 @@ define('moxie/core/utils/Basic', [], function() {
 	*/
 	var guid = (function() {
 		var counter = 0;
-
+		
 		return function(prefix) {
 			var guid = new Date().getTime().toString(32), i;
 
 			for (i = 0; i < 5; i++) {
 				guid += Math.floor(Math.random() * 65535).toString(32);
 			}
-
+			
 			return (prefix || 'o_') + guid + (counter++).toString(32);
 		};
 	}());
-
+	
 
 	/**
 	Trims white spaces around the string
-
+	
 	@method trim
 	@static
 	@param {String} str
@@ -555,7 +490,7 @@ define('moxie/core/utils/Basic', [], function() {
 
 	/**
 	Parses the specified size string into a byte value. For example 10kb becomes 10240.
-
+	
 	@method parseSizeStr
 	@static
 	@param {String/Number} size String to parse or number to just pass through.
@@ -565,7 +500,7 @@ define('moxie/core/utils/Basic', [], function() {
 		if (typeof(size) !== 'string') {
 			return size;
 		}
-
+		
 		var muls = {
 				t: 1099511627776,
 				g: 1073741824,
@@ -577,7 +512,7 @@ define('moxie/core/utils/Basic', [], function() {
 		size = /^([0-9\.]+)([tmgk]?)$/.exec(size.toLowerCase().replace(/[^0-9\.tmkg]/g, ''));
 		mul = size[2];
 		size = +size[1];
-
+		
 		if (muls.hasOwnProperty(mul)) {
 			size *= muls[mul];
 		}
@@ -594,46 +529,27 @@ define('moxie/core/utils/Basic', [], function() {
 	function sprintf(str) {
 		var args = [].slice.call(arguments, 1);
 
-		return str.replace(/%([a-z])/g, function($0, $1) {
+		return str.replace(/%[a-z]/g, function() {
 			var value = args.shift();
-
-			switch ($1) {
-				case 's':
-					return value + '';
-
-				case 'd':
-					return parseInt(value, 10);
-
-				case 'f':
-					return parseFloat(value);
-
-				case 'c':
-					return '';
-
-				default:
-					return value;
-			}
+			return typeOf(value) !== 'undefined' ? value : '';
 		});
 	}
-
-
-
+	
+	
+	
 	function delay(cb, timeout) {
 		var self = this;
 		setTimeout(function() {
 			cb.call(self);
 		}, timeout || 1);
 	}
-
+	
 
 	return {
 		guid: guid,
 		typeOf: typeOf,
 		extend: extend,
 		extendIf: extendIf,
-		extendImmutable: extendImmutable,
-		extendImmutableIf: extendImmutableIf,
-		clone: clone,
 		inherit: inherit,
 		each: each,
 		isEmptyObj: isEmptyObj,
@@ -733,7 +649,7 @@ define("moxie/core/I18n", [
 define("moxie/core/utils/Env", [
 	"moxie/core/utils/Basic"
 ], function(Basic) {
-
+	
 	/**
 	 * UAParser.js v0.7.7
 	 * Lightweight JavaScript-based User-Agent string parser
@@ -936,7 +852,7 @@ define("moxie/core/utils/Env", [
 	    var regexes = {
 
 	        browser : [[
-
+	        
 	            // Presto based
 	            /(opera\smini)\/([\w\.-]+)/i,                                       // Opera Mini
 	            /(opera\s[mobiletab]+).+version\/([\w\.-]+)/i,                      // Opera Mobi/Tablet
@@ -1325,7 +1241,7 @@ define("moxie/core/utils/Env", [
 					du.onload = function() {
 						caps.use_data_uri = (du.width === 1 && du.height === 1);
 					};
-
+					
 					setTimeout(function() {
 						du.src = "data:image/gif;base64,R0lGODlhAQABAIAAAP8AAAAAACH5BAAAAAAALAAAAAABAAEAAAICRAEAOw==";
 					}, 1);
@@ -1366,14 +1282,14 @@ define("moxie/core/utils/Env", [
 		can: can,
 
 		uaParser: UAParser,
-
+		
 		browser: uaResult.browser.name,
 		version: uaResult.browser.version,
 		os: uaResult.os.name, // everybody intuitively types it in a lowercase for some reason
 		osVersion: uaResult.os.version,
 
 		verComp: version_compare,
-
+		
 		swf_url: "../flash/Moxie.swf",
 		xap_url: "../silverlight/Moxie.xap",
 		global_event_dispatcher: "moxie.core.EventTarget.instance.dispatchEvent"
@@ -1390,14 +1306,20 @@ define("moxie/core/utils/Env", [
 		};
 
 		Env.log = function() {
-
+			
 			function logObj(data) {
 				// TODO: this should recursively print out the object in a pretty way
 				console.appendChild(document.createTextNode(data + "\n"));
 			}
 
+			var data = arguments[0];
+
+			if (Basic.typeOf(data) === 'string') {
+				data = Basic.sprintf.apply(this, arguments);
+			}
+
 			if (window && window.console && window.console.log) {
-				window.console.log.apply(window.console, arguments);
+				window.console.log(data);
 			} else if (document) {
 				var console = document.getElementById('moxie-console');
 				if (!console) {
@@ -1407,15 +1329,11 @@ define("moxie/core/utils/Env", [
 					document.body.appendChild(console);
 				}
 
-				var data = arguments[0];
-				if (Basic.typeOf(data) === 'string') {
-					data = Basic.sprintf.apply(this, arguments);
-				} else if (Basic.inArray(Basic.typeOf(data), ['object', 'array']) !== -1) {
+				if (Basic.inArray(Basic.typeOf(data), ['object', 'array']) !== -1) {
 					logObj(data);
-					return;
+				} else {
+					console.appendChild(document.createTextNode(data + "\n"));
 				}
-
-				console.appendChild(document.createTextNode(data + "\n"));
 			}
 		};
 	}
@@ -1791,9 +1709,7 @@ define('moxie/core/utils/Events', [
  * Contributing: http://www.plupload.com/contributing
  */
 
-define('moxie/core/utils/Url', [
-	'moxie/core/utils/Basic'
-], function(Basic) {
+define('moxie/core/utils/Url', [], function() {
 	/**
 	Parse url into separate components and fill in absent parts with parts from current url,
 	based on https://raw.github.com/kvz/phpjs/master/functions/url/parse_url.js
@@ -1812,36 +1728,24 @@ define('moxie/core/utils/Url', [
 			https: 443
 		}
 		, uri = {}
-		, regex = /^(?:([^:\/?#]+):)?(?:\/\/()(?:(?:()(?:([^:@\/]*):?([^:@\/]*))?@)?(\[[\da-fA-F:]+\]|[^:\/?#]*)(?::(\d*))?))?()(?:(()(?:(?:[^?#\/]*\/)*)()(?:[^?#]*))(?:\\?([^#]*))?(?:#(.*))?)/
+		, regex = /^(?:([^:\/?#]+):)?(?:\/\/()(?:(?:()(?:([^:@\/]*):?([^:@\/]*))?@)?([^:\/?#]*)(?::(\d*))?))?()(?:(()(?:(?:[^?#\/]*\/)*)()(?:[^?#]*))(?:\\?([^#]*))?(?:#(.*))?)/
 		, m = regex.exec(url || '')
-		, isRelative
-		, isSchemeLess = /^\/\/\w/.test(url)
 		;
-
-		switch (Basic.typeOf(currentUrl)) {
-			case 'undefined':
-				currentUrl = parseUrl(document.location.href, false);
-				break;
-
-			case 'string':
-				currentUrl = parseUrl(currentUrl, false);
-				break;
-		}
-
+					
 		while (i--) {
 			if (m[i]) {
 				uri[key[i]] = m[i];
 			}
 		}
 
-		isRelative = !isSchemeLess && !uri.scheme;
-
-		if (isSchemeLess || isRelative) {
-			uri.scheme = currentUrl.scheme;
-		}
-
 		// when url is relative, we set the origin and the path ourselves
-		if (isRelative) {
+		if (!uri.scheme) {
+			// come up with defaults
+			if (!currentUrl || typeof(currentUrl) === 'string') {
+				currentUrl = parseUrl(currentUrl || document.location.href);
+			}
+
+			uri.scheme = currentUrl.scheme;
 			uri.host = currentUrl.host;
 			uri.port = currentUrl.port;
 
@@ -1862,8 +1766,8 @@ define('moxie/core/utils/Url', [
 
 		if (!uri.port) {
 			uri.port = ports[uri.scheme] || 80;
-		}
-
+		} 
+		
 		uri.port = parseInt(uri.port, 10);
 
 		if (!uri.path) {
@@ -1905,11 +1809,11 @@ define('moxie/core/utils/Url', [
 		function origin(url) {
 			return [url.scheme, url.host, url.port].join('/');
 		}
-
+			
 		if (typeof url === 'string') {
 			url = parseUrl(url);
-		}
-
+		}	
+		
 		return origin(parseUrl()) === origin(url);
 	};
 
@@ -2111,7 +2015,7 @@ define('moxie/core/EventTarget', [
 	@class moxie/core/EventTarget
 	@constructor EventTarget
 	*/
-	function EventTarget() {
+	function EventTarget() {				
 		/**
 		Unique id of the event dispatcher, usually overriden by children
 
@@ -2123,7 +2027,7 @@ define('moxie/core/EventTarget', [
 
 
 	Basic.extend(EventTarget.prototype, {
-
+					
 		/**
 		Can be called from within a child  in order to acquire uniqie id in automated manner
 
@@ -2151,9 +2055,9 @@ define('moxie/core/EventTarget', [
 			if (!this.hasOwnProperty('uid')) {
 				this.uid = Basic.guid('uid_');
 			}
-
+			
 			type = Basic.trim(type);
-
+			
 			if (/\s/.test(type)) {
 				// multiple event types were passed for one handler
 				Basic.each(type.split(/\s+/), function(type) {
@@ -2161,37 +2065,31 @@ define('moxie/core/EventTarget', [
 				});
 				return;
 			}
-
+			
 			type = type.toLowerCase();
 			priority = parseInt(priority, 10) || 0;
-
+			
 			list = eventpool[this.uid] && eventpool[this.uid][type] || [];
 			list.push({fn : fn, priority : priority, scope : scope || this});
-
+			
 			if (!eventpool[this.uid]) {
 				eventpool[this.uid] = {};
 			}
 			eventpool[this.uid][type] = list;
 		},
-
+		
 		/**
 		Check if any handlers were registered to the specified event
 
 		@method hasEventListener
-		@param {String} [type] Type or basically a name of the event to check
+		@param {String} type Type or basically a name of the event to check
 		@return {Mixed} Returns a handler if it was found and false, if - not
 		*/
 		hasEventListener: function(type) {
-			var list;
-			if (type) {
-				type = type.toLowerCase();
-				list = eventpool[this.uid] && eventpool[this.uid][type];
-			} else {
-				list = eventpool[this.uid];
-			}
+			var list = type ? eventpool[this.uid] && eventpool[this.uid][type] : eventpool[this.uid];
 			return list ? list : false;
 		},
-
+		
 		/**
 		Unregister the handler from the event, or if former was not specified - unregister all handlers
 
@@ -2229,7 +2127,7 @@ define('moxie/core/EventTarget', [
 				// delete event list if it has become empty
 				if (!list.length) {
 					delete eventpool[this.uid][type];
-
+					
 					// and object specific entry in a hash if it has no more listeners attached
 					if (Basic.isEmptyObj(eventpool[this.uid])) {
 						delete eventpool[this.uid];
@@ -2237,7 +2135,7 @@ define('moxie/core/EventTarget', [
 				}
 			}
 		},
-
+		
 		/**
 		Remove all event handlers from the object
 
@@ -2248,7 +2146,7 @@ define('moxie/core/EventTarget', [
 				delete eventpool[this.uid];
 			}
 		},
-
+		
 		/**
 		Dispatch the event
 
@@ -2259,7 +2157,7 @@ define('moxie/core/EventTarget', [
 		*/
 		dispatchEvent: function(type) {
 			var uid, list, args, tmpEvt, evt = {}, result = true, undef;
-
+			
 			if (Basic.typeOf(type) !== 'string') {
 				// we can't use original object directly (because of Silverlight)
 				tmpEvt = type;
@@ -2276,7 +2174,7 @@ define('moxie/core/EventTarget', [
 					throw new x.EventException(x.EventException.UNSPECIFIED_EVENT_TYPE_ERR);
 				}
 			}
-
+			
 			// check if event is meant to be dispatched on an object having specific uid
 			if (type.indexOf('::') !== -1) {
 				(function(arr) {
@@ -2286,24 +2184,24 @@ define('moxie/core/EventTarget', [
 			} else {
 				uid = this.uid;
 			}
-
+			
 			type = type.toLowerCase();
-
+							
 			list = eventpool[uid] && eventpool[uid][type];
 
 			if (list) {
 				// sort event list by prority
 				list.sort(function(a, b) { return b.priority - a.priority; });
-
+				
 				args = [].slice.call(arguments);
-
+				
 				// first argument will be pseudo-event object
 				args.shift();
 				evt.type = type;
 				args.unshift(evt);
 
 				if (MXI_DEBUG && Env.debug.events) {
-					Env.log("%cEvent '%s' fired on %s", 'color: #999;', evt.type, (this.ctorName ? this.ctorName + '::' : '') + uid);
+					Env.log("Event '%s' fired on %u", evt.type, uid);	
 				}
 
 				// Dispatch event to all listeners
@@ -2350,7 +2248,7 @@ define('moxie/core/EventTarget', [
 				return fn.apply(this, arguments);
 			}, priority, scope);
 		},
-
+		
 		/**
 		Alias for addEventListener
 
@@ -2360,7 +2258,7 @@ define('moxie/core/EventTarget', [
 		bind: function() {
 			this.addEventListener.apply(this, arguments);
 		},
-
+		
 		/**
 		Alias for removeEventListener
 
@@ -2370,7 +2268,7 @@ define('moxie/core/EventTarget', [
 		unbind: function() {
 			this.removeEventListener.apply(this, arguments);
 		},
-
+		
 		/**
 		Alias for removeAllEventListeners
 
@@ -2380,7 +2278,7 @@ define('moxie/core/EventTarget', [
 		unbindAll: function() {
 			this.removeAllEventListeners.apply(this, arguments);
 		},
-
+		
 		/**
 		Alias for dispatchEvent
 
@@ -2390,7 +2288,7 @@ define('moxie/core/EventTarget', [
 		trigger: function() {
 			return this.dispatchEvent.apply(this, arguments);
 		},
-
+		
 
 		/**
 		Handle properties of on[event] type.
@@ -2412,15 +2310,15 @@ define('moxie/core/EventTarget', [
 			Basic.each(dispatches, function(prop) {
 				prop = 'on' + prop.toLowerCase(prop);
 				if (Basic.typeOf(self[prop]) === 'undefined') {
-					self[prop] = null;
+					self[prop] = null; 
 				}
 			});
 		}
-
+		
 	});
 
 
-	EventTarget.instance = new EventTarget();
+	EventTarget.instance = new EventTarget(); 
 
 	return EventTarget;
 });
@@ -3129,7 +3027,7 @@ define("moxie/core/utils/Mime", [
 			
 			// convert extensions to mime types list
 			for (i = 0; i < filters.length; i++) {
-				ext = filters[i].extensions.toLowerCase().split(/\s*,\s*/);
+				ext = filters[i].extensions.split(/\s*,\s*/);
 
 				for (ii = 0; ii < ext.length; ii++) {
 					
@@ -3139,12 +3037,13 @@ define("moxie/core/utils/Mime", [
 					}
 
 					type = self.mimes[ext[ii]];
+					if (type && Basic.inArray(type, mimes) === -1) {
+						mimes.push(type);
+					}
 
 					// future browsers should filter by extension, finally
 					if (addMissingExtensions && /^\w+$/.test(ext[ii])) {
 						mimes.push('.' + ext[ii]);
-					} else if (type && Basic.inArray(type, mimes) === -1) {
-						mimes.push(type);
 					} else if (!type) {
 						// if we have no type in our map, then accept all
 						return [];
@@ -3159,8 +3058,6 @@ define("moxie/core/utils/Mime", [
 			var self = this, exts = [];
 			
 			Basic.each(mimes, function(mime) {
-				mime = mime.toLowerCase();
-
 				if (mime === '*') {
 					exts = [];
 					return false;
@@ -3198,6 +3095,9 @@ define("moxie/core/utils/Mime", [
 				title: I18n.translate('Files'),
 				extensions: exts.length ? exts.join(',') : '*'
 			});
+			
+			// save original mimes string
+			accept.mimes = mimes;
 
 			return accept;
 		},
@@ -3298,7 +3198,6 @@ define('moxie/runtime/RuntimeClient', [
 						// jailbreak ...
 						setTimeout(function() {
 							runtime.clients++;
-							comp.ruid = runtime.uid;
 							// this will be triggered on component
 							comp.trigger('RuntimeInit', runtime);
 						}, 1);
@@ -3345,7 +3244,6 @@ define('moxie/runtime/RuntimeClient', [
 				if (ruid) {
 					runtime = Runtime.getRuntime(ruid);
 					if (runtime) {
-						comp.ruid = ruid;
 						runtime.clients++;
 						return runtime;
 					} else {
@@ -4435,8 +4333,8 @@ define('moxie/file/FileReader', [
 /**
  * plupload.js
  *
- * Copyright 2017, Ephox
- * Released under AGPLv3 License.
+ * Copyright 2013, Moxiecode Systems AB
+ * Released under GPL License.
  *
  * License: http://www.plupload.com/license
  * Contributing: http://www.plupload.com/contributing
@@ -4472,10 +4370,11 @@ define('plupload', [
 		 * Plupload version will be replaced on build.
 		 *
 		 * @property VERSION
+		 * @for Plupload
 		 * @static
 		 * @final
 		 */
-		VERSION: '3.1.0',
+		VERSION: '3.0-beta1',
 
 		/**
 		 * The state of the queue before it has started and after it has finished
@@ -4658,10 +4557,6 @@ define('plupload', [
 		 */
 		typeOf: Basic.typeOf,
 
-
-		inherit: Basic.inherit,
-
-
 		/**
 		 * Extends the specified object with another object.
 		 *
@@ -4672,9 +4567,6 @@ define('plupload', [
 		 * @return {Object} Same as target, the extended object.
 		 */
 		extend: Basic.extend,
-
-
-		extendImmutable: Basic.extendImmutable,
 
 		/**
 		Extends the specified object with another object(s), but only if the property exists in the target.
@@ -4703,7 +4595,7 @@ define('plupload', [
 
 		/**
 		Recieve an array of functions (usually async) to call in parallel, each  function
-		receives a callback as first argument that it should call, when it completes. After
+		receives a callback as first argument that it should call, when it completes. After 
 		everything is complete, main callback is called. Passing truthy value to the
 		callback as a first argument will interrupt the process and invoke main callback
 		immediately.
@@ -4730,7 +4622,7 @@ define('plupload', [
 
 		/**
 		 * Get array of DOM Elements by their ids.
-		 *
+		 * 
 		 * @method get
 		 * @param {String} id Identifier of the DOM Element
 		 * @return {Array}
@@ -4739,13 +4631,13 @@ define('plupload', [
 			var els = [],
 				el;
 
-			if (Basic.typeOf(ids) !== 'array') {
+			if (plupload.typeOf(ids) !== 'array') {
 				ids = [ids];
 			}
 
 			var i = ids.length;
 			while (i--) {
-				el = Dom.get(ids[i]);
+				el = plupload.get(ids[i]);
 				if (el) {
 					els.push(el);
 				}
@@ -4999,7 +4891,7 @@ define('plupload', [
 		buildUrl: function(url, items) {
 			var query = '';
 
-			Basic.each(items, function(value, name) {
+			plupload.each(items, function(value, name) {
 				query += (query ? '&' : '') + encodeURIComponent(name) + '=' + encodeURIComponent(value);
 			});
 
@@ -5025,32 +4917,32 @@ define('plupload', [
 
 			size = parseInt(size, 10);
 			if (isNaN(size)) {
-				return I18n.translate('N/A');
+				return plupload.translate('N/A');
 			}
 
 			var boundary = Math.pow(1024, 4);
 
 			// TB
 			if (size > boundary) {
-				return round(size / boundary, 1) + " " + I18n.translate('tb');
+				return round(size / boundary, 1) + " " + plupload.translate('tb');
 			}
 
 			// GB
 			if (size > (boundary /= 1024)) {
-				return round(size / boundary, 1) + " " + I18n.translate('gb');
+				return round(size / boundary, 1) + " " + plupload.translate('gb');
 			}
 
 			// MB
 			if (size > (boundary /= 1024)) {
-				return round(size / boundary, 1) + " " + I18n.translate('mb');
+				return round(size / boundary, 1) + " " + plupload.translate('mb');
 			}
 
 			// KB
 			if (size > 1024) {
-				return Math.round(size / 1024) + " " + I18n.translate('kb');
+				return Math.round(size / 1024) + " " + plupload.translate('kb');
 			}
 
-			return size + " " + I18n.translate('b');
+			return size + " " + plupload.translate('b');
 		},
 
 		/**
@@ -5079,17 +4971,15 @@ define('plupload', [
 		/**
 		Parent object for all event dispatching components and objects
 
-		@class plupload.EventTarget
-		@private
-		@constructor
+		@class plupload/EventTarget
+		@constructor EventTarget
 		*/
 		EventTarget: EventTarget,
 
 		/**
 		Common set of methods and properties for every runtime instance
 
-		@class plupload.Runtime
-		@private
+		@class plupload/Runtime
 
 		@param {Object} options
 		@param {String} type Sanitized name of the runtime
@@ -5104,8 +4994,7 @@ define('plupload', [
 		converts selected files to _File_ objects, to be used in conjunction with _Image_, preloaded in memory
 		with _FileReader_ or uploaded to a server through _XMLHttpRequest_.
 
-		@class plupload.FileInput
-		@private
+		@class plupload/FileInput
 		@constructor
 		@extends EventTarget
 		@uses RuntimeClient
@@ -5115,7 +5004,7 @@ define('plupload', [
 			@param {String} [options.file='file'] Name of the file field (not the filename).
 			@param {Boolean} [options.multiple=false] Enable selection of multiple files.
 			@param {Boolean} [options.directory=false] Turn file input into the folder input (cannot be both at the same time).
-			@param {String|DOMElement} [options.container] DOM Element to use as a container for file-picker. Defaults to parentNode
+			@param {String|DOMElement} [options.container] DOM Element to use as a container for file-picker. Defaults to parentNode 
 			for _browse\_button_.
 			@param {Object|String} [options.required_caps] Set of required capabilities, that chosen runtime must support.
 		*/
@@ -5125,9 +5014,8 @@ define('plupload', [
 		Utility for preloading o.Blob/o.File objects in memory. By design closely follows [W3C FileReader](http://www.w3.org/TR/FileAPI/#dfn-filereader)
 		interface. Where possible uses native FileReader, where - not falls back to shims.
 
-		@class plupload.FileReader
-		@private
-		@constructor
+		@class plupload/FileReader
+		@constructor FileReader
 		@extends EventTarget
 		@uses RuntimeClient
 		*/
@@ -5141,8 +5029,8 @@ define('plupload', [
 /**
  * Collection.js
  *
- * Copyright 2017, Ephox
- * Released under AGPLv3 License.
+ * Copyright 2015, Moxiecode Systems AB
+ * Released under GPL License.
  *
  * License: http://www.plupload.com/license
  * Contributing: http://www.plupload.com/contributing
@@ -5153,7 +5041,7 @@ define('plupload', [
 Helper collection class - in a way a mix of object and array
 
 @contsructor
-@class plupload.core.Collection
+@class plupload/core/Collection
 @private
 */
 define('plupload/core/Collection', [
@@ -5555,155 +5443,13 @@ define('moxie/file/FileDrop', [
 	return FileDrop;
 });
 
-// Included from: src/core/ArrCollection.js
-
-/**
- * ArrCollection.js
- *
- * Copyright 2017, Ephox
- * Released under AGPLv3 License.
- *
- * License: http://www.plupload.com/license
- * Contributing: http://www.plupload.com/contributing
- */
-
-
-/**
-@contsructor
-@class plupload.core.ArrCollection
-@private
-*/
-define('plupload/core/ArrCollection', [
-    'moxie/core/utils/Basic'
-], function(Basic) {
-
-    var ArrCollection = function() {
-        var _registry = [];
-
-        Basic.extend(this, {
-
-            count: function() {
-                return _registry.length;
-            },
-
-            hasKey: function(key) {
-                return this.getIdx(key) > -1;
-            },
-
-
-            get: function(key) {
-                var idx = this.getIdx(key);
-                return idx > -1 ? _registry[idx] : null;
-            },
-
-            getIdx: function(key) {
-                for (var i = 0, length = _registry.length; i < length; i++) {
-                    if (_registry[i].uid === key) {
-                        return i;
-                    }
-                }
-                return -1;
-            },
-
-            getByIdx: function(idx) {
-                return _registry[idx]
-            },
-
-            first: function() {
-                return _registry[0];
-            },
-
-            last: function() {
-                return _registry[_registry.length - 1];
-            },
-
-            add: function(obj) {
-                obj = arguments[1] || obj; // make it compatible with Collection.add()
-
-                var idx = this.getIdx(obj.uid);
-                if (idx > -1) {
-                    _registry[idx] = obj;
-                    return idx;
-                }
-
-                _registry.push(obj);
-                return _registry.length - 1;
-            },
-
-            remove: function(key) {
-                return !!this.extract(key);
-            },
-
-            splice: function(start, length) {
-                start = Basic.typeOf(start) === 'undefinded' ? 0 : Math.max(start, 0);
-                length = Basic.typeOf(length) !== 'undefinded' && start + length < _registry.length ? length : _registry.length - start;
-
-                return _registry.splice(start, length);
-            },
-
-            extract: function(key) {
-                var idx = this.getIdx(key);
-                if (idx > -1) {
-                    return _registry.splice(idx, 1);
-                }
-                return null;
-            },
-
-            shift: function() {
-                return _registry.shift();
-            },
-
-            update: function(key, obj) {
-                var idx = this.getIdx(key);
-                if (idx > -1) {
-                    _registry[idx] = obj;
-                    return true;
-                }
-                return false;
-            },
-
-            each: function(cb) {
-                Basic.each(_registry, cb);
-            },
-
-            combineWith: function() {
-                return Array.prototype.concat.apply(this.toArray(), arguments);
-            },
-
-            sort: function(cb) {
-                _registry.sort(cb || function(a, b) {
-                    return a.priority - b.priority;
-                });
-            },
-
-            clear: function() {
-                _registry = [];
-            },
-
-            toObject: function() {
-                var obj = {};
-                for (var i = 0, length = _registry.length; i < length; i++) {
-                    obj[_registry[i].uid] = _registry[i];
-                }
-                return obj;
-            },
-
-            toArray: function() {
-                return Array.prototype.slice.call(_registry);
-            }
-        });
-    };
-
-    return ArrCollection;
-});
-
 // Included from: src/core/Optionable.js
 
 /**
  * Optionable.js
  *
- * Copyright 2017, Ephox
- * Released under AGPLv3 License.
+ * Copyright 2015, Moxiecode Systems AB
+ * Released under GPL License.
  *
  * License: http://www.plupload.com/license
  * Contributing: http://www.plupload.com/contributing
@@ -5712,7 +5458,7 @@ define('plupload/core/ArrCollection', [
 
 /**
 @contsructor
-@class plupload.core.Optionable
+@class plupload/core/Optionable
 @private
 @since 3.0
 */
@@ -5722,19 +5468,12 @@ define('plupload/core/Optionable', [
 ], function(Basic, EventTarget) {
 
     var dispatches = [
-        /**
-         * Dispatched when option is being changed.
-         *
-         * @event OptionChanged
-         * @param {Object} event
-         * @param {String} name Name of the option being changed
-         * @param {Mixed} value
-         * @param {Mixed} oldValue
-         */
+
         'OptionChanged'
     ];
 
     return (function(Parent) {
+        Basic.inherit(Optionable, Parent);
 
         /**
          * @class Optionable
@@ -5743,13 +5482,17 @@ define('plupload/core/Optionable', [
          */
         function Optionable() {
             Parent.apply(this, arguments);
-
+            
+            this.uid = Basic.guid();
             this._options = {};
         }
 
-        Basic.inherit(Optionable, Parent);
 
         Basic.extend(Optionable.prototype, {
+
+            uid: Basic.guid(),
+
+
             /**
              * Set the value for the specified option(s).
              *
@@ -5757,40 +5500,27 @@ define('plupload/core/Optionable', [
              * @since 2.1
              * @param {String|Object} option Name of the option to change or the set of key/value pairs
              * @param {Mixed} [value] Value for the option (is ignored, if first argument is object)
-             * @param {Boolean} [mustBeDefined] if truthy, any option that is not in defaults will be ignored
              */
-            setOption: function(option, value, mustBeDefined) {
+            setOption: function(option, value) {
                 var self = this;
                 var oldValue;
 
                 if (typeof(option) === 'object') {
-                    mustBeDefined = value;
                     Basic.each(option, function(value, option) {
-                        self.setOption(option, value, mustBeDefined);
+                        self.setOption(option, value);
                     });
                     return;
                 }
 
-                if (mustBeDefined && !self._options.hasOwnProperty(option)) {
-                    return;
-                }
-
-                oldValue = Basic.clone(self._options[option]);
-
-                //! basically if an option is of type object extend it rather than replace
-                if (Basic.typeOf(value) === 'object' && Basic.typeOf(self._options[option]) === 'object') {
-                     // having some options as objects was a bad idea, prefixes is the way
-                    Basic.extend(self._options[option], value);
-                } else {
-                    self._options[option] = value;
-                }
+                oldValue = self._options[option];
+                self._options[option] = value;
 
                 self.trigger('OptionChanged', option, value, oldValue);
             },
 
             /**
              * Get the value for the specified option or the whole configuration, if not specified.
-             *
+             * 
              * @method getOption
              * @since 2.1
              * @param {String} [option] Name of the option to get
@@ -5800,28 +5530,21 @@ define('plupload/core/Optionable', [
                 if (!option) {
                     return this._options;
                 }
-
-                var value = this._options[option];
-                if (Basic.inArray(Basic.typeOf(value), ['array', 'object']) > -1) {
-                    return Basic.extendImmutable({}, value);
-                } else {
-                    return value;
-                }
+                return this._options[option];
             },
 
 
             /**
-             * Set many options as once.
-             *
-             * @method setOptions
-             * @param {Object} options
-             * @param {Boolean} [mustBeDefined] if truthy, any option that is not in defaults will be ignored
-             */
-            setOptions: function(options, mustBeDefined) {
+            Set many options as once.
+
+            @method setOptions
+            @param {Object} options
+            */
+            setOptions: function(options) {
                 if (typeof(options) !== 'object') {
                     return;
                 }
-                this.setOption(options, mustBeDefined);
+                this.setOption(options);
             },
 
 
@@ -5834,7 +5557,7 @@ define('plupload/core/Optionable', [
             getOptions: function() {
                 return this.getOption();
             }
-        });
+        }); 
 
         return Optionable;
 
@@ -5847,8 +5570,8 @@ define('plupload/core/Optionable', [
 /**
  * Queueable.js
  *
- * Copyright 2017, Ephox
- * Released under AGPLv3 License.se.
+ * Copyright 2015, Moxiecode Systems AB
+ * Released under GPL License.
  *
  * License: http://www.plupload.com/license
  * Contributing: http://www.plupload.com/contributing
@@ -5859,32 +5582,20 @@ define('plupload/core/Optionable', [
 Every queue item must have properties, implement methods and fire events defined in this class
 
 @contsructor
-@class plupload.core.Queueable
+@class plupload/core/Queueable
 @private
 @decorator
 @extends EventTarget
 */
 define('plupload/core/Queueable', [
-    'moxie/core/utils/Env',
     'moxie/core/utils/Basic',
     'plupload/core/Optionable'
-], function(Env, Basic, Optionable) {
+], function(Basic, Optionable) {
 
     var dispatches = [
         /**
-         * Dispatched every time the state of queue changes
-         *
-         * @event statechanged
-         * @param {Object} event
-         * @param {Number} state New state
-         * @param {Number} prevState Previous state
-         */
-        'statechanged',
-
-
-        /**
          * Dispatched when the item is put on pending list
-         *
+         * 
          * @event queued
          * @param {Object} event
          */
@@ -5893,7 +5604,7 @@ define('plupload/core/Queueable', [
 
         /**
          * Dispatched as soon as activity starts
-         *
+         * 
          * @event started
          * @param {Object} event
          */
@@ -5903,15 +5614,12 @@ define('plupload/core/Queueable', [
         'paused',
 
 
-        'resumed',
-
-
         'stopped',
 
 
         /**
          * Dispatched as the activity progresses
-         *
+         * 
          * @event
          * @param {Object} event
          *      @param {Number} event.percent
@@ -5927,247 +5635,97 @@ define('plupload/core/Queueable', [
         'done',
 
 
-        'processed',
-
-        'destroy'
+        'processed'
     ];
 
 
     return (function(Parent) {
+        Basic.inherit(Queueable, Parent);
+
 
         function Queueable() {
             Parent.apply(this, arguments);
-
-            /**
-            Unique identifier
-            @property uid
-            @type {String}
-            */
-            this.uid = Basic.guid();
-
-            this.state = Queueable.IDLE;
-
-            this.processed = 0;
-
-            this.total = 0;
-
-            this.percent = 0;
-
-            this.retries = 0;
-
-            /**
-             * Can be 0-Infinity - item with higher priority will have well... higher priority
-             * @property [priority=0]
-             * @type {Number}
-             */
-            this.priority = 0;
-
-            this.startedTimestamp = 0;
-
-            /**
-             * Set when item becomes Queueable.DONE or Queueable.FAILED.
-             * Used to calculate proper processedPerSec for the queue stats.
-             * @property processedTimestamp
-             * @type {Number}
-             */
-            this.processedTimestamp = 0;
-
-            if (MXI_DEBUG) {
-                this.bind('StateChanged', function(e, state, oldState) {
-                    var self = this;
-
-                    var stateToString = function(code) {
-                        switch (code) {
-                            case Queueable.IDLE:
-                                return 'IDLE';
-
-                            case Queueable.PROCESSING:
-                                return 'PROCESSING';
-
-                            case Queueable.PAUSED:
-                                return 'PAUSED';
-
-                            case Queueable.RESUMED:
-                                return 'RESUMED';
-
-                            case Queueable.DONE:
-                                return 'DONE';
-
-                            case Queueable.FAILED:
-                                return 'FAILED';
-
-                            case Queueable.DESTROYED:
-                                return 'DESTROYED';
-                        }
-                    };
-
-                    var indent = function() {
-                        switch (self.ctorName) {
-                            case 'File':
-                                return "\t".repeat(2);
-
-                            case 'QueueUpload':
-                            case 'QueueResize':
-                                return "\t";
-
-                            case 'FileUploader':
-                                return "\t".repeat(3);
-
-                            case 'ChunkUploader':
-                                return "\t".repeat(4);
-
-                            default:
-                                return "\t";
-                        }
-                    };
-
-                    Env.log("StateChanged:" + indent() + self.ctorName + '::' + self.uid + ' (' + stateToString(oldState) + ' to ' + stateToString(state) + ')');
-                }, 999);
-            }
         }
 
-        Queueable.IDLE = 1;
-        Queueable.PROCESSING = 2;
-        Queueable.PAUSED = 6;
-        Queueable.RESUMED = 7;
-        Queueable.DONE = 5;
-        Queueable.FAILED = 4;
+
+        Queueable.IDLE = 0;
+        Queueable.PROCESSING = 1;
+        Queueable.PAUSED = 2;
+        Queueable.RESUMED = 3;
+        Queueable.DONE = 4;
+        Queueable.FAILED = 5;
         Queueable.DESTROYED = 8;
 
-        Basic.inherit(Queueable, Parent);
 
         Basic.extend(Queueable.prototype, {
 
+            uid: Basic.guid(),
+
+            state: Queueable.IDLE,
+
+            processed: 0,
+
+            total: 0,
+
+            percent: 0,
+
+            retries: 0,
+
+
             start: function() {
-                var prevState = this.state;
-
-                if (this.state === Queueable.PROCESSING) {
-                    return false;
-                }
-
-                if (!this.startedTimestamp) {
-                    this.startedTimestamp = +new Date();
-                }
-
-                if (this.state === Queueable.IDLE) {
-                    this.state = Queueable.PROCESSING;
-                    this.trigger('statechanged', this.state, prevState);
-                    this.pause();
-                    Basic.delay.call(this, function() {
-                        if (this.trigger('beforestart')) {
-                            this.resume();
-                        }
-                    });
-                    return false;
-                } else {
-                    this.state = Queueable.PROCESSING;
-                    this.trigger('statechanged', this.state, prevState);
-                    this.trigger('started');
-                }
-
-                return true;
+                this.state = Queueable.PROCESSING;
+                this.trigger('started');
             },
 
 
             pause: function() {
-                var prevState = this.state;
-
-                if (this.state !== Queueable.PROCESSING) {
-                    return false;
-                }
-
                 this.processed = this.percent = 0; // by default reset all progress
                 this.loaded = this.processed; // for backward compatibility
 
                 this.state = Queueable.PAUSED;
-                this.trigger('statechanged', this.state, prevState);
                 this.trigger('paused');
-                return true;
-            },
-
-
-            resume: function() {
-                var prevState = this.state;
-
-                if (this.state !== Queueable.PAUSED && this.state !== Queueable.RESUMED) {
-                    return false;
-                }
-
-                this.state = Queueable.RESUMED;
-                this.trigger('statechanged', this.state, prevState);
-                this.trigger('resumed');
-                return true;
             },
 
 
             stop: function() {
-                var prevState = this.state;
-
-                if (this.state === Queueable.IDLE) {
-                    return false;
-                }
-
                 this.processed = this.percent = 0;
                 this.loaded = this.processed; // for backward compatibility
 
-                this.startedTimestamp = 0;
-
                 this.state = Queueable.IDLE;
-                this.trigger('statechanged', this.state, prevState);
                 this.trigger('stopped');
-                return true;
             },
 
 
             done: function(result) {
-                var prevState = this.state;
-
-                if (this.state === Queueable.DONE) {
-                    return false;
-                }
-
                 this.processed = this.total;
                 this.loaded = this.processed; // for backward compatibility
                 this.percent = 100;
 
-                this.processedTimestamp = +new Date();
-
                 this.state = Queueable.DONE;
-                this.trigger('statechanged', this.state, prevState);
                 this.trigger('done', result);
                 this.trigger('processed');
-                return true;
             },
 
 
             failed: function(result) {
-                var prevState = this.state;
-
-                if (this.state === Queueable.FAILED) {
-                    return false;
-                }
-
                 this.processed = this.percent = 0; // reset the progress
                 this.loaded = this.processed; // for backward compatibility
 
-                this.processedTimestamp = +new Date();
-
                 this.state = Queueable.FAILED;
-                this.trigger('statechanged', this.state, prevState);
                 this.trigger('failed', result);
                 this.trigger('processed');
-                return true;
             },
 
 
             progress: function(processed, total) {
+                this.processed = processed;
+                this.loaded = this.processed; // for backward compatibility
+
                 if (total) {
-                    this.total = total; // is this even required?
+                    this.total = total;
                 }
 
-                this.processed = Math.min(processed, this.total);
-                this.loaded = this.processed; // for backward compatibility
-                this.percent = Math.ceil(this.processed / this.total * 100);
+                this.percent = Math.min(Math.ceil(this.processed / this.total * 100), 100);
 
                 this.trigger({
                     type: 'progress',
@@ -6178,17 +5736,13 @@ define('plupload/core/Queueable', [
 
 
             destroy: function() {
-                var prevState = this.state;
-
-                if (this.state === Queueable.DESTROYED) {
-                    return false; // already destroyed
+                if (self.state === Queueable.DESTROYED) {
+                    return; // already destroyed
                 }
 
                 this.state = Queueable.DESTROYED;
-                this.trigger('statechanged', this.state, prevState);
                 this.trigger('destroy');
                 this.unbindAll();
-                return true;
             }
 
         });
@@ -6201,7 +5755,7 @@ define('plupload/core/Queueable', [
 // Included from: src/core/Stats.js
 
 /**
-@class plupload.core.Stats
+@class plupload/core/Stats
 @constructor
 @private
 */
@@ -6271,13 +5825,6 @@ define('plupload/core/Stats', [], function() {
 		 */
 		self.queued = 0;
 
-		/**
-		 * Number of items currently paused.
-		 *
-		 * @property paused
-		 * @type Number
-		 */
-		self.paused = 0;
 
 		/**
 		 * Number of items being processed.
@@ -6337,7 +5884,7 @@ define('plupload/core/Stats', [], function() {
 			self.failed =
 			self.queued =
 			self.processing =
-			self.paused =
+			self.paused = 
 			self.percent =
 			self.bytesPerSec = // deprecated
 			self.processedPerSec = 0;
@@ -6350,8 +5897,8 @@ define('plupload/core/Stats', [], function() {
 /**
  * Queue.js
  *
- * Copyright 2017, Ephox
- * Released under AGPLv3 License.
+ * Copyright 2015, Moxiecode Systems AB
+ * Released under GPL License.
  *
  * License: http://www.plupload.com/license
  * Contributing: http://www.plupload.com/contributing
@@ -6360,68 +5907,50 @@ define('plupload/core/Stats', [], function() {
 
 /**
 @contsructor
-@class plupload.core.Queue
+@class plupload/core/Queue
 @private
 */
 define('plupload/core/Queue', [
     'moxie/core/utils/Basic',
-    'plupload/core/ArrCollection',
+    'plupload/core/Collection',
+    'plupload/core/Optionable',
     'plupload/core/Queueable',
     'plupload/core/Stats'
-], function(Basic, ArrCollection, Queueable, Stats) {
+], function(Basic, Collection, Optionable, Queueable, Stats) {
 
     var dispatches = [
         /**
          * Dispatched as soon as activity starts
-         *
+         * 
          * @event started
          * @param {Object} event
          */
         'Started',
 
+        'StateChanged',
+
 
         /**
-         * Dispatched as activity progresses
-         *
-         * @event progress
+         * Dispatched as the activity progresses
+         * 
+         * @event
          * @param {Object} event
-         * @param {Number} processed
-         * @param {Number} total
-         * @param {plupload.core.Stats} stats
+         *      @param {Number} event.percent
+         *      @param {Number} event.processed
+         *      @param {Number} event.total
          */
         'Progress',
 
+
         /**
-         * Dispatched when activity is paused
-         *
-         * @event paused
-         * @param {Object} event
+         * 
          */
         'Paused',
 
-        /**
-         * Dispatched when there's no more items in processing
-         *
-         * @event done
-         * @param {Object} event
-         */
+
         'Done',
 
-        /**
-         * Dispatched as soon as activity ends
-         *
-         * @event stopped
-         * @param {Object} event
-         */
-        'Stopped',
-
-        /**
-         * Dispatched when queue is destroyed
-         *
-         * @event destroy
-         * @param {Object} event
-         */
-        'Destroy'
+        'Stopped'
     ];
 
     /**
@@ -6431,7 +5960,7 @@ define('plupload/core/Queue', [
      */
     return (function(Parent) {
         Basic.inherit(Queue, Parent);
-
+    
 
         function Queue(options) {
             Parent.apply(this, arguments);
@@ -6441,7 +5970,15 @@ define('plupload/core/Queue', [
             @type {Collection}
             @private
             */
-            this._queue = new ArrCollection();
+            this._queue = new Collection();
+
+            /**
+             * @property state
+             * @type {Number}
+             * @default Queue.IDLE
+             * @readOnly
+             */
+            this.state = Queue.IDLE;
 
 
             /**
@@ -6452,14 +5989,22 @@ define('plupload/core/Queue', [
             this.stats = new Stats();
 
 
-            this._options = Basic.extend({}, this._options, {
+            this._options = Basic.extend({
                 max_slots: 1,
                 max_retries: 0,
                 auto_start: false,
-                finish_active: false
+                finish_active: false,
+                pause_before_start: true
             }, options);
         }
 
+
+        Queue.STOPPED = 1;
+        Queue.STARTED = 2;
+        Queue.PAUSED = 3;
+        Queue.DESTROYED = 8;
+
+        
         Basic.extend(Queue.prototype, {
 
             /**
@@ -6474,61 +6019,69 @@ define('plupload/core/Queue', [
 
             /**
              * Start the queue
-             *
+             * 
              * @method start
              */
             start: function() {
-                var prevState = this.state;
+                var self = this;
+                var prevState = self.state;
 
-                if (this.state === Queueable.PROCESSING) {
+                if (self.state === Queue.STARTED) {
                     return false;
                 }
 
-                if (!this.startedTimestamp) {
-                    this.startedTimestamp = +new Date();
-                }
+                self.state = Queue.STARTED;
+                self.trigger('StateChanged', self.state, prevState);
 
-                this.state = Queueable.PROCESSING;
-                this.trigger('statechanged', this.state, prevState);
-                this.trigger('started');
+                self._startTime = new Date();
 
-                return processNext.call(this);
+                processNext.call(self);
+                return true;
             },
 
 
             pause: function() {
-                if (!Queue.super.pause.call(this)) {
-                    return false;
-                }
+                var self = this;
+                var prevState = self.state;
 
-                this.forEachItem(function(item) {
-                    item.pause();
+                this._queue.each(function(item) {
+                    if (Basic.inArray(item.state, [Queueable.PROCESSING, Queueable.RESUMED]) !== -1) {
+                        self.pauseItem(item);
+                    }
                 });
+
+                self.state = Queue.PAUSED;
+                this.trigger('StateChanged', self.state, prevState);
+                self.trigger('Paused');
             },
 
             /**
              * Stop the queue. If `finish_active=true` the queue will wait until active items are done, before
              * stopping.
-             *
+             * 
              * @method stop
              */
             stop: function() {
-                if (!Queue.super.stop.call(this) || this.getOption('finish_active')) {
-                    return false;
-                }
+                var self = this;
+                var prevState = self.state;
 
-                if (this.isActive()) {
-                    this.forEachItem(function(item) {
-                        item.stop();
+                if (self.getOption('finish_active')) {
+                    return;
+                } else if (self.stats.processing || self.stats.paused) {
+                    self._queue.each(function(item) {
+                        self.stopItem(item.uid);
                     });
                 }
+
+                self.state = Queue.STOPPED;
+                self.trigger('StateChanged', self.state, prevState);
+                self.trigger('Stopped');
             },
 
 
             forEachItem: function(cb) {
                 this._queue.each(cb);
             },
-
 
             getItem: function(uid) {
                 return this._queue.get(uid);
@@ -6537,47 +6090,15 @@ define('plupload/core/Queue', [
 
             /**
              * Add instance of Queueable to the queue. If `auto_start=true` queue will start as well.
-             *
+             * 
              * @method addItem
              * @param {Queueable} item
              */
             addItem: function(item) {
                 var self = this;
 
-                item.bind('Started', function() {
-                    if (self.calcStats()) {
-                        Basic.delay.call(self, processNext);
-                    }
-                });
-
-                item.bind('Resumed',function() {
-                    self.start();
-                });
-
-                item.bind('Paused', function() {
-                    if (self.calcStats()) {
-                        Basic.delay.call(self, function() {
-                            if (!processNext.call(self) && !self.stats.processing) {
-                                self.pause();
-                            }
-                        });
-                    }
-                });
-
-                item.bind('Processed Stopped', function() {
-                    if (self.calcStats()) {
-                        Basic.delay.call(self, function() {
-                            if (!processNext.call(self) && !(this.stats.processing || this.stats.paused)) {
-                                self.stop();
-                            }
-                        });
-                    }
-                });
-
                 item.bind('Progress', function() {
-                    if (self.calcStats()) {
-                        self.trigger('Progress', self.stats.processed, self.stats.total, self.stats);
-                    }
+                    calcStats.call(self);
                 });
 
                 item.bind('Failed', function() {
@@ -6587,12 +6108,18 @@ define('plupload/core/Queue', [
                     }
                 });
 
+                item.bind('Processed', function() {
+                    self.stats.processing--;
+                    calcStats.call(self);
+                    processNext.call(self);
+                }, 0, this);
+
                 this._queue.add(item.uid, item);
-                this.calcStats();
+                calcStats.call(this);
                 item.trigger('Queued');
 
-                if (self.getOption('auto_start') || self.state === Queueable.PAUSED) {
-                    Basic.delay.call(this, this.start);
+                if (self.getOption('auto_start')) {
+                    this.start();
                 }
             },
 
@@ -6606,10 +6133,16 @@ define('plupload/core/Queue', [
              */
             extractItem: function(uid) {
                 var item = this._queue.get(uid);
+
                 if (item) {
                     this.stopItem(item.uid);
+
+                    if (this.state === Queue.STARTED) {
+                        processNext.call(this);
+                    }
+
                     this._queue.remove(uid);
-                    this.calcStats();
+                    calcStats.call(this);
                 }
                 return item;
             },
@@ -6619,58 +6152,64 @@ define('plupload/core/Queue', [
              *
              * @method removeItem
              * @param {String} uid
-             * @returns {Boolean} Result of the operation
              */
             removeItem: function(uid) {
                 var item = this.extractItem(uid);
                 if (item) {
                     item.destroy();
-                    return true;
                 }
-                return false;
             },
 
 
             stopItem: function(uid) {
                 var item = this._queue.get(uid);
                 if (item) {
-                    return item.stop();
+                    if (item.state === Queueable.PROCESSING) {
+                        this.stats.processing--;
+                    }
+                    item.stop();
                 } else {
                     return false;
                 }
+
+                if (!this.stats.processing && !this.stats.paused) {
+                    this.stop();
+                }
+                return true;
             },
 
 
             pauseItem: function(uid) {
                 var item = this._queue.get(uid);
                 if (item) {
-                    return item.pause();
+                    if (item.state === Queueable.PROCESSING) {
+                        this.stats.processing--;
+                    }
+                    this.stats.paused++;
+                    item.pause();
                 } else {
                     return false;
                 }
+
+                if (!this.stats.processing) {
+                    this.pause();
+                }
+
+                return true;
             },
 
 
             resumeItem: function(uid) {
                 var item = this._queue.get(uid);
-                if (item) {
-                    Basic.delay.call(this, function() {
-                        this.start(); // start() will know if it needs to restart the queue
-                    });
-                    return item.resume();
+                if (item && item.state === Queueable.PAUSED) {
+                    item.state = Queueable.RESUMED; // mark the item to be picked up on next iteration
+                    this.stats.paused--;
                 } else {
                     return false;
                 }
-            },
 
-
-            splice: function(start, length) {
-                return this._queue.splice(start, length);
-            },
-
-
-            isActive: function() {
-                return this.stats && (this.stats.processing || this.stats.paused);
+                this.start();
+                return true;
             },
 
 
@@ -6680,14 +6219,18 @@ define('plupload/core/Queue', [
 
 
             toArray: function() {
-                return this._queue.toArray();
+                var arr = [];
+                this.forEachItem(function(item) {
+                    arr.push(item);
+                });
+                return arr;
             },
 
 
             clear: function() {
                 var self = this;
 
-                if (self.state !== Queueable.IDLE) {
+                if (self.state !== Queue.STOPPED) {
                     // stop the active queue first
                     self.bindOnce('Stopped', function() {
                         self.clear();
@@ -6700,131 +6243,114 @@ define('plupload/core/Queue', [
             },
 
 
-            calcStats: function() {
-                var self = this;
-                var stats = self.stats;
-                var processed = 0;
-                var processedDuringThisSession = 0;
-
-                if (!stats) {
-                    return false; // maybe queue is destroyed
-                }
-
-                stats.reset();
-
-                self.forEachItem(function(item) {
-                    switch (item.state) {
-                        case Queueable.DONE:
-                            stats.done++;
-                            stats.uploaded = stats.done; // for backward compatibility
-                            break;
-
-                        case Queueable.FAILED:
-                            stats.failed++;
-                            break;
-
-                        case Queueable.PROCESSING:
-                            stats.processing++;
-                            break;
-
-                        case Queueable.PAUSED:
-                            stats.paused++;
-                            break;
-
-                        default:
-                            stats.queued++;
-                    }
-
-                    processed += item.processed;
-
-                    if (!item.processedTimestamp || item.processedTimestamp > self.startedTimestamp) {
-                        processedDuringThisSession += processed;
-                    }
-
-                    stats.processedPerSec = Math.ceil(processedDuringThisSession / ((+new Date() - self.startedTimestamp || 1) / 1000.0));
-
-                    stats.processed = processed;
-                    stats.total += item.total;
-                    if (stats.total) {
-                        stats.percent = Math.ceil(stats.processed / stats.total * 100);
-                    }
-                });
-
-                // enable properties inherited from Queueable
-
-                /* TODO: this is good but it currently conflicts with deprecated total property in Uploader
-                self.processed = stats.processed;
-                self.total = stats.total;
-                */
-                self.percent = stats.percent;
-
-                // for backward compatibility
-                stats.loaded = stats.processed;
-                stats.size = stats.total;
-                stats.bytesPerSec = stats.processedPerSec;
-
-                return true;
-            },
-
-
             destroy: function() {
                 var self = this;
+                var prevState = self.state;
 
-                if (self.state === Queueable.DESTROYED) {
-                    return false; // already destroyed
+                if (self.state === Queue.DESTROYED) {
+                    return; // already destroyed
                 }
 
-                if (self.state !== Queueable.IDLE) {
+                if (self.state !== Queue.STOPPED) {
                     // stop the active queue first
                     self.bindOnce('Stopped', function() {
-                        Basic.delay.call(self, self.destroy);
+                        self.destroy();
                     });
                     return self.stop();
                 } else {
+                    self.trigger('Destroy');
+
                     self.clear();
-                    Queue.super.destroy.call(this);
-                    self._queue = self.stats = null;
+
+                    self.state = Queue.DESTROYED;
+                    self.trigger('StateChanged', self.state, prevState);
+
+                    self.unbindAll();
+                    self._queue = self.stats = self._startTime = null;
                 }
-                return true;
             }
         });
 
 
-        /**
-         * Returns another Queueable.IDLE or Queueable.RESUMED item, or null.
-         */
-        function getNextIdleItem() {
+
+        function getCandidate() {
             var nextItem;
-            this.forEachItem(function(item) {
+            this._queue.each(function(item) {
                 if (item.state === Queueable.IDLE || item.state === Queueable.RESUMED) {
                     nextItem = item;
                     return false;
                 }
             });
-            return nextItem ? nextItem : null;
+            return nextItem;
         }
 
 
         function processNext() {
+            var self = this;
             var item;
 
-            if (this.state !== Queueable.PROCESSING && this.state !== Queueable.PAUSED) {
-                return false;
-            }
-
-            if (this.stats.processing < this.getOption('max_slots')) {
-                item = getNextIdleItem.call(this);
+            while (self.stats.processing < self.getOption('max_slots')) {
+                item = getCandidate.call(self);
                 if (item) {
-                    item.setOptions(this.getOptions());
-                    return item.start();
+                    if (self.getOption('pause_before_start') && item.state === Queueable.IDLE) {
+                        self.pauseItem(item.uid);
+
+                        if (item.trigger('BeforeStart')) {
+                            // if nothing has seized the item, continue
+                            self.resumeItem(item.uid);
+                        }
+                    } else {
+                        self.stats.processing++;
+                        item.start(self.getOptions());
+                    }
+                } else if (!self.stats.processing) { // we ran out of pending and active items too, so we are done
+                    self.stop();
+                    return self.trigger('Done');
                 }
             }
-            return false;
+        }
+
+
+        function calcStats() {
+            var self = this;
+            self.stats.reset();
+
+            self.forEachItem(function(item) {
+                self.stats.processed += item.processed;
+                self.stats.total += item.total;
+
+                switch (item.status) {
+                    case Queueable.DONE:
+                        self.stats.done++;
+                        self.stats.uploaded = self.stats.done; // for backward compatibility
+                        break;
+
+                    case Queueable.FAILED:
+                        self.stats.failed++;
+                        break;
+
+                    default:
+                        self.stats.queued++;
+                }
+
+                if (self._startTime) {
+                    self.stats.processedPerSec = Math.ceil(self.stats.processed / ((+new Date() - self._startTime || 1) / 1000.0));
+                    self.stats.bytesPerSec = self.stats.processedPerSec; // for backward compatibility
+                }
+
+                if (self.stats.total) {
+                    self.stats.percent = Math.ceil(self.stats.processed / self.stats.total * 100);
+                }
+            });
+
+            // for backward compatibility     
+            self.stats.loaded = self.stats.processed;
+            self.stats.size = self.stats.total;
         }
 
         return Queue;
 
-    }(Queueable));
+    }(Optionable));
 });
 
 // Included from: src/QueueUpload.js
@@ -6832,8 +6358,8 @@ define('plupload/core/Queue', [
 /**
  * QueueUpload.js
  *
- * Copyright 2017, Ephox
- * Released under AGPLv3 License.
+ * Copyright 2016, Moxiecode Systems AB
+ * Released under GPL License.
  *
  * License: http://www.plupload.com/license
  * Contributing: http://www.plupload.com/contributing
@@ -6841,19 +6367,20 @@ define('plupload/core/Queue', [
 
 
 /**
- @class plupload.QueueUpload
- @extends plupload.core.Queue
- @constructor
+ @contsructor
+ @class plupload/QueueUpload
  @private
- @final
- @since 3.0
- @param {Object} options
  */
 define('plupload/QueueUpload', [
     'moxie/core/utils/Basic',
     'plupload/core/Queue'
 ], function(Basic, Queue) {
 
+    /**
+     * @class QueueUpload
+     * @constructor
+     * @extends Queue
+     */
     return (function(Parent) {
         Basic.inherit(QueueUpload, Parent);
 
@@ -6864,6 +6391,7 @@ define('plupload/QueueUpload', [
                 max_retries: 0,
                 auto_start: false,
                 finish_active: false,
+                pause_before_start: true,
                 url: false,
                 chunk_size: 0,
                 multipart: true,
@@ -6880,8 +6408,11 @@ define('plupload/QueueUpload', [
                     if (option == 'max_upload_slots') {
                         option = 'max_slots';
                     }
+                    if (!this._options.hasOwnProperty(option)) {
+                        return;
+                    }
                 }
-                QueueUpload.prototype.setOption.call(this, option, value, true);
+                QueueUpload.prototype.setOption.apply(this, arguments);
             };
 
             this.setOptions(options);
@@ -6896,8 +6427,8 @@ define('plupload/QueueUpload', [
 /**
  * QueueResize.js
  *
- * Copyright 2017, Ephox
- * Released under AGPLv3 License.
+ * Copyright 2016, Moxiecode Systems AB
+ * Released under GPL License.
  *
  * License: http://www.plupload.com/license
  * Contributing: http://www.plupload.com/contributing
@@ -6905,19 +6436,20 @@ define('plupload/QueueUpload', [
 
 
 /**
- @class plupload.QueueResize
- @extends plupload.core.Queue
- @constructor
+ @contsructor
+ @class plupload/QueueResize
  @private
- @final
- @since 3.0
- @param {Object} options
-*/
+ */
 define('plupload/QueueResize', [
     'moxie/core/utils/Basic',
     'plupload/core/Queue'
 ], function(Basic, Queue) {
 
+    /**
+     * @class QueueResize
+     * @constructor
+     * @extends Queue
+     */
     return (function(Parent) {
         Basic.inherit(QueueResize, Parent);
 
@@ -6928,6 +6460,7 @@ define('plupload/QueueResize', [
                 max_retries: 0,
                 auto_start: false,
                 finish_active: false,
+                pause_before_start: true,
                 resize: {}
             });
 
@@ -6936,8 +6469,11 @@ define('plupload/QueueResize', [
                     if (option == 'max_resize_slots') {
                         option = 'max_slots';
                     }
+                    if (!this._options.hasOwnProperty(option)) {
+                        return;
+                    }
                 }
-                QueueResize.prototype.setOption.call(this, option, value, true);
+                QueueResize.prototype.setOption.apply(this, arguments);
             };
 
 
@@ -7271,7 +6807,7 @@ define("moxie/xhr/XMLHttpRequest", [
 	function XMLHttpRequestUpload() {
 		this.uid = Basic.guid('uid_');
 	}
-
+	
 	XMLHttpRequestUpload.prototype = EventTarget.instance;
 
 	/**
@@ -7298,10 +6834,10 @@ define("moxie/xhr/XMLHttpRequest", [
 		'loadend'
 
 		// readystatechange (for historical reasons)
-	];
-
+	]; 
+	
 	var NATIVE = 1, RUNTIME = 2;
-
+					
 	function XMLHttpRequest() {
 		var self = this,
 			// this (together with _p() @see below) is here to gracefully upgrade to setter/getter syntax where possible
@@ -7367,7 +6903,7 @@ define("moxie/xhr/XMLHttpRequest", [
 				/**
 				Returns the response type. Can be set to change the response type. Values are:
 				the empty string (default), "arraybuffer", "blob", "document", "json", and "text".
-
+				
 				@property responseType
 				@type String
 				*/
@@ -7375,7 +6911,7 @@ define("moxie/xhr/XMLHttpRequest", [
 
 				/**
 				Returns the document response entity body.
-
+				
 				Throws an "InvalidStateError" exception if responseType is not the empty string or "document".
 
 				@property responseXML
@@ -7385,7 +6921,7 @@ define("moxie/xhr/XMLHttpRequest", [
 
 				/**
 				Returns the text response entity body.
-
+				
 				Throws an "InvalidStateError" exception if responseType is not the empty string or "text".
 
 				@property responseText
@@ -7396,7 +6932,7 @@ define("moxie/xhr/XMLHttpRequest", [
 				/**
 				Returns the response entity body (http://www.w3.org/TR/XMLHttpRequest/#response-entity-body).
 				Can become: ArrayBuffer, Blob, Document, JSON, Text
-
+				
 				@property response
 				@type Mixed
 				*/
@@ -7433,7 +6969,7 @@ define("moxie/xhr/XMLHttpRequest", [
 			_responseHeadersBag
 			;
 
-
+		
 		Basic.extend(this, props, {
 			/**
 			Unique id of the component
@@ -7442,7 +6978,7 @@ define("moxie/xhr/XMLHttpRequest", [
 			@type String
 			*/
 			uid: Basic.guid('uid_'),
-
+			
 			/**
 			Target for Upload events
 
@@ -7450,7 +6986,7 @@ define("moxie/xhr/XMLHttpRequest", [
 			@type XMLHttpRequestUpload
 			*/
 			upload: new XMLHttpRequestUpload(),
-
+			
 
 			/**
 			Sets the request method, request URL, synchronous flag, request username, and request password.
@@ -7478,12 +7014,12 @@ define("moxie/xhr/XMLHttpRequest", [
 			*/
 			open: function(method, url, async, user, password) {
 				var urlp;
-
+				
 				// first two arguments are required
 				if (!method || !url) {
 					throw new x.DOMException(x.DOMException.SYNTAX_ERR);
 				}
-
+				
 				// 2 - check if any code point in method is higher than U+00FF or after deflating method it does not match the method
 				if (/[\u0100-\uffff]/.test(method) || Encode.utf8_encode(method) !== method) {
 					throw new x.DOMException(x.DOMException.SYNTAX_ERR);
@@ -7493,8 +7029,8 @@ define("moxie/xhr/XMLHttpRequest", [
 				if (!!~Basic.inArray(method.toUpperCase(), ['CONNECT', 'DELETE', 'GET', 'HEAD', 'OPTIONS', 'POST', 'PUT', 'TRACE', 'TRACK'])) {
 					_method = method.toUpperCase();
 				}
-
-
+				
+				
 				// 4 - allowing these methods poses a security risk
 				if (!!~Basic.inArray(_method, ['CONNECT', 'TRACE', 'TRACK'])) {
 					throw new x.DOMException(x.DOMException.SECURITY_ERR);
@@ -7502,15 +7038,15 @@ define("moxie/xhr/XMLHttpRequest", [
 
 				// 5
 				url = Encode.utf8_encode(url);
-
+				
 				// 6 - Resolve url relative to the XMLHttpRequest base URL. If the algorithm returns an error, throw a "SyntaxError".
 				urlp = Url.parseUrl(url);
 
 				_same_origin_flag = Url.hasSameOrigin(urlp);
-
+																
 				// 7 - manually build up absolute url
 				_url = Url.resolveUrl(url);
-
+		
 				// 9-10, 12-13
 				if ((user || password) && !_same_origin_flag) {
 					throw new x.DOMException(x.DOMException.INVALID_ACCESS_ERR);
@@ -7518,16 +7054,16 @@ define("moxie/xhr/XMLHttpRequest", [
 
 				_user = user || urlp.user;
 				_password = password || urlp.pass;
-
+				
 				// 11
 				_async = async || true;
-
+				
 				if (_async === false && (_p('timeout') || _p('withCredentials') || _p('responseType') !== "")) {
 					throw new x.DOMException(x.DOMException.INVALID_ACCESS_ERR);
 				}
-
+				
 				// 14 - terminate abort()
-
+				
 				// 15 - terminate send()
 
 				// 18
@@ -7538,11 +7074,11 @@ define("moxie/xhr/XMLHttpRequest", [
 
 				// 19
 				_p('readyState', XMLHttpRequest.OPENED);
-
+				
 				// 20
 				this.dispatchEvent('readystatechange');
 			},
-
+			
 			/**
 			Appends an header to the list of author request headers, or if header is already
 			in the list of author request headers, combines its value with value.
@@ -7550,7 +7086,7 @@ define("moxie/xhr/XMLHttpRequest", [
 			Throws an "InvalidStateError" exception if the state is not OPENED or if the send() flag is set.
 			Throws a "SyntaxError" exception if header is not a valid HTTP header field name or if value
 			is not a valid HTTP header field value.
-
+			
 			@method setRequestHeader
 			@param {String} header
 			@param {String|Number} value
@@ -7579,7 +7115,7 @@ define("moxie/xhr/XMLHttpRequest", [
 						"user-agent",
 						"via"
 					];
-
+				
 				// 1-2
 				if (_p('readyState') !== XMLHttpRequest.OPENED || _send_flag) {
 					throw new x.DOMException(x.DOMException.INVALID_STATE_ERR);
@@ -7597,7 +7133,7 @@ define("moxie/xhr/XMLHttpRequest", [
 				}*/
 
 				header = Basic.trim(header).toLowerCase();
-
+				
 				// setting of proxy-* and sec-* headers is prohibited by spec
 				if (!!~Basic.inArray(header, uaHeaders) || /^(proxy\-|sec\-)/.test(header)) {
 					return false;
@@ -7606,7 +7142,7 @@ define("moxie/xhr/XMLHttpRequest", [
 				// camelize
 				// browsers lowercase header names (at least for custom ones)
 				// header = header.replace(/\b\w/g, function($1) { return $1.toUpperCase(); });
-
+				
 				if (!_headers[header]) {
 					_headers[header] = value;
 				} else {
@@ -7614,18 +7150,6 @@ define("moxie/xhr/XMLHttpRequest", [
 					_headers[header] += ', ' + value;
 				}
 				return true;
-			},
-
-			/**
-			 * Test if the specified header is already set on this request.
-			 * Returns a header value or boolean false if it's not yet set.
-			 *
-			 * @method hasRequestHeader
-			 * @param {String} header Name of the header to test
-			 * @return {Boolean|String}
-			 */
-			hasRequestHeader: function(header) {
-				return header && _headers[header.toLowerCase()] || false;
 			},
 
 			/**
@@ -7639,7 +7163,7 @@ define("moxie/xhr/XMLHttpRequest", [
 			},
 
 			/**
-			Returns the header field value from the response of which the field name matches header,
+			Returns the header field value from the response of which the field name matches header, 
 			unless the field name is Set-Cookie or Set-Cookie2.
 
 			@method getResponseHeader
@@ -7674,7 +7198,7 @@ define("moxie/xhr/XMLHttpRequest", [
 				}
 				return null;
 			},
-
+			
 			/**
 			Sets the Content-Type header for the response to mime.
 			Throws an "InvalidStateError" exception if the state is LOADING or DONE.
@@ -7685,7 +7209,7 @@ define("moxie/xhr/XMLHttpRequest", [
 			*/
 			overrideMimeType: function(mime) {
 				var matches, charset;
-
+			
 				// 1
 				if (!!~Basic.inArray(_p('readyState'), [XMLHttpRequest.LOADING, XMLHttpRequest.DONE])) {
 					throw new x.DOMException(x.DOMException.INVALID_STATE_ERR);
@@ -7709,7 +7233,7 @@ define("moxie/xhr/XMLHttpRequest", [
 				_finalMime = mime;
 				_finalCharset = charset;
 			},
-
+			
 			/**
 			Initiates the request. The optional argument provides the request entity body.
 			The argument is ignored if request method is GET or HEAD.
@@ -7720,7 +7244,7 @@ define("moxie/xhr/XMLHttpRequest", [
 			@param {Blob|Document|String|FormData} [data] Request entity body
 			@param {Object} [options] Set of requirements and pre-requisities for runtime initialization
 			*/
-			send: function(data, options) {
+			send: function(data, options) {					
 				if (Basic.typeOf(options) === 'string') {
 					_options = { ruid: options };
 				} else if (!options) {
@@ -7728,19 +7252,19 @@ define("moxie/xhr/XMLHttpRequest", [
 				} else {
 					_options = options;
 				}
-
+															
 				// 1-2
 				if (this.readyState !== XMLHttpRequest.OPENED || _send_flag) {
 					throw new x.DOMException(x.DOMException.INVALID_STATE_ERR);
 				}
-
-				// 3
+				
+				// 3					
 				// sending Blob
 				if (data instanceof Blob) {
 					_options.ruid = data.ruid;
 					_mimeType = data.type || 'application/octet-stream';
 				}
-
+				
 				// FormData
 				else if (data instanceof FormData) {
 					if (data.hasBlob()) {
@@ -7749,12 +7273,12 @@ define("moxie/xhr/XMLHttpRequest", [
 						_mimeType = blob.type || 'application/octet-stream';
 					}
 				}
-
+				
 				// DOMString
 				else if (typeof data === 'string') {
 					_encoding = 'UTF-8';
 					_mimeType = 'text/plain;charset=UTF-8';
-
+					
 					// data should be converted to Unicode and encoded as UTF-8
 					data = Encode.utf8_encode(data);
 				}
@@ -7785,10 +7309,10 @@ define("moxie/xhr/XMLHttpRequest", [
 				// 8.5 - Return the send() method call, but continue running the steps in this algorithm.
 				_doXHR.call(this, data);
 			},
-
+			
 			/**
 			Cancels any network activity.
-
+			
 			@method abort
 			*/
 			abort: function() {
@@ -7995,18 +7519,18 @@ define("moxie/xhr/XMLHttpRequest", [
 				}
 			}
 		}
-
+		
 		/*
 		function _toASCII(str, AllowUnassigned, UseSTD3ASCIIRules) {
 			// TODO: http://tools.ietf.org/html/rfc3490#section-4.1
 			return str.toLowerCase();
 		}
 		*/
-
-
+		
+		
 		function _doXHR(data) {
 			var self = this;
-
+			
 			_start_time = new Date().getTime();
 
 			_xhr = new RuntimeTarget();
@@ -8026,12 +7550,12 @@ define("moxie/xhr/XMLHttpRequest", [
 					self.dispatchEvent('readystatechange');
 
 					self.dispatchEvent(e);
-
+					
 					if (_upload_events_flag) {
 						self.upload.dispatchEvent(e);
 					}
 				});
-
+				
 				_xhr.bind('Progress', function(e) {
 					if (_p('readyState') !== XMLHttpRequest.LOADING) {
 						_p('readyState', XMLHttpRequest.LOADING); // LoadStart unreliable (in Flash for example)
@@ -8039,7 +7563,7 @@ define("moxie/xhr/XMLHttpRequest", [
 					}
 					self.dispatchEvent(e);
 				});
-
+				
 				_xhr.bind('UploadProgress', function(e) {
 					if (_upload_events_flag) {
 						self.upload.dispatchEvent({
@@ -8050,12 +7574,12 @@ define("moxie/xhr/XMLHttpRequest", [
 						});
 					}
 				});
-
+				
 				_xhr.bind('Load', function(e) {
 					_p('readyState', XMLHttpRequest.DONE);
 					_p('status', Number(runtime.exec.call(_xhr, 'XMLHttpRequest', 'getStatus') || 0));
 					_p('statusText', httpCode[_p('status')] || "");
-
+					
 					_p('response', runtime.exec.call(_xhr, 'XMLHttpRequest', 'getResponse', _p('responseType')));
 
 					if (!!~Basic.inArray(_p('responseType'), ['text', ''])) {
@@ -8067,7 +7591,7 @@ define("moxie/xhr/XMLHttpRequest", [
 					_responseHeaders = runtime.exec.call(_xhr, 'XMLHttpRequest', 'getAllResponseHeaders');
 
 					self.dispatchEvent('readystatechange');
-
+					
 					if (_p('status') > 0) { // status 0 usually means that server is unreachable
 						if (_upload_events_flag) {
 							self.upload.dispatchEvent(e);
@@ -8084,7 +7608,7 @@ define("moxie/xhr/XMLHttpRequest", [
 					self.dispatchEvent(e);
 					loadEnd();
 				});
-
+				
 				_xhr.bind('Error', function(e) {
 					_error_flag = true;
 					_p('readyState', XMLHttpRequest.DONE);
@@ -8129,7 +7653,7 @@ define("moxie/xhr/XMLHttpRequest", [
 			if (!_same_origin_flag) {
 				_options.required_caps.do_cors = true;
 			}
-
+			
 
 			if (_options.ruid) { // we do not need to wait if we can connect directly
 				exec(_xhr.connectRuntime(_options));
@@ -8143,8 +7667,8 @@ define("moxie/xhr/XMLHttpRequest", [
 				_xhr.connectRuntime(_options);
 			}
 		}
-
-
+	
+		
 		function _reset() {
 			_p('responseText', "");
 			_p('responseXML', null);
@@ -8160,7 +7684,7 @@ define("moxie/xhr/XMLHttpRequest", [
 	XMLHttpRequest.HEADERS_RECEIVED = 2;
 	XMLHttpRequest.LOADING = 3;
 	XMLHttpRequest.DONE = 4;
-
+	
 	XMLHttpRequest.prototype = EventTarget.instance;
 
 	return XMLHttpRequest;
@@ -8171,55 +7695,54 @@ define("moxie/xhr/XMLHttpRequest", [
 /**
  * ChunkUploader.js
  *
- * Copyright 2017, Ephox
- * Released under AGPLv3 License.
+ * Copyright 2015, Moxiecode Systems AB
+ * Released under GPL License.
  *
  * License: http://www.plupload.com/license
  * Contributing: http://www.plupload.com/contributing
  */
 
 /**
- * @class plupload.ChunkUploader
- * @extends plupload.core.Queueable
- * @constructor
- * @private
+ * @class plupload/ChunkUploader
+ * @constructor 
+ * @private 
  * @final
  * @constructor
+ * @extends plupload/core/Queueable
  */
 define('plupload/ChunkUploader', [
-    'moxie/core/utils/Basic',
+    'plupload',
     'plupload/core/Collection',
     'plupload/core/Queueable',
     'moxie/xhr/XMLHttpRequest',
     'moxie/xhr/FormData'
-], function(Basic, Collection, Queueable, XMLHttpRequest, FormData) {
+], function(plupload, Collection, Queueable, XMLHttpRequest, FormData) {
 
-    function ChunkUploader(blob) {
+
+    function ChunkUploader(blob, options) {
         var _xhr;
+        var _blob = blob;
 
         Queueable.call(this);
 
-        this._options = {
-			file_data_name: 'file',
-			headers: false,
-			http_method: 'POST',
-			multipart: true,
-			params: {},
-			send_file_name: true,
-			url: false
-		};
+        this.setOptions(options);
 
-        Basic.extend(this, {
+        plupload.extend(this, {
 
-            start: function() {
+            uid: plupload.guid(),
+
+            start: function(options) {
                 var self = this;
                 var url;
                 var formData;
-                var options = self._options;
+                var _options;
 
-                if (this.state === Queueable.PROCESSING) {
-                    return false;
+                if (options) {
+                    this.setOptions(options);
                 }
+                _options = this.getOptions();
+
+                ChunkUploader.prototype.start.call(this);
 
                 _xhr = new XMLHttpRequest();
 
@@ -8231,12 +7754,12 @@ define('plupload/ChunkUploader', [
 
                 _xhr.onload = function() {
                     var result = {
-                        response: this.responseText,
-                        status: this.status,
-                        responseHeaders: this.getAllResponseHeaders()
+                        response: _xhr.responseText,
+                        status: _xhr.status,
+                        responseHeaders: _xhr.getAllResponseHeaders()
                     };
 
-                    if (this.status >= 400) { // assume error
+                    if (_xhr.status >= 400) { // assume error
                         return self.failed(result);
                     }
 
@@ -8248,75 +7771,51 @@ define('plupload/ChunkUploader', [
                 };
 
                 _xhr.onloadend = function() {
-                    // we do not need _xhr anymore, so destroy it
-                    setTimeout(function() { // we detach to sustain reference until all handlers are done
-                        if (_xhr) {
-                            _xhr.destroy();
-                            _xhr = null;
-                        }
-                    }, 1);
+                    _xhr = null;
                 };
 
-                try {
-                    url = options.multipart ? options.url : buildUrl(options.url, options.params);
-                    _xhr.open(options.http_method, url, true);
+
+                url = _options.multipart ? _options.url : buildUrl(_options.url, _options.params);
+                _xhr.open(_options.http_method, url, true);
 
 
-                    // headers must be set after request is already opened, otherwise INVALID_STATE_ERR exception will raise
-                    if (!Basic.isEmptyObj(options.headers)) {
-                        Basic.each(options.headers, function(val, key) {
-                            _xhr.setRequestHeader(key, val);
+                // headers must be set after request is already opened, otherwise INVALID_STATE_ERR exception will raise
+                if (!plupload.isEmptyObj(_options.headers)) {
+                    plupload.each(_options.headers, function(val, key) {
+                        _xhr.setRequestHeader(key, val);
+                    });
+                }
+
+
+                if (_options.multipart) {
+                    formData = new FormData();
+
+                    if (!plupload.isEmptyObj(_options.params)) {
+                        plupload.each(_options.params, function(val, key) {
+                            formData.append(key, val);
                         });
                     }
 
+                    formData.append(_options.file_data_name, _blob);
 
-                    if (options.multipart) {
-                        formData = new FormData();
-
-                        if (!Basic.isEmptyObj(options.params)) {
-                            Basic.each(options.params, function(val, key) {
-                                formData.append(key, val);
-                            });
-                        }
-
-                        formData.append(options.file_data_name, blob);
-
-                        _xhr.send(formData);
-                    } else { // if no multipart, send as binary stream
-                        if (Basic.isEmptyObj(options.headers) || !_xhr.hasRequestHeader('content-type')) {
-                            _xhr.setRequestHeader('content-type', 'application/octet-stream'); // binary stream header
-                        }
-
-                        _xhr.send(blob);
+                    _xhr.send(formData);
+                } else { // if no multipart, send as binary stream    
+                    if (plupload.isEmptyObj(_options.headers) || !_options.headers['content-type']) {
+                        _xhr.setRequestHeader('content-type', 'application/octet-stream'); // binary stream header
                     }
 
-                    ChunkUploader.prototype.start.call(this)
-                } catch(ex) {
-                    self.failed();
+                    _xhr.send(_blob);
                 }
             },
 
 
             stop: function() {
+                ChunkUploader.prototype.stop.call(this);
+
                 if (_xhr) {
                     _xhr.abort();
-                    _xhr.destroy();
                     _xhr = null;
                 }
-                ChunkUploader.prototype.stop.call(this);
-            },
-
-            setOption: function(option, value) {
-				ChunkUploader.prototype.setOption.call(this, option, value, true);
-			},
-
-			setOptions: function(options) {
-				ChunkUploader.prototype.setOption.call(this, options, true);
-			},
-
-            destroy: function() {
-                this.stop();
-                ChunkUploader.prototype.destroy.call(this);
             }
         });
 
@@ -8333,7 +7832,7 @@ define('plupload/ChunkUploader', [
         function buildUrl(url, items) {
             var query = '';
 
-            Basic.each(items, function(value, name) {
+            plupload.each(items, function(value, name) {
                 query += (query ? '&' : '') + encodeURIComponent(name) + '=' + encodeURIComponent(value);
             });
 
@@ -8346,7 +7845,7 @@ define('plupload/ChunkUploader', [
 
     }
 
-    Basic.inherit(ChunkUploader, Queueable);
+    ChunkUploader.prototype = new Queueable();
 
     return ChunkUploader;
 });
@@ -8356,64 +7855,74 @@ define('plupload/ChunkUploader', [
 /**
  * FileUploader.js
  *
- * Copyright 2017, Ephox
- * Released under AGPLv3 License.se.
+ * Copyright 2015, Moxiecode Systems AB
+ * Released under GPL License.
  *
  * License: http://www.plupload.com/license
  * Contributing: http://www.plupload.com/contributing
  */
 
 /**
- * @class plupload.FileUploader
- * @extends plupload.core.Queueable
- * @constructor
+ * @class plupload/FileUploader
+ * @constructor 
  * @since 3.0
  * @final
+ * @extends plupload/core/Queueable
  */
 define('plupload/FileUploader', [
-	'moxie/core/utils/Basic',
+	'plupload',
 	'plupload/core/Collection',
 	'plupload/core/Queueable',
 	'plupload/ChunkUploader'
-], function(Basic, Collection, Queueable, ChunkUploader) {
+], function(plupload, Collection, Queueable, ChunkUploader) {
 
 
-	function FileUploader(file, queue) {
+	function FileUploader(fileRef, queue) {
+		var _file = fileRef;
 		var _chunks = new Collection();
 		var _totalChunks = 1;
 
 		Queueable.call(this);
 
 		this._options = {
+			url: false,
 			chunk_size: 0,
+			multipart: true,
+			http_method: 'POST',
 			params: {},
+			headers: false,
+			file_data_name: 'file',
 			send_file_name: true,
 			stop_on_fail: true
 		};
 
-		Basic.extend(this, {
+		plupload.extend(this, {
+
 			/**
-			When send_file_name is set to true, will be sent with the request as `name` param.
+			Unique identifier
+
+			@property uid
+			@type {String}
+            */
+			uid: plupload.guid(),
+
+			/**
+			When send_file_name is set to true, will be sent with the request as `name` param. 
             Can be used on server-side to override original file name.
 
             @property name
 			@type {String}
             */
-			name: file.name,
+			name: _file.name,
 
 
-			start: function() {
+			start: function(options) {
 				var self = this;
-				var prevState = this.state;
 				var up;
 
-				if (this.state === Queueable.PROCESSING) {
-					return false;
-				}
+				this.setOptions(options);
 
-				if (this.state === Queueable.IDLE && !FileUploader.prototype.start.call(self)) {
-					return false;
-				}
+				FileUploader.prototype.start.call(self);
 
 				// send additional 'name' parameter only if required or explicitly requested
 				if (self._options.send_file_name) {
@@ -8421,10 +7930,10 @@ define('plupload/FileUploader', [
 				}
 
 				if (self._options.chunk_size) {
-					_totalChunks = Math.ceil(file.size / self._options.chunk_size);
-					self.uploadChunk(false, true);
+					_totalChunks = Math.ceil(_file.size / self._options.chunk_size);
+					self.uploadChunk(false, false, true);
 				} else {
-					up = new ChunkUploader(file);
+					up = new ChunkUploader(_file, self._options);
 
 					up.bind('progress', function(e) {
 						self.progress(e.loaded, e.total);
@@ -8438,58 +7947,53 @@ define('plupload/FileUploader', [
 						self.failed(result);
 					});
 
-					up.setOptions(self._options);
-
 					queue.addItem(up);
 				}
-
-				this.state = Queueable.PROCESSING;
-				this.trigger('statechanged', this.state, prevState);
-				this.trigger('started');
-				return true;
 			},
 
 
-			uploadChunk: function(seq, dontStop) {
+			uploadChunk: function(seq, options, dontStop) {
 				var self = this;
 				var chunkSize = this.getOption('chunk_size');
 				var up;
 				var chunk = {};
 				var _options;
 
+				if (options) {
+					// chunk_size cannot be changed on the fly
+					delete options.chunk_size;
+					plupload.extend(this._options, options);
+				}
+
 				chunk.seq = parseInt(seq, 10) || getNextChunk();
 				chunk.start = chunk.seq * chunkSize;
-				chunk.end = Math.min(chunk.start + chunkSize, file.size);
-				chunk.total = file.size;
+				chunk.end = Math.min(chunk.start + chunkSize, _file.size);
+				chunk.total = _file.size;
 
 				// do not proceed for weird chunks
-				if (chunk.start < 0 || chunk.start >= file.size) {
+				if (chunk.start < 0 || chunk.start >= _file.size) {
 					return false;
 				}
 
-				_options = Basic.extendImmutable({}, this.getOptions(), {
+				_options = plupload.extend({}, this.getOptions(), {
 					params: {
-						chunk: chunk.seq,
+						chunk: seq,
 						chunks: _totalChunks
 					}
 				});
 
-				up = new ChunkUploader(file.slice(chunk.start, chunk.end, file.type));
-
-				/*up.bind('beforestart', function(e) {
-					self.trigger('beforechunkupload', file, this.getOption('params'), blob)
-				});*/
+				up = new ChunkUploader(_file.slice(chunk.start, chunk.end, _file.type), _options);
 
 				up.bind('progress', function(e) {
-					self.progress(calcProcessed() + e.loaded, file.size);
+					self.progress(calcProcessed() + e.loaded, _file.size);
 				});
 
 				up.bind('failed', function(e, result) {
-					_chunks.add(chunk.seq, Basic.extend({
+					_chunks.add(chunk.seq, plupload.extend({
 						state: Queueable.FAILED
 					}, chunk));
 
-					self.trigger('chunkuploadfailed', Basic.extendImmutable({}, chunk, result));
+					self.trigger('chunkuploadfailed', plupload.extend({}, chunk, result));
 
 					if (_options.stop_on_fail) {
 						self.failed(result);
@@ -8497,18 +8001,17 @@ define('plupload/FileUploader', [
 				});
 
 				up.bind('done', function(e, result) {
-					_chunks.add(chunk.seq, Basic.extend({
+					_chunks.add(chunk.seq, plupload.extend({
 						state: Queueable.DONE
 					}, chunk));
 
-					self.trigger('chunkuploaded', Basic.extendImmutable({}, chunk, result));
+					self.trigger('chunkuploaded', plupload.extend({}, chunk, result));
 
-					if (calcProcessed() >= file.size) {
-						self.progress(file.size, file.size);
+					if (calcProcessed() >= _file.size) {
 						self.done(result); // obviously we are done
 					} else if (dontStop) {
-						Basic.delay(function() {
-							self.uploadChunk(getNextChunk(), dontStop);
+						plupload.delay(function() {
+							self.uploadChunk(getNextChunk(), false, dontStop);
 						});
 					}
 				});
@@ -8517,25 +8020,32 @@ define('plupload/FileUploader', [
 					this.destroy();
 				});
 
-				up.setOptions(_options);
 
-				_chunks.add(chunk.seq, Basic.extend({
+				_chunks.add(chunk.seq, plupload.extend({
 					state: Queueable.PROCESSING
 				}, chunk));
-
 				queue.addItem(up);
 
 				// enqueue even more chunks if slots available
 				if (dontStop && queue.countSpareSlots()) {
-					self.uploadChunk(getNextChunk(), dontStop);
+					self.uploadChunk(getNextChunk(), false, dontStop);
 				}
 
 				return true;
 			},
 
+
+			setOption: function(option, value) {
+				if (typeof(option) !== 'object' && !this._options.hasOwnProperty(option)) {
+					return;
+				}
+				FileUploader.prototype.setOption.apply(this, arguments);
+			},
+
+
 			destroy: function() {
 				FileUploader.prototype.destroy.call(this);
-				_chunks.clear();
+				queue = _file = null;
 			}
 		});
 
@@ -8564,7 +8074,7 @@ define('plupload/FileUploader', [
 	}
 
 
-	Basic.inherit(FileUploader, Queueable);
+	FileUploader.prototype = new Queueable();
 
 	return FileUploader;
 });
@@ -8923,7 +8433,7 @@ define("moxie/image/Image", [
 					height: self.height
 				};
 
-				var opts = Basic.extendIf({
+				options = Basic.extendIf({
 					width: self.width,
 					height: self.height,
 					type: self.type || 'image/jpeg',
@@ -8949,34 +8459,34 @@ define("moxie/image/Image", [
 					orientation = (self.meta && self.meta.tiff && self.meta.tiff.Orientation) || 1;
 
 					if (Basic.inArray(orientation, [5,6,7,8]) !== -1) { // values that require 90 degree rotation
-						var tmp = opts.width;
-						opts.width = opts.height;
-						opts.height = tmp;
+						var tmp = options.width;
+						options.width = options.height;
+						options.height = tmp;
 					}
 
-					if (opts.crop) {
-						scale = Math.max(opts.width/self.width, opts.height/self.height);
+					if (options.crop) {
+						scale = Math.max(options.width/self.width, options.height/self.height);
 
 						if (options.fit) {
 							// first scale it up or down to fit the original image
-							srcRect.width = Math.min(Math.ceil(opts.width/scale), self.width);
-							srcRect.height = Math.min(Math.ceil(opts.height/scale), self.height);
+							srcRect.width = Math.min(Math.ceil(options.width/scale), self.width);
+							srcRect.height = Math.min(Math.ceil(options.height/scale), self.height);
 							
 							// recalculate the scale for adapted dimensions
-							scale = opts.width/srcRect.width;
+							scale = options.width/srcRect.width; 
 						} else {
-							srcRect.width = Math.min(opts.width, self.width);
-							srcRect.height = Math.min(opts.height, self.height);
+							srcRect.width = Math.min(options.width, self.width);
+							srcRect.height = Math.min(options.height, self.height);
 
 							// now we do not need to scale it any further
 							scale = 1; 
 						}
 
-						if (typeof(opts.crop) === 'boolean') {
-							opts.crop = 'cc';
+						if (typeof(options.crop) === 'boolean') {
+							options.crop = 'cc';
 						}
 
-						switch (opts.crop.toLowerCase().replace(/_/, '-')) {
+						switch (options.crop.toLowerCase()) {
 							case 'rb':
 							case 'right-bottom':
 								srcRect.x = self.width - srcRect.width;
@@ -9034,16 +8544,16 @@ define("moxie/image/Image", [
 							default:
 								srcRect.x = Math.floor((self.width - srcRect.width) / 2);
 								srcRect.y = Math.floor((self.height - srcRect.height) / 2);
-						}
+						}						
 
 						// original image might be smaller than requested crop, so - avoid negative values
 						srcRect.x = Math.max(srcRect.x, 0);
 						srcRect.y = Math.max(srcRect.y, 0);
 					} else {
-						scale = Math.min(opts.width/self.width, opts.height/self.height);
+						scale = Math.min(options.width/self.width, options.height/self.height);
 					}
 
-					this.exec('Image', 'resize', srcRect, scale, opts);
+					this.exec('Image', 'resize', srcRect, scale, options);
 				} catch(ex) {
 					// for now simply trigger error event
 					self.trigger('error', ex.code);
@@ -9055,8 +8565,14 @@ define("moxie/image/Image", [
 
 			@method downsize
 			@deprecated use resize()
+			@param {Object} opts
+				@param {Number} opts.width Resulting width
+				@param {Number} [opts.height=width] Resulting height (optional, if not supplied will default to width)
+				@param {Boolean} [opts.crop=false] Whether to crop the image to exact dimensions
+				@param {Boolean} [opts.preserveHeaders=true] Whether to preserve meta headers (on JPEGs after resize)
+				@param {String} [opts.resample=false] Resampling algorithm to use for resizing
 			*/
-			downsize: function(options) {
+			downsize: function(opts) {
 				var defaults = {
 					width: this.width,
 					height: this.height,
@@ -9065,10 +8581,10 @@ define("moxie/image/Image", [
 					crop: false,
 					preserveHeaders: true,
 					resample: 'default'
-				}, opts;
+				};
 
-				if (typeof(options) === 'object') {
-					opts = Basic.extend(defaults, options);
+				if (typeof(opts) === 'object') {
+					opts = Basic.extend(defaults, opts);
 				} else {
 					// for backward compatibility
 					opts = Basic.extend(defaults, {
@@ -9098,7 +8614,9 @@ define("moxie/image/Image", [
 				if (!Env.can('create_canvas')) {
 					throw new x.RuntimeError(x.RuntimeError.NOT_SUPPORTED_ERR);
 				}
-				return this.exec('Image', 'getAsCanvas');
+
+				var runtime = this.connectRuntime(this.ruid);
+				return runtime.exec.call(this, 'Image', 'getAsCanvas');
 			},
 
 			/**
@@ -9154,24 +8672,24 @@ define("moxie/image/Image", [
 
 			@method embed
 			@param {DOMElement} el DOM element to insert the image object into
-			@param {Object} [options]
-				@param {Number} [options.width] The width of an embed (defaults to the image width)
-				@param {Number} [options.height] The height of an embed (defaults to the image height)
-				@param {String} [options.type="image/jpeg"] Mime type
-				@param {Number} [options.quality=90] Quality of an embed, if mime type is image/jpeg
-				@param {Boolean} [options.crop=false] Whether to crop an embed to the specified dimensions
+			@param {Object} [opts]
+				@param {Number} [opts.width] The width of an embed (defaults to the image width)
+				@param {Number} [opts.height] The height of an embed (defaults to the image height)
+				@param {String} [type="image/jpeg"] Mime type
+				@param {Number} [quality=90] Quality of an embed, if mime type is image/jpeg
+				@param {Boolean} [crop=false] Whether to crop an embed to the specified dimensions
 			*/
-			embed: function(el, options) {
+			embed: function(el, opts) {
 				var self = this
 				, runtime // this has to be outside of all the closures to contain proper runtime
 				;
 
-				var opts = Basic.extend({
+				opts = Basic.extend({
 					width: this.width,
 					height: this.height,
 					type: this.type || 'image/jpeg',
 					quality: 90
-				}, options);
+				}, opts || {});
 				
 
 				function render(type, quality) {
@@ -9261,7 +8779,7 @@ define("moxie/image/Image", [
 					});
 
 					imgCopy.bind("Load", function() {
-						this.downsize(opts);
+						imgCopy.downsize(opts);
 					});
 
 					// if embedded thumb data is available and dimensions are big enough, use it
@@ -9288,10 +8806,6 @@ define("moxie/image/Image", [
 					this.getRuntime().exec.call(this, 'Image', 'destroy');
 					this.disconnectRuntime();
 				}
-				if (this.meta && this.meta.thumb) {
-					// thumb is blob, make sure we destroy it first
-					this.meta.thumb.data.destroy();
-				}
 				this.unbindAll();
 			}
 		});
@@ -9301,34 +8815,27 @@ define("moxie/image/Image", [
 		this.handleEventProps(dispatches);
 
 		this.bind('Load Resize', function() {
-			return _updateInfo.call(this); // if operation fails (e.g. image is neither PNG nor JPEG) cancel all pending events
+			_updateInfo.call(this);
 		}, 999);
 
 
 		function _updateInfo(info) {
-			try {
-				if (!info) {
-					info = this.exec('Image', 'getInfo');
-				}
+			if (!info) {
+				info = this.exec('Image', 'getInfo');
+			}
 
-				this.size = info.size;
-				this.width = info.width;
-				this.height = info.height;
-				this.type = info.type;
-				this.meta = info.meta;
+			this.size = info.size;
+			this.width = info.width;
+			this.height = info.height;
+			this.type = info.type;
+			this.meta = info.meta;
 
-				// update file name, only if empty
-				if (this.name === '') {
-					this.name = info.name;
-				}
-
-				return true;
-			} catch(ex) {
-				this.trigger('error', ex.code);
-				return false;
+			// update file name, only if empty
+			if (this.name === '') {
+				this.name = info.name;
 			}
 		}
-
+		
 
 		function _load(src) {
 			var srcType = Basic.typeOf(src);
@@ -9462,21 +8969,16 @@ define("moxie/image/Image", [
 /**
  * ImageResizer.js
  *
- * Copyright 2017, Ephox
- * Released under AGPLv3 License.
+ * Copyright 2015, Moxiecode Systems AB
+ * Released under GPL License.
  *
  * License: http://www.plupload.com/license
  * Contributing: http://www.plupload.com/contributing
  */
 
 /**
- @class plupload.ImageResizer
- @extends plupload.core.Queueable
- @constructor
- @private
- @final
- @since 3.0
- @param {plupload.File} fileRef
+@class plupload/ImageResizer
+@constructor 
 */
 define("plupload/ImageResizer", [
 	'plupload',
@@ -9484,7 +8986,12 @@ define("plupload/ImageResizer", [
 	'moxie/image/Image'
 ], function(plupload, Queueable, mxiImage) {
 
+	/**
+	Image preloading and manipulation utility. Additionally it provides access to image meta info (Exif, GPS) and raw binary data.
 
+	@class plupload/Image
+	@constructor
+	*/
 	function ImageResizer(fileRef) {
 
 		Queueable.call(this);
@@ -9537,10 +9044,7 @@ define("plupload/ImageResizer", [
 		};
 	}
 
-	plupload.inherit(ImageResizer, Queueable);
-
-	// ImageResizer is only included for builds with Image manipulation support, so we add plupload.Image here manually
-	plupload.Image = mxiImage;
+	ImageResizer.prototype = new Queueable();
 
 	return ImageResizer;
 });
@@ -9550,19 +9054,19 @@ define("plupload/ImageResizer", [
 /**
  * File.js
  *
- * Copyright 2017, Ephox
- * Released under AGPLv3 License.se.
+ * Copyright 2015, Moxiecode Systems AB
+ * Released under GPL License.
  *
  * License: http://www.plupload.com/license
  * Contributing: http://www.plupload.com/contributing
  */
 
 /**
- * @class plupload.File
- * @extends plupload.core.Queueable
+ * @class plupload/File
  * @constructor
  * @since 3.0
  * @final
+ * @extends plupload/core/Queueable
  */
 define('plupload/File', [
     'plupload',
@@ -9571,9 +9075,12 @@ define('plupload/File', [
     'plupload/ImageResizer'
 ], function(plupload, Queueable, FileUploader, ImageResizer) {
 
-    function File(file, queueUpload, queueResize) {
-        Queueable.call(this);
 
+    function File(fileRef, queueUpload, queueResize) {
+        var _file = fileRef;
+        var _uid = plupload.guid();
+
+        Queueable.call(this);
 
         plupload.extend(this, {
             /**
@@ -9583,8 +9090,15 @@ define('plupload/File', [
              * @type {String}
              * @deprecated
              */
-            id: this.uid,
+            id: _uid,
 
+            /**
+             Unique identifier
+
+             @property uid
+             @type {String}
+             */
+            uid: _uid,
 
             /**
              When send_file_name is set to true, will be sent with the request as `name` param.
@@ -9593,7 +9107,7 @@ define('plupload/File', [
              @property name
              @type {String}
              */
-            name: file.name,
+            name: _file.name,
 
             /**
              @property target_name
@@ -9608,7 +9122,7 @@ define('plupload/File', [
              * @property type
              * @type String
              */
-            type: file.type,
+            type: _file.type,
 
             /**
              * File size in bytes (may change after client-side manupilation).
@@ -9616,7 +9130,7 @@ define('plupload/File', [
              * @property size
              * @type Number
              */
-            size: file.size,
+            size: _file.size,
 
             /**
              * Original file size in bytes.
@@ -9624,25 +9138,23 @@ define('plupload/File', [
              * @property origSize
              * @type Number
              */
-            origSize: file.size,
+            origSize: _file.size,
 
-            start: function() {
-                var prevState = this.state;
 
-                if (this.state === Queueable.PROCESSING) {
-                    return false;
+            start: function(options) {
+                var self = this;
+
+                if (options) {
+                    this.setOptions(options);
                 }
 
-                this.state = Queueable.PROCESSING;
-                this.trigger('statechanged', this.state, prevState);
-                this.trigger('started');
-
-                if (!plupload.isEmptyObj(this._options.resize) && isImage(this.type) && runtimeCan(file, 'send_binary_string')) {
+                if (!plupload.isEmptyObj(options.resize) && isImage(this.type) && runtimeCan(_file, 'send_binary_string')) {
                     this.resizeAndUpload();
                 } else {
                     this.upload();
                 }
-                return true;
+
+                File.prototype.start.call(self);
             },
 
             /**
@@ -9652,7 +9164,7 @@ define('plupload/File', [
              * @returns {moxie.file.File}
              */
             getSource: function() {
-                return file;
+                return _file;
             },
 
             /**
@@ -9671,18 +9183,18 @@ define('plupload/File', [
 
             resizeAndUpload: function() {
                 var self = this;
-                var rszr = new ImageResizer(file);
+                var rszr = new ImageResizer(_file);
 
                 rszr.bind('progress', function(e) {
                     self.progress(e.loaded, e.total);
                 });
 
                 rszr.bind('done', function(e, file) {
-                    file = file;
+                    _file = file;
                     self.upload();
                 });
 
-                rszr.bind('failed', function() {
+                rszr.bind('failed', function(e, result) {
                     self.upload();
                 });
 
@@ -9692,23 +9204,7 @@ define('plupload/File', [
 
             upload: function() {
                 var self = this;
-                var up = new FileUploader(file, queueUpload);
-
-                up.bind('beforestart', function() {
-                    return self.trigger('beforeupload');
-                });
-
-                up.bind('paused', function() {
-                    self.pause();
-                });
-
-                up.bind('resumed', function() {
-                    this.start();
-                });
-
-                up.bind('started', function() {
-                    self.trigger('startupload');
-                });
+                var up = new FileUploader(_file, queueUpload);
 
                 up.bind('progress', function(e) {
                     self.progress(e.loaded, e.total);
@@ -9722,16 +9218,14 @@ define('plupload/File', [
                     self.failed(result);
                 });
 
-                up.setOptions(self.getOptions());
-
-                up.start();
+               up.start(self.getOptions());
             },
 
 
 
             destroy: function() {
                 File.prototype.destroy.call(this);
-                file = null;
+                _file = null;
             }
         });
     }
@@ -9753,7 +9247,7 @@ define('plupload/File', [
     }
 
 
-    plupload.inherit(File, Queueable);
+    File.prototype = new Queueable();
 
     return File;
 });
@@ -9763,8 +9257,8 @@ define('plupload/File', [
 /**
  * Uploader.js
  *
- * Copyright 2017, Ephox
- * Released under AGPLv3 License.
+ * Copyright 2013, Moxiecode Systems AB
+ * Released under GPL License.
  *
  * License: http://www.plupload.com/license
  * Contributing: http://www.plupload.com/contributing
@@ -9772,14 +9266,15 @@ define('plupload/File', [
 
 
 /**
-@class plupload.Uploader
-@extends plupload.core.Queue
-@constructor
+@class plupload/Uploader
 @public
 @final
+@constructor
+@extends plupload/core/Queue
 
 @param {Object} settings For detailed information about each option check documentation.
 	@param {String|DOMElement} settings.browse_button id of the DOM element or DOM element itself to use as file dialog trigger.
+	@param {String} settings.url URL of the server-side upload handler.
 	@param {Number|String} [settings.chunk_size=0] Chunk size in bytes to slice the file into. Shorcuts with b, kb, mb, gb, tb suffixes also supported. `e.g. 204800 or "204800b" or "200kb"`. By default - disabled.
 	@param {Boolean} [settings.send_chunk_number=true] Whether to send chunks and chunk numbers, or total and offset bytes.
 	@param {String|DOMElement} [settings.container] id of the DOM element or DOM element itself that will be used to wrap uploader structures. Defaults to immediate parent of the `browse_button` element.
@@ -9791,27 +9286,21 @@ define('plupload/File', [
 		@param {Boolean} [settings.filters.prevent_duplicates=false] Do not let duplicates into the queue. Dispatches `plupload.FILE_DUPLICATE_ERROR`.
 	@param {String} [settings.flash_swf_url] URL of the Flash swf.
 	@param {Object} [settings.headers] Custom headers to send with the upload. Hash of name/value pairs.
-	@param {String} [settings.http_method="POST"] HTTP method to use during upload (only PUT or POST allowed).
 	@param {Number} [settings.max_retries=0] How many times to retry the chunk or file, before triggering Error event.
 	@param {Boolean} [settings.multipart=true] Whether to send file and additional parameters as Multipart formated message.
-	@param {Boolean} [settings.multi_selection=true] Enable ability to select multiple files at once in file dialog.
 	@param {Object} [settings.params] Hash of key/value pairs to send with every file upload.
+	@param {String} [settings.http_method="POST"] HTTP method to use during upload (only PUT or POST allowed).
+	@param {Boolean} [settings.multi_selection=true] Enable ability to select multiple files at once in file dialog.
 	@param {String|Object} [settings.required_features] Either comma-separated list or hash of required features that chosen runtime should absolutely possess.
-	@param {Object} [settings.resize] Enable resizing of images on client-side. Applies to `image/jpeg` and `image/png` only. `e.g. {width : 200, height : 200, quality : 90, crop: true}`
-		 @param {Number} settings.resize.width Resulting width
-		 @param {Number} [settings.resize.height=width] Resulting height (optional, if not supplied will default to width)
-		 @param {String} [settings.resize.type='image/jpeg'] MIME type of the resulting image
-		 @param {Number} [settings.resize.quality=90] In the case of JPEG, controls the quality of resulting image
-		 @param {Boolean} [settings.resize.crop='cc'] If not falsy, image will be cropped, by default from center
-		 @param {Boolean} [settings.resize.fit=true] In case of crop whether to upscale the image to fit the exact dimensions
-		 @param {Boolean} [settings.resize.preserveHeaders=true] Whether to preserve meta headers (on JPEGs after resize)
-		 @param {String} [settings.resize.resample='default'] Resampling algorithm to use during resize
-		 @param {Boolean} [settings.resize.multipass=true] Whether to scale the image in steps (results in better quality)
- 	@param {String} [settings.runtimes="html5,flash,silverlight,html4"] Comma separated list of runtimes, that Plupload will try in turn, moving to the next if previous fails.
-	@param {Boolean} [settings.send_file_name=true] Whether to send file name as additional argument - 'name' (required for chunked uploads and some other cases where file name cannot be sent via normal ways).
+	@param {Object} [settings.resize] Enable resizng of images on client-side. Applies to `image/jpeg` and `image/png` only. `e.g. {width : 200, height : 200, quality : 90, crop: true}`
+		@param {Number} [settings.resize.width] If image is bigger, it will be resized.
+		@param {Number} [settings.resize.height] If image is bigger, it will be resized.
+		@param {Number} [settings.resize.quality=90] Compression quality for jpegs (1-100).
+		@param {Boolean} [settings.resize.crop=false] Whether to crop images to exact dimensions. By default they will be resized proportionally.
+	@param {String} [settings.runtimes="html5,flash,silverlight,html4"] Comma separated list of runtimes, that Plupload will try in turn, moving to the next if previous fails.
 	@param {String} [settings.silverlight_xap_url] URL of the Silverlight xap.
 	@param {Boolean} [settings.unique_names=false] If true will generate unique filenames for uploaded files.
-	@param {String} settings.url URL of the server-side upload handler.
+	@param {Boolean} [settings.send_file_name=true] Whether to send file name as additional argument - 'name' (required for chunked uploads and some other cases where file name cannot be sent via normal ways).
 */
 
 /**
@@ -9995,51 +9484,55 @@ define('plupload/Uploader', [
 
 
 	function Uploader(options) {
+		var _uid = plupload.guid();
 		var _fileInputs = [];
 		var _fileDrops = [];
 		var _queueUpload, _queueResize;
 		var _initialized = false;
 		var _disabled = false;
 
-		var _options = normalizeOptions(plupload.extend({
-			backward_compatibility: true,
-			chunk_size: 0,
-			file_data_name: 'file',
-			filters: {
-				mime_types: '*',
-				prevent_duplicates: false,
-				max_file_size: 0
+		var _options = plupload.extend({
+				runtimes: Runtime.order,
+				multi_selection: true,
+				flash_swf_url: 'js/Moxie.swf',
+				silverlight_xap_url: 'js/Moxie.xap',
+				filters: {
+					mime_types: '*',
+					prevent_duplicates: false,
+					max_file_size: 0
+				},
+				// headers: false, // Plupload had a required feature with the same name, comment it to avoid confusion
+				max_upload_slots: 1,
+				max_resize_slots: 1,
+				multipart: true,
+				multipart_params: {}, // deprecated, use - params,
+				// @since 3
+				params: {},
+				// @since 2.3
+				http_method: 'POST',
+				file_data_name: 'file',
+				chunk_size: 0,
+				send_file_name: true,
+				send_chunk_number: true, // whether to send chunks and chunk numbers, instead of total and offset bytes
+				max_retries: 0,
+				resize: false,
+				backward_compatibility: true
 			},
-			flash_swf_url: 'js/Moxie.swf',
-			// @since 2.3
-			http_method: 'POST',
-			// headers: false, // Plupload had a required feature with the same name, comment it to avoid confusion
-			max_resize_slots: 1,
-			max_retries: 0,
-			max_upload_slots: 1,
-			multipart: true,
-			multipart_params: {}, // deprecated, use - params,
-			multi_selection: true,
-			// @since 3
-			params: {},
-			resize: false,
-			runtimes: Runtime.order,
-			send_chunk_number: true, // whether to send chunks and chunk numbers, instead of total and offset bytes
-			send_file_name: true,
-			silverlight_xap_url: 'js/Moxie.xap',
+			options
+		);
 
-			// during normalization, these should be processed last
-			required_features: false,
-			preferred_caps: false
-		}, options));
+		// Normalize the list of required capabilities
+		_options.required_features = normalizeCaps(plupload.extend({}, _options));
+
+		// Come up with the list of capabilities that can affect default mode in a multi-mode runtimes
+		_options.preferred_caps = normalizeCaps(plupload.extend({}, _options, {
+			required_features: true
+		}));
 
 		Queue.call(this);
 
-
 		// Add public methods
 		plupload.extend(this, {
-
-			_options: _options,
 
 			/**
 			 * Unique id for the Uploader instance.
@@ -10047,7 +9540,8 @@ define('plupload/Uploader', [
 			 * @property id
 			 * @type String
 			 */
-			id: this.uid,
+			id: _uid,
+			uid: _uid, // mOxie uses this to differentiate between event targets
 
 			/**
 			 * Current state of the total uploading progress. This one can either be plupload.STARTED or plupload.STOPPED.
@@ -10076,7 +9570,7 @@ define('plupload/Uploader', [
 			 * @type Object
 			 * @deprecated Use `getOption()/setOption()`
 			 */
-			settings : _options,
+			settings : {},
 
 			/**
 			 * Current runtime name
@@ -10101,6 +9595,7 @@ define('plupload/Uploader', [
 			 *
 			 * @property total
 			 * @deprecated use stats
+			 * @type plupload.QueueProgress
 			 */
 			total: this.stats,
 
@@ -10150,7 +9645,7 @@ define('plupload/Uploader', [
 				initControls.call(self, function(initialized) {
 					var runtime;
 					var initOpt = self.getOption('init');
-					var queueOpts = plupload.extendImmutable({}, self.getOption(), { auto_start: true });
+					var queueOpts = plupload.extend({}, self.getOption(), { auto_start: true });
 
 					if (typeof(initOpt) == "function") {
 						initOpt(self);
@@ -10211,7 +9706,7 @@ define('plupload/Uploader', [
 				}
 
 				if (typeof(option) !== 'object') {
-					value = normalizeOption(option, value, this._options);
+					value = normalizeOption(option, value, _options);
 
 					// queues will take in only appropriate options
 					if (_queueUpload) {
@@ -10253,7 +9748,9 @@ define('plupload/Uploader', [
 			 * @method stop
 			 */
 			stop: function() {
-				if (Uploader.prototype.stop.call(this) && this.state != plupload.STOPPED) {
+				Uploader.prototype.stop.call(this);
+
+				if (this.state != plupload.STOPPED) {
 					this.trigger('CancelUpload');
 				}
 			},
@@ -10291,7 +9788,7 @@ define('plupload/Uploader', [
 
 			/**
 			 * Adds file to the queue programmatically. Can be native file, instance of Plupload.File,
-			 * instance of mOxie.File, input[type="file"] element, or array of these. Fires FilesAdded,
+			 * instance of mOxie.File, input[type="file"] element, or array of these. Fires FilesAdded, 
 			 * if any files were added to the queue. Otherwise nothing happens.
 			 *
 			 * @method addFile
@@ -10307,11 +9804,11 @@ define('plupload/Uploader', [
 
 
 				function bindListeners(fileUp) {
-					fileUp.bind('beforeupload', function(e) {
+					fileUp.bind('beforestart', function(e) {
 						return self.trigger('BeforeUpload', e.target);
 					});
 
-					fileUp.bind('startupload', function() {
+					fileUp.bind('started', function() {
 						self.trigger('UploadFile', this);
 					});
 
@@ -10388,7 +9885,7 @@ define('plupload/Uploader', [
 							});
 						});
 					}
-					// mxiBlob
+					// mxiBlob 
 					else if (file instanceof mxiBlob) {
 						resolveFile(file.getSource());
 						file.destroy();
@@ -10446,10 +9943,27 @@ define('plupload/Uploader', [
 			 * @param {Number} length (Optional) Length of items to remove
 			 */
 			splice: function(start, length) {
+				var self = this;
 				var i = 0;
+				var removed = [];
 				var shouldRestart = plupload.STARTED == this.state;
 
-				var removed = Queue.prototype.splice.apply(this, arguments);
+				start === undef ? 0 : Math.max(start, 0);
+				var end = length === undef ? this.count() : Math.min(start + length, this.count());
+
+				this.forEachItem(function(item) {
+					if (i < start) {
+						return true; // continue
+					}
+					if (i > end) {
+						return false; // finish here
+					}
+
+					self.extractItem(item.uid); // extracts but not destroys (we still need to fire FilesRemoved with these)
+					removed.push(item);
+					i++;
+				});
+
 				if (removed.length) {
 					this.trigger("FilesRemoved", removed);
 
@@ -10554,6 +10068,10 @@ define('plupload/Uploader', [
 		}
 
 
+		// normalize options
+		this.setOptions(_options);
+
+
 		function getRUID() {
 			var ctrl = _fileInputs[0] || _fileDrops[0];
 			if (ctrl) {
@@ -10571,7 +10089,7 @@ define('plupload/Uploader', [
 
 			this.bind('BeforeUpload', onBeforeUpload);
 
-			this.bind('Stopped', function(up) {
+			this.bind('Done', function(up) {
 				up.trigger('UploadComplete');
 			});
 
@@ -10831,13 +10349,6 @@ define('plupload/Uploader', [
 		return caps;
 	}
 
-	function normalizeOptions(options) {
-		plupload.each(options, function(value, option) {
-			options[option] = normalizeOption(option, value, options);
-		});
-		return options;
-	}
-
 	/**
 	Normalize an option.
 
@@ -10846,7 +10357,7 @@ define('plupload/Uploader', [
 
 	@param {String} option Name of the option to normalize
 	@param {Mixed} value
-	@param {Object} options The whole set of options, that might be modified during normalization (see max_file_size or unique_names)!
+	@param {Object} options The whole set of options, that might be modified during normalization (see max_file_size or unique_names)
 	*/
 	function normalizeOption(option, value, options) {
 		switch (option) {
@@ -10883,8 +10394,7 @@ define('plupload/Uploader', [
 						value.mime_types = Mime.mimes2extList(value.mime_types);
 					}
 
-					// generate and cache regular expression for filtering file extensions
-					options.re_ext_filter = (function(filters) {
+					value.mime_types.regexp = (function(filters) {
 						var extensionsRegExp = [];
 
 						plupload.each(filters, function(filter) {
@@ -10942,16 +10452,6 @@ define('plupload/Uploader', [
 				}
 				break;
 
-			case 'required_features':
-				// Normalize the list of required capabilities
-				return normalizeCaps(plupload.extend({}, options));
-
-			case 'preferred_caps':
-				// Come up with the list of capabilities that can affect default mode in a multi-mode runtimes
-				return normalizeCaps(plupload.extend({}, options, {
-					required_features: true
-				}));
-
 				// options that require reinitialisation
 			case 'container':
 			case 'browse_button':
@@ -11001,7 +10501,7 @@ define('plupload/Uploader', [
 
 
 	addFileFilter('mime_types', function(filters, file, cb) {
-		if (filters.length && !this.getOption('re_ext_filter').test(file.name)) {
+		if (filters.length && !filters.regexp.test(file.name)) {
 			this.trigger('Error', {
 				code: plupload.FILE_EXTENSION_ERROR,
 				message: plupload.translate('File extension error.'),
@@ -11034,12 +10534,12 @@ define('plupload/Uploader', [
 
 
 	addFileFilter('prevent_duplicates', function(value, file, cb) {
-		var self = this;
 		if (value) {
-			this.forEachItem(function(item) {
+			var ii = this.files.length;
+			while (ii--) {
 				// Compare by name and size (size might be 0 or undefined, but still equivalent for both)
-				if (file.name === item.name && file.size === item.size) {
-					self.trigger('Error', {
+				if (file.name === this.files[ii].name && file.size === this.files[ii].size) {
+					this.trigger('Error', {
 						code: plupload.FILE_DUPLICATE_ERROR,
 						message: plupload.translate('Duplicate file error.'),
 						file: file
@@ -11047,7 +10547,7 @@ define('plupload/Uploader', [
 					cb(false);
 					return;
 				}
-			});
+			}
 		}
 		cb(true);
 	});
@@ -11055,7 +10555,7 @@ define('plupload/Uploader', [
 
 	Uploader.addFileFilter = addFileFilter;
 
-	plupload.inherit(Uploader, Queue);
+	Uploader.prototype = new Queue();
 
 	// for backward compatibility
 	plupload.addFileFilter = addFileFilter;
@@ -11284,7 +10784,7 @@ define("moxie/runtime/html5/file/FileInput", [
 				_options = options;
 
 				// figure out accept string
-				mimes = Mime.extList2mimes(_options.accept, I.can('filter_by_extension'));
+				mimes = _options.accept.mimes || Mime.extList2mimes(_options.accept, I.can('filter_by_extension'));
 
 				shimContainer = I.getShimContainer();
 
@@ -13441,6 +12941,219 @@ define("moxie/runtime/html5/image/ResizerCanvas", [], function() {
 
 });
 
+// Included from: src/moxie/src/javascript/runtime/html5/image/ResizerWebGL.js
+
+/**
+ * ResizerWebGL.js
+ *
+ * Released under LGPL License.
+ * Copyright (c) 1999-2015 Ephox Corp. All rights reserved
+ *
+ * License: http://www.tinymce.com/license
+ * Contributing: http://www.tinymce.com/contributing
+ */
+
+/**
+ * Resizes image/canvas using Webgl
+ */
+define("moxie/runtime/html5/image/ResizerWebGL", [], function() {
+
+    function scale(image, ratio) {
+        var dW = Math.floor(image.width * ratio);
+        var dH = Math.floor(image.height * ratio);
+        var canvas = document.createElement('canvas');
+        canvas.width = dW;
+        canvas.height = dH;
+
+        _drawImage(canvas, image, ratio, ratio);
+        image = null; // just in case
+
+        return canvas;
+    }
+
+    var shaders = {
+        bilinear: {
+            VERTEX_SHADER: '\
+                attribute vec2 a_dest_xy;\
+                \
+                uniform vec2 u_wh;\
+                uniform vec2 u_ratio;\
+                \
+                varying vec2 a_xy;\
+                varying vec2 b_xy;\
+                varying vec2 c_xy;\
+                varying vec2 d_xy;\
+                \
+                varying float xx0;\
+                varying float x1x;\
+                varying float yy0;\
+                varying float y1y;\
+                \
+                void main() {\
+                    vec2 xy = a_dest_xy / u_ratio - 1.0;\
+                    float x = xy.x;\
+                    float y = xy.y;\
+                    float offset = 0.5;\
+                    \
+                    float x0 = x - offset;\
+                    float x1 = x + offset;\
+                    float y0 = y - offset;\
+                    float y1 = y + offset;\
+                    \
+                    a_xy = vec2(x0, y0) / u_wh;\
+                    b_xy = vec2(x1, y0) / u_wh;\
+                    c_xy = vec2(x1, y1) / u_wh;\
+                    d_xy = vec2(x0, y1) / u_wh;\
+                    \
+                    xx0 = (x - x0) / (x1 - x0);\
+                    x1x = (x1 - x) / (x1 - x0);\
+                    yy0 = (y - y0) / (y1 - y0);\
+                    y1y = (y1 - y) / (y1 - y0);\
+                    \
+                    gl_Position = vec4(((xy / u_wh) * 2.0 - 1.0) * vec2(1, -1), 0, 1);\
+                }\
+            ',
+
+            FRAGMENT_SHADER: '\
+                precision mediump float;\
+                \
+                uniform sampler2D u_image;\
+                \
+                varying vec2 a_xy;\
+                varying vec2 b_xy;\
+                varying vec2 c_xy;\
+                varying vec2 d_xy;\
+                \
+                varying float xx0;\
+                varying float x1x;\
+                varying float yy0;\
+                varying float y1y;\
+                \
+                void main() {\
+                    vec4 a = texture2D(u_image, a_xy);\
+                    vec4 b = texture2D(u_image, b_xy);\
+                    vec4 c = texture2D(u_image, c_xy);\
+                    vec4 d = texture2D(u_image, d_xy);\
+                    \
+                    vec4 ab = b * xx0 + a * x1x;\
+                    vec4 dc = c * xx0 + d * x1x;\
+                    vec4 abdc = dc * yy0 + ab * y1y;\
+                    \
+                    gl_FragColor = abdc;\
+                }\
+            '
+        }
+    };
+
+
+    function _drawImage(canvas, image, wRatio, hRatio) {
+        var gl = _get3dContext(canvas);
+        if (!gl) {
+            throw "Your environment doesn't support WebGL.";
+        }
+
+        // we need a gap around the edges to avoid a black frame
+        wRatio = canvas.width / (image.width + 2);
+        hRatio = canvas.height / (image.height + 2);
+
+        var program = _createProgram(gl);
+        gl.useProgram(program);
+
+        _loadFloatBuffer(gl, program, "a_dest_xy", [
+            0, 0,
+            canvas.width, 0,
+            0, canvas.height,
+            0, canvas.height,
+            canvas.width, 0,
+            canvas.width, canvas.height
+        ]);
+
+        // load the texture
+        var texture = gl.createTexture();
+        gl.bindTexture(gl.TEXTURE_2D, texture);
+
+        // without this we won't be able to process images of arbitrary dimensions
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+
+        gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, image);
+
+
+        var uResolution = gl.getUniformLocation(program, "u_wh");
+        gl.uniform2f(uResolution, image.width, image.height);
+
+        var uRatio = gl.getUniformLocation(program, "u_ratio");
+        gl.uniform2f(uRatio, wRatio, hRatio);
+
+
+        // lets draw...
+        gl.drawArrays(gl.TRIANGLES, 0, 6);
+    }
+
+
+    function _get3dContext(canvas) {
+        var gl = null;
+        try {
+            gl = canvas.getContext("webgl") || canvas.getContext("experimental-webgl");
+        }
+        catch(e) {}
+
+        if (!gl) { // it seems that sometimes it doesn't throw exception, but still fails to get context
+            gl = null;
+        }
+        return gl;
+    }
+
+
+    function _loadFloatBuffer(gl, program, attrName, bufferData) {
+        var attr = gl.getAttribLocation(program, attrName);
+        var buffer = gl.createBuffer();
+        gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
+        gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(bufferData), gl.STATIC_DRAW);
+        gl.enableVertexAttribArray(attr);
+        gl.vertexAttribPointer(attr, 2, gl.FLOAT, false, 0, 0);
+    }
+
+
+    function _createProgram(gl) {
+        var program = gl.createProgram();
+
+        for (var type in shaders.bilinear) {
+            gl.attachShader(program, _loadShader(gl, shaders.bilinear[type], type));
+        }
+
+        gl.linkProgram(program);
+        if (!gl.getProgramParameter(program, gl.LINK_STATUS)) {
+            var err = gl.getProgramInfoLog(program);
+            gl.deleteProgram(program);
+            throw "Cannot create a program: " + err;
+        }
+        return program;
+    }
+
+
+    function _loadShader(gl, source, type) {
+        var shader = gl.createShader(gl[type]);
+        gl.shaderSource(shader, source);
+        gl.compileShader(shader);
+
+        if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
+            var err = gl.getShaderInfoLog(shader);
+            gl.deleteShader(shader);
+            throw "Cannot compile a " + type + " shader: " + err;
+        }
+        return shader;
+    }
+
+
+    return {
+        scale: scale
+    };
+
+});
+
 // Included from: src/moxie/src/javascript/runtime/html5/image/Image.js
 
 /**
@@ -13466,10 +13179,11 @@ define("moxie/runtime/html5/image/Image", [
 	"moxie/file/File",
 	"moxie/runtime/html5/image/ImageInfo",
 	"moxie/runtime/html5/image/ResizerCanvas",
+	"moxie/runtime/html5/image/ResizerWebGL",
 	"moxie/core/utils/Mime",
 	"moxie/core/utils/Env"
-], function(extensions, Basic, x, Encode, Blob, File, ImageInfo, ResizerCanvas, Mime, Env) {
-
+], function(extensions, Basic, x, Encode, Blob, File, ImageInfo, ResizerCanvas, ResizerWebGL, Mime, Env) {
+	
 	function HTML5Image() {
 		var me = this
 		, _img, _imgInfo, _canvas, _binStr, _blob
@@ -13479,7 +13193,7 @@ define("moxie/runtime/html5/image/Image", [
 
 		Basic.extend(this, {
 			loadFromBlob: function(blob) {
-				var I = this.getRuntime()
+				var comp = this, I = comp.getRuntime()
 				, asBinary = arguments.length > 1 ? arguments[1] : true
 				;
 
@@ -13498,7 +13212,7 @@ define("moxie/runtime/html5/image/Image", [
 						if (asBinary) {
 							_binStr = _toBinary(dataUrl);
 						}
-						_preload.call(this, dataUrl);
+						_preload.call(comp, dataUrl);
 					});
 				}
 			},
@@ -13522,7 +13236,6 @@ define("moxie/runtime/html5/image/Image", [
 					_imgInfo = new ImageInfo(_binStr);
 				}
 
-				// this stuff below is definitely having fun with itself
 				info = {
 					width: _getImg().width || 0,
 					height: _getImg().height || 0,
@@ -13535,7 +13248,7 @@ define("moxie/runtime/html5/image/Image", [
 				if (_preserveHeaders) {
 					info.meta = _imgInfo && _imgInfo.meta || this.meta || {};
 
-					// if data was taken from ImageInfo it will be a binary string, so we convert it to blob
+					// store thumbnail data as blob
 					if (info.meta && info.meta.thumb && !(info.meta.thumb.data instanceof Blob)) {
 						info.meta.thumb.data = new Blob(null, {
 							type: 'image/jpeg',
@@ -13562,7 +13275,7 @@ define("moxie/runtime/html5/image/Image", [
 				// rotate if required, according to orientation tag
 				if (!_preserveHeaders) {
 					var orientation = (this.meta && this.meta.tiff && this.meta.tiff.Orientation) || 1;
-					_canvas = _rotateToOrientaion(_canvas, orientation);
+					_rotateToOrientaion(_canvas.width, _canvas.height, orientation);
 				}
 
 				this.width = _canvas.width;
@@ -13741,14 +13454,14 @@ define("moxie/runtime/html5/image/Image", [
 			if (window.FileReader) {
 				fr = new FileReader();
 				fr.onload = function() {
-					callback.call(comp, this.result);
+					callback(this.result);
 				};
 				fr.onerror = function() {
 					comp.trigger('error', x.ImageError.WRONG_FORMAT);
 				};
 				fr.readAsDataURL(file);
 			} else {
-				return callback.call(this, file.getAsDataURL());
+				return callback(file.getAsDataURL());
 			}
 		}
 
@@ -13757,19 +13470,10 @@ define("moxie/runtime/html5/image/Image", [
 		* Orientation value is from EXIF tag
 		* @author Shinichi Tomita <shinichi.tomita@gmail.com>
 		*/
-		function _rotateToOrientaion(img, orientation) {
-			var RADIANS = Math.PI/180;
-			var canvas = document.createElement('canvas');
-			var ctx = canvas.getContext('2d');
-			var width = img.width;
-			var height = img.height;
-
+		function _rotateToOrientaion(width, height, orientation) {
 			if (Basic.inArray(orientation, [5,6,7,8]) > -1) {
-				canvas.width = height;
-				canvas.height = width;
-			} else {
-				canvas.width = width;
-				canvas.height = height;
+				_canvas.width = height;
+				_canvas.height = width;
 			}
 
 			/**
@@ -13782,6 +13486,8 @@ define("moxie/runtime/html5/image/Image", [
 			7 = The 0th row is the visual right-hand side of the image, and the 0th column is the visual bottom.
 			8 = The 0th row is the visual left-hand side of the image, and the 0th column is the visual bottom.
 			*/
+
+			var ctx = _canvas.getContext('2d');
 			switch (orientation) {
 				case 2:
 					// horizontal flip
@@ -13791,7 +13497,7 @@ define("moxie/runtime/html5/image/Image", [
 				case 3:
 					// 180 rotate left
 					ctx.translate(width, height);
-					ctx.rotate(180 * RADIANS);
+					ctx.rotate(Math.PI);
 					break;
 				case 4:
 					// vertical flip
@@ -13800,29 +13506,26 @@ define("moxie/runtime/html5/image/Image", [
 					break;
 				case 5:
 					// vertical flip + 90 rotate right
-					ctx.rotate(90 * RADIANS);
+					ctx.rotate(0.5 * Math.PI);
 					ctx.scale(1, -1);
 					break;
 				case 6:
 					// 90 rotate right
-					ctx.rotate(90 * RADIANS);
+					ctx.rotate(0.5 * Math.PI);
 					ctx.translate(0, -height);
 					break;
 				case 7:
 					// horizontal flip + 90 rotate right
-					ctx.rotate(90 * RADIANS);
+					ctx.rotate(0.5 * Math.PI);
 					ctx.translate(width, -height);
 					ctx.scale(-1, 1);
 					break;
 				case 8:
 					// 90 rotate left
-					ctx.rotate(-90 * RADIANS);
+					ctx.rotate(-0.5 * Math.PI);
 					ctx.translate(-width, 0);
 					break;
 			}
-
-			ctx.drawImage(img, 0, 0, width, height);
-			return canvas;
 		}
 
 
@@ -13830,6 +13533,11 @@ define("moxie/runtime/html5/image/Image", [
 			if (_imgInfo) {
 				_imgInfo.purge();
 				_imgInfo = null;
+			}
+
+			// Memory issue for IE/Edge. They Keep a reference to image (because of the onload event) and the object not been collected by GC.
+			if (_img) {
+				_img.src = '';
 			}
 
 			_binStr = _img = _canvas = _blob = null;
@@ -14569,7 +14277,7 @@ define("moxie/runtime/flash/image/Image", [
 			, info = self.shimExec.call(this, 'Image', 'getInfo')
 			;
 
-			if (info.meta && info.meta.thumb && info.meta.thumb.data && !(self.meta.thumb.data instanceof Blob)) {
+			if (info.meta && info.meta.thumb && !(info.meta.thumb.data instanceof Blob)) {
 				info.meta.thumb.data = new Blob(self.uid, info.meta.thumb.data);
 			}
 			return info;
@@ -15116,7 +14824,7 @@ define("moxie/runtime/silverlight/image/Image", [
 				});
 
 				// save thumb data as blob
-				if (info.meta && info.meta.thumb && info.meta.thumb.data && !(self.meta.thumb.data instanceof Blob)) {
+				if (info.meta && info.meta.thumb && !(info.meta.thumb.data instanceof Blob)) {
 					info.meta.thumb.data = new Blob(self.uid, info.meta.thumb.data);
 				}
 			}
@@ -15398,7 +15106,7 @@ define("moxie/runtime/html4/file/FileInput", [
 
 				// figure out accept string
 				_options = options;
-				_mimes = Mime.extList2mimes(options.accept, I.can('filter_by_extension'));
+				_mimes = options.accept.mimes || Mime.extList2mimes(options.accept, I.can('filter_by_extension'));
 
 				shimContainer = I.getShimContainer();
 
@@ -15807,6 +15515,5 @@ define("moxie/runtime/html4/image/Image", [
 	return (extensions.Image = Image);
 });
 
-expose(["moxie/core/utils/Basic","moxie/core/I18n","moxie/core/utils/Env","moxie/core/utils/Dom","moxie/core/utils/Events","moxie/core/utils/Url","moxie/core/Exceptions","moxie/core/EventTarget","moxie/runtime/Runtime","moxie/core/utils/Mime","moxie/runtime/RuntimeClient","moxie/file/FileInput","moxie/core/utils/Encode","moxie/file/Blob","moxie/file/FileReader","plupload","moxie/file/File","moxie/file/FileDrop","moxie/runtime/RuntimeTarget","moxie/xhr/FormData","moxie/xhr/XMLHttpRequest","plupload/FileUploader","moxie/runtime/Transporter","moxie/image/Image","plupload/File","plupload/Uploader","moxie/runtime/html5/image/ResizerCanvas"]);
+expose(["moxie/core/utils/Basic","moxie/core/I18n","moxie/core/utils/Env","moxie/core/utils/Dom","moxie/core/utils/Events","moxie/core/utils/Url","moxie/core/Exceptions","moxie/core/EventTarget","moxie/runtime/Runtime","moxie/core/utils/Mime","moxie/runtime/RuntimeClient","moxie/file/FileInput","moxie/core/utils/Encode","moxie/file/Blob","moxie/file/FileReader","plupload","moxie/file/File","moxie/file/FileDrop","moxie/runtime/RuntimeTarget","moxie/xhr/FormData","moxie/xhr/XMLHttpRequest","plupload/FileUploader","moxie/runtime/Transporter","moxie/image/Image","plupload/ImageResizer","plupload/File","plupload/Uploader","moxie/runtime/html5/image/ResizerCanvas","moxie/runtime/html5/image/ResizerWebGL"]);
 })(this);
-}));

@@ -1,6 +1,6 @@
 'use strict';
 
-define(['scripts/editor/editorTpl', 'plupload', 'scripts/fetch'], function (tpl, plupload, fetch) {
+define(['scripts/editor/editorTpl', 'scripts/fetch'], function (tpl, fetch) {
 
   var isShowUEditor = false,
       listPage = 1;
@@ -127,50 +127,73 @@ define(['scripts/editor/editorTpl', 'plupload', 'scripts/fetch'], function (tpl,
       this.bindPager();
     },
     bindUpload: function bindUpload() {
-      var _this3 = this;
-
+      var _this = this;
       var uploader = new plupload.Uploader({ //实例化一个plupload上传对象
         browse_button: 'browse',
-        url: 'http://47.93.77.208:8080/api/v1/revises/files',
+        container: 'browse-wrapper',
+        runtimes: 'html5,flash,silverlight,html4',
+        url: 'http://47.93.77.208:8080/api/v1/projects/files',
         flash_swf_url: 'scripts/common/plupload/Moxie.swf',
         silverlight_xap_url: 'scripts/common/plupload/Moxie.xap',
         max_retries: 3,
         multi_selection: false,
+        multipart_params: {
+          proId: window.PID,
+          paraCode: _this.$itemContainer.find('.checkbox.checked:last').closest('.item').data('itemid') || 'end'
+        },
+        // headers: {
+        //   'X-Authorization': "Bearer eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiIxMzUyMTg1MTk1NSIsImp0aSI6Ijg2MDY4OTYyNzcwNTAyMDQxNiIsInNjb3BlcyI6WyIvOkdFVCJdLCJpc3MiOiJodHRwOi8vb3N3b3JkLmNvbSIsImlhdCI6MTQ5NDgzMTg3MSwiZXhwIjoxNDk0ODM5MDcxfQ.BOsYmt-HsZOxrt29fpAUKtf8JO0Nvu9gR-4LvR7yZZX7kiRrENfmvLF3wUPAA9KCcqqMGb_kP03hmxcjghXWQg"
+        // },
         filters: {
           mime_types: [{ title: 'Word file', extensions: 'doc,docx' }],
           max_file_size: '10mb'
+        },
+
+        init: {
+          FilesAdded: function FilesAdded(up, files) {
+            console.log('file add');
+            uploader.setOption('multipart_params', {
+              paraCode: _this.paraCode,
+              reviseId: _this.$itemContainer.find('.checkbox.checked:last').closest('.item').data('itemid') || 'end'
+            });
+
+            // 开始上传
+            uploader.start();
+          },
+
+          // BeforeUpload(up, file) {
+          //   console.log('BeforeUpload')
+          //   uploader.setOption('multipart_params', {
+          //     proId: window.PID,
+          //     paraCode: _this.$itemContainer.find('.checkbox.checked:last').closest('.item').data('itemid') || 'end'
+          //   })
+          // },
+          UploadProgress: function UploadProgress(up, file) {
+            console.log('upload progress', file.percent);
+          },
+          UploadComplete: function UploadComplete(uploader, files) {
+            _this.itemLists(listPage);
+            console.log('UploadComplete');
+          },
+          Error: function Error(uploader, errObject) {
+            console.log('Error');
+          },
+          OptionChanged: function OptionChanged(up, name, value, oldValue) {
+            console.log('OptionChanged', name, value, oldValue);
+          }
         }
       });
       uploader.init(); //初始化
-
-      uploader.bind('FilesAdded', function (uploader, files) {
-        console.log('file add');
-        uploader.settings.multipart_params.paraCode = _this3.paraCode;
-        uploader.settings.multipart_params.reviseId = _this3.$itemContainer.find('.checkbox.checked:last').closest('.item').data('itemid') || 'end';
-
-        // 开始上传
-        uploader.start();
-      });
-      uploader.bind('UploadProgress', function (uploader, file) {
-        console.log('upload progress', file.percent);
-      });
-      uploader.bind('UploadComplete', function (uploader, files) {
-        _this3.itemLists(listPage);
-        console.log('UploadComplete');
-      });
-      uploader.bind('Error', function (uploader, errObject) {
-        console.log('Error');
-      });
     },
     bindPager: function bindPager() {
-      var _this4 = this;
+      var _this3 = this;
 
       this.pager = new Pager({
         $pager: this.$itemPager
       });
 
       $(this.pager).on('pager', function (e, page) {
-        _this4.itemLists(page);
+        _this3.itemLists(page);
       });
     },
     show: function show(paraCode) {
@@ -231,7 +254,7 @@ define(['scripts/editor/editorTpl', 'plupload', 'scripts/fetch'], function (tpl,
 
     // 删除段落
     deleteItem: function deleteItem() {
-      var _this5 = this;
+      var _this4 = this;
 
       fetch.deleteRevise({
         proId: this.proId,
@@ -240,15 +263,15 @@ define(['scripts/editor/editorTpl', 'plupload', 'scripts/fetch'], function (tpl,
         // userId: window.userId,
         page: listPage
       }).then(function (data) {
-        _this5.arrCheckedItem.length = 0;
-        _this5.showPager(data);
-        _this5.renderItem(data);
+        _this4.arrCheckedItem.length = 0;
+        _this4.showPager(data);
+        _this4.renderItem(data);
       });
     },
 
     // 合并段落
     coalesceItem: function coalesceItem() {
-      var _this6 = this;
+      var _this5 = this;
 
       fetch.coalesceRevise({
         id: this.proId,
@@ -257,9 +280,9 @@ define(['scripts/editor/editorTpl', 'plupload', 'scripts/fetch'], function (tpl,
         reviseIds: this.arrCheckedItem,
         page: listPage
       }).then(function (data) {
-        _this6.arrCheckedItem.length = 0;
-        _this6.showPager(data);
-        _this6.renderItem(data);
+        _this5.arrCheckedItem.length = 0;
+        _this5.showPager(data);
+        _this5.renderItem(data);
       });
     },
 
@@ -270,7 +293,7 @@ define(['scripts/editor/editorTpl', 'plupload', 'scripts/fetch'], function (tpl,
 
     // 段落列表
     itemLists: function itemLists() {
-      var _this7 = this;
+      var _this6 = this;
 
       var page = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 1;
 
@@ -281,12 +304,12 @@ define(['scripts/editor/editorTpl', 'plupload', 'scripts/fetch'], function (tpl,
         paraCode: this.paraCode,
         page: page
       }).then(function (data) {
-        _this7.showPager(data);
-        _this7.renderItem(data);
+        _this6.showPager(data);
+        _this6.renderItem(data);
       });
     },
     renderItem: function renderItem(_ref) {
-      var _this8 = this;
+      var _this7 = this;
 
       var sliceList = _ref.sliceList;
 
@@ -295,16 +318,16 @@ define(['scripts/editor/editorTpl', 'plupload', 'scripts/fetch'], function (tpl,
       this.arrCheckedItem.length = 0;
       sliceList.forEach(function (slice) {
         var item = new Item({
-          objItemSet: _this8.objItemSet,
-          arrCheckedItem: _this8.arrCheckedItem,
-          paraCode: _this8.paraCode,
-          $box: _this8.$itemContainer,
+          objItemSet: _this7.objItemSet,
+          arrCheckedItem: _this7.arrCheckedItem,
+          paraCode: _this7.paraCode,
+          $box: _this7.$itemContainer,
           type: 'edit',
           itemId: slice.id,
           content: slice.content
         });
-        _this8.objItemSet[item.itemId] = item;
-        _this8.pushItem(item);
+        _this7.objItemSet[item.itemId] = item;
+        _this7.pushItem(item);
       });
     },
 
@@ -384,7 +407,7 @@ define(['scripts/editor/editorTpl', 'plupload', 'scripts/fetch'], function (tpl,
       }
     },
     bindEvent: function bindEvent() {
-      var _this9 = this;
+      var _this8 = this;
 
       var _this = this;
       this.$item
@@ -400,29 +423,29 @@ define(['scripts/editor/editorTpl', 'plupload', 'scripts/fetch'], function (tpl,
         if (isShowUEditor) {
           return false;
         }
-        if (_this9.ueditor) {
-          _this9.setContent(_this9.content);
+        if (_this8.ueditor) {
+          _this8.setContent(_this8.content);
           // this.setUEditorHeight()
         } else {
-          _this9.initEditor();
+          _this8.initEditor();
         }
-        _this9.showEditor();
+        _this8.showEditor();
       })
       // 保存内容
       .on('click', '.hook-editor-save', function () {
-        _this9.content = _this9.getContent();
+        _this8.content = _this8.getContent();
         // 没有itemId为新增
-        if (_this9.itemId === '') {
-          _this9.addItem();
+        if (_this8.itemId === '') {
+          _this8.addItem();
         } else {
-          _this9.updateItem();
+          _this8.updateItem();
         }
       })
       // 取消保存
       .on('click', '.hook-editor-cancel', this.cancelSave.bind(this));
     },
     initEditor: function initEditor() {
-      var _this10 = this;
+      var _this9 = this;
 
       var height = Math.max(UEDITOR_MIN_HEIGHT, this.$item.height());
       this.ueditor = UE.getEditor('editor_' + this.id, {
@@ -431,7 +454,7 @@ define(['scripts/editor/editorTpl', 'plupload', 'scripts/fetch'], function (tpl,
       });
 
       this.ueditor.addListener('contentchange', function () {
-        _this10.$item.find('.hook-editor-save').prop('disabled', _this10.isContentEmpty());
+        _this9.$item.find('.hook-editor-save').prop('disabled', _this9.isContentEmpty());
       });
     },
 
@@ -466,7 +489,7 @@ define(['scripts/editor/editorTpl', 'plupload', 'scripts/fetch'], function (tpl,
       this.$itemInner.show();
     },
     addItem: function addItem() {
-      var _this11 = this;
+      var _this10 = this;
 
       fetch.addRevises({
         id: this.proId,
@@ -475,20 +498,20 @@ define(['scripts/editor/editorTpl', 'plupload', 'scripts/fetch'], function (tpl,
         content: this.content,
         page: listPage
       }).then(function (data) {
-        _this11.type = 'edit';
-        _this11.itemId = data.reviseId;
-        _this11.$item.data('type', _this11.type);
-        _this11.$item.data('itemid', _this11.itemId);
-        _this11.$itemInner.html(_this11.content);
-        _this11.objItemSet[_this11.itemId] = _this11;
-        _this11.showInner();
+        _this10.type = 'edit';
+        _this10.itemId = data.reviseId;
+        _this10.$item.data('type', _this10.type);
+        _this10.$item.data('itemid', _this10.itemId);
+        _this10.$itemInner.html(_this10.content);
+        _this10.objItemSet[_this10.itemId] = _this10;
+        _this10.showInner();
         setUEditorStatus(false);
-        console.log(_this11.objItemSet);
-        $(_this11).trigger('item.add');
+        console.log(_this10.objItemSet);
+        $(_this10).trigger('item.add');
       });
     },
     updateItem: function updateItem() {
-      var _this12 = this;
+      var _this11 = this;
 
       fetch.updateRevises({
         id: this.proId,
@@ -497,8 +520,8 @@ define(['scripts/editor/editorTpl', 'plupload', 'scripts/fetch'], function (tpl,
         content: this.content
       }).then(function (data) {
         console.log(data);
-        _this12.$itemInner.html(_this12.content);
-        _this12.showInner();
+        _this11.$itemInner.html(_this11.content);
+        _this11.showInner();
         setUEditorStatus(false);
       });
     },
@@ -553,14 +576,14 @@ define(['scripts/editor/editorTpl', 'plupload', 'scripts/fetch'], function (tpl,
       this.bindEvent();
     },
     bindEvent: function bindEvent() {
-      var _this13 = this;
+      var _this12 = this;
 
       var _this = this;
       this.$pager.on('click', 'li:not(.disabled,.active) > .hook-go', function () {
         $(_this).trigger('pager', [$(this).data('page')]);
       }).on('click', '.hook-btn-go', function () {
-        var page = parseInt(_this13.$pager.find('.hook-page-text').val());
-        if (!window.isNaN(page) && page > 0 && page <= _this13.total) {
+        var page = parseInt(_this12.$pager.find('.hook-page-text').val());
+        if (!window.isNaN(page) && page > 0 && page <= _this12.total) {
           $(_this).trigger('pager', [page]);
         }
       });

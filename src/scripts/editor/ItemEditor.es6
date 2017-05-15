@@ -1,5 +1,5 @@
-define(['scripts/editor/editorTpl', 'plupload', 'scripts/fetch'],
-  (tpl, plupload, fetch) => {
+define(['scripts/editor/editorTpl', 'scripts/fetch'],
+  (tpl, fetch) => {
 
     let isShowUEditor = false,
       listPage = 1
@@ -85,15 +85,6 @@ define(['scripts/editor/editorTpl', 'plupload', 'scripts/fetch'],
               this.coalesceItem()
             }
           })
-          // 导入
-          .on('click', '.hook-import-item', () => {
-            // if (this.arrCheckedItem.length !== 1 &&
-            //   !$.isEmptyObject(this.objItemSet)) {
-            //   alert('请选择一个段落进行导入')
-            // } else {
-            // this.importItem()
-            // }
-          })
           // 取消
           .on('click', '.hook-cancel-save,.hook-prev', this.hide.bind(this))
           // 暂存
@@ -114,22 +105,71 @@ define(['scripts/editor/editorTpl', 'plupload', 'scripts/fetch'],
         this.bindPager()
       },
       bindUpload() {
+        let _this = this;
         const uploader = new plupload.Uploader({ //实例化一个plupload上传对象
           browse_button: 'browse',
+          container: 'browse-wrapper',
+          runtimes : 'html5,flash,silverlight,html4',
           url: `http://47.93.77.208:8080/api/v1/projects/files`,
           flash_swf_url: 'scripts/common/plupload/Moxie.swf',
           silverlight_xap_url: 'scripts/common/plupload/Moxie.xap',
           max_retries: 3,
           multi_selection: false,
+          multipart_params: {
+            proId: window.PID,
+            paraCode: _this.$itemContainer.find('.checkbox.checked:last').closest('.item').data('itemid') || 'end'
+          },
+          // headers: {
+          //   'X-Authorization': "Bearer eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiIxMzUyMTg1MTk1NSIsImp0aSI6Ijg2MDY4OTYyNzcwNTAyMDQxNiIsInNjb3BlcyI6WyIvOkdFVCJdLCJpc3MiOiJodHRwOi8vb3N3b3JkLmNvbSIsImlhdCI6MTQ5NDgzMTg3MSwiZXhwIjoxNDk0ODM5MDcxfQ.BOsYmt-HsZOxrt29fpAUKtf8JO0Nvu9gR-4LvR7yZZX7kiRrENfmvLF3wUPAA9KCcqqMGb_kP03hmxcjghXWQg"
+          // },
           filters: {
             mime_types: [
               {title: 'Word file', extensions: 'doc,docx'}
             ],
             max_file_size: '10mb'
+          },
+
+          init: {
+            FilesAdded(up, files) {
+              console.log('file add')
+              uploader.setOption('multipart_params', {
+                proId: window.PID,
+                paraCode: _this.$itemContainer.find('.checkbox.checked:last').closest('.item').data('itemid') || 'end'
+              })
+
+              // uploader.settings.multipart_params.proid = window.PID
+              // uploader.settings.multipart_params.paraCode = _this.$itemContainer.find('.checkbox.checked:last').closest('.item').data('itemid') || 'end'
+
+              // 开始上传
+              uploader.start()
+
+            },
+            // BeforeUpload(up, file) {
+            //   console.log('BeforeUpload')
+            //   uploader.setOption('multipart_params', {
+            //     proId: window.PID,
+            //     paraCode: _this.$itemContainer.find('.checkbox.checked:last').closest('.item').data('itemid') || 'end'
+            //   })
+            // },
+            UploadProgress(up, file) {
+              console.log('upload progress', file.percent)
+            },
+            UploadComplete(uploader, files) {
+              _this.itemLists(listPage)
+              console.log('UploadComplete')
+            },
+            Error(uploader, errObject) {
+              console.log('Error')
+            },
+            OptionChanged(up, name, value, oldValue){
+              console.log('OptionChanged', name, value, oldValue)
+            }
           }
         })
         uploader.init() //初始化
 
+
+        /*
         uploader.bind('FilesAdded', (uploader, files) => {
           console.log('file add')
           uploader.settings.multipart_params.proid = window.PID
@@ -148,7 +188,7 @@ define(['scripts/editor/editorTpl', 'plupload', 'scripts/fetch'],
         })
         uploader.bind('Error', (uploader, errObject) => {
           console.log('Error')
-        })
+        })*/
 
       },
       bindPager() {
