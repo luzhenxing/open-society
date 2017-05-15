@@ -41,6 +41,8 @@ define(['scripts/editor/editorTpl', 'scripts/fetch'],
             content: this.ueditor.getContent()
           }).then(message => {
             alert(message)
+            console.log($(`[data-paracode=${this.paraCode}]`))
+            $(`[data-paracode=${this.paraCode}]`).find('.hook-revise-list').trigger('click')
             this.hide()
           })
         })

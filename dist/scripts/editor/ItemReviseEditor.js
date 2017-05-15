@@ -43,6 +43,8 @@ define(['scripts/editor/editorTpl', 'scripts/fetch'], function (tpl, fetch) {
           content: _this.ueditor.getContent()
         }).then(function (message) {
           alert(message);
+          console.log($('[data-paracode=' + _this.paraCode + ']'));
+          $('[data-paracode=' + _this.paraCode + ']').find('.hook-revise-list').trigger('click');
           _this.hide();
         });
       });

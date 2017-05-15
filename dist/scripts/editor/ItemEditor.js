@@ -99,6 +99,7 @@ define(['scripts/editor/editorTpl', 'scripts/fetch'], function (tpl, fetch) {
       .on('click', '.hook-submit', function () {
         fetch.saveProject(window.PROJECT_DATA).then(function (message) {
           alert(message);
+          window.location = 'https://www.baidu.com';
         });
       });
 

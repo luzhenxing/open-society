@@ -14,11 +14,6 @@ define(['scripts/ajax'], function (ajax) {
     submitRevises: origin + '/api/v1/submit-revises',
     tempSubmitRevises: origin + '/api/v1/temp-paras-revises',
     paragraphRevises: origin + '/api/v1/paragraph-revises'
-  },
-      generateRandomAlphaNum = function generateRandomAlphaNum(len) {
-    var rdmString = '';
-    for (; rdmString.length < len; rdmString += Math.random().toString(36).substr(2)) {}
-    return rdmString.substr(0, len);
   };
 
   return {
@@ -91,6 +86,9 @@ define(['scripts/ajax'], function (ajax) {
     // 段落的添加列表
     reviseList: function reviseList(data) {
       return ajax.getData(urls.parasRevises, data);
+    },
+    paragraphRevisesList: function paragraphRevisesList(data) {
+      return ajax.getData(urls.paragraphRevises, data);
     },
 
     // 段落新增段提交

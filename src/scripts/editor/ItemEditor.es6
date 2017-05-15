@@ -97,6 +97,7 @@ define(['scripts/editor/editorTpl', 'scripts/fetch'],
           .on('click', '.hook-submit', () => {
             fetch.saveProject(window.PROJECT_DATA).then(message => {
               alert(message)
+              window.location = 'https://www.baidu.com'
             })
           })
 

@@ -87,15 +87,6 @@ define(['scripts/editor/editorTpl', 'scripts/fetch'],
               this.coalesceItem()
             }
           })
-          // 导入
-          .on('click', '.hook-import-item', () => {
-            // if (this.arrCheckedItem.length !== 1 &&
-            //   !$.isEmptyObject(this.objItemSet)) {
-            //   alert('请选择一个段落进行导入')
-            // } else {
-            // this.importItem()
-            // }
-          })
           // 取消
           .on('click', '.hook-cancel-save,.hook-prev', this.hide.bind(this))
           // 暂存
@@ -118,6 +109,9 @@ define(['scripts/editor/editorTpl', 'scripts/fetch'],
               // "userName": window.userName
             }).then(message => {
               alert(message)
+              this.hide()
+
+              $(`[data-paracode=${this.paraCode}]`).find('.hook-add-list').trigger('click')
             })
           })
 
