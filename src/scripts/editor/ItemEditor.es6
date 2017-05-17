@@ -1,5 +1,5 @@
-define(['scripts/editor/editorTpl', 'scripts/fetch'],
-  (tpl, fetch) => {
+define(['scripts/editor/editorTpl', 'scripts/urls', 'scripts/fetch'],
+  (tpl, urls, fetch) => {
 
     let isShowUEditor = false,
       listPage = 1
@@ -86,15 +86,29 @@ define(['scripts/editor/editorTpl', 'scripts/fetch'],
             }
           })
           // 取消
-          .on('click', '.hook-cancel-save,.hook-prev', this.hide.bind(this))
+          .on('click', '.hook-cancel-save,.hook-prev', () => {
+            if (isshowueditor) {
+              alert('请先保存编辑的内容')
+              return false
+            }
+            this.hide()
+          })
           // 暂存
           .on('click', '.hook-save', () => {
+            if (isShowUEditor) {
+              alert('请先保存编辑的内容')
+              return false
+            }
             fetch.tempSaveProject(window.PROJECT_DATA).then(message => {
               alert(message)
             })
           })
           // 提交 创建项目
           .on('click', '.hook-submit', () => {
+            if (isShowUEditor) {
+              alert('请先保存编辑的内容')
+              return false
+            }
             fetch.saveProject(window.PROJECT_DATA).then(message => {
               alert(message)
               window.location = 'https://www.baidu.com'
@@ -106,12 +120,13 @@ define(['scripts/editor/editorTpl', 'scripts/fetch'],
         this.bindPager()
       },
       bindUpload() {
-        let _this = this;
+        let _this = this,
+          token = `Bearer ${$.cookie('X-Authorization')}`
         const uploader = new plupload.Uploader({ //实例化一个plupload上传对象
           browse_button: 'browse',
           container: 'browse-wrapper',
           runtimes : 'html5,flash,silverlight,html4',
-          url: `http://47.93.77.208:8080/api/v1/projects/files`,
+          url: urls.projectsFiles,
           flash_swf_url: 'scripts/common/plupload/Moxie.swf',
           silverlight_xap_url: 'scripts/common/plupload/Moxie.xap',
           max_retries: 3,
@@ -120,9 +135,9 @@ define(['scripts/editor/editorTpl', 'scripts/fetch'],
             proId: window.PID,
             paraCode: _this.$itemContainer.find('.checkbox.checked:last').closest('.item').data('itemid') || 'end'
           },
-          // headers: {
-          //   'X-Authorization': "Bearer eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiIxMzUyMTg1MTk1NSIsImp0aSI6Ijg2MDY4OTYyNzcwNTAyMDQxNiIsInNjb3BlcyI6WyIvOkdFVCJdLCJpc3MiOiJodHRwOi8vb3N3b3JkLmNvbSIsImlhdCI6MTQ5NDgzMTg3MSwiZXhwIjoxNDk0ODM5MDcxfQ.BOsYmt-HsZOxrt29fpAUKtf8JO0Nvu9gR-4LvR7yZZX7kiRrENfmvLF3wUPAA9KCcqqMGb_kP03hmxcjghXWQg"
-          // },
+          headers: {
+            'X-Authorization': token
+          },
           filters: {
             mime_types: [
               {title: 'Word file', extensions: 'doc,docx'}
@@ -138,20 +153,10 @@ define(['scripts/editor/editorTpl', 'scripts/fetch'],
                 paraCode: _this.$itemContainer.find('.checkbox.checked:last').closest('.item').data('itemid') || 'end'
               })
 
-              // uploader.settings.multipart_params.proid = window.PID
-              // uploader.settings.multipart_params.paraCode = _this.$itemContainer.find('.checkbox.checked:last').closest('.item').data('itemid') || 'end'
-
               // 开始上传
               uploader.start()
 
             },
-            // BeforeUpload(up, file) {
-            //   console.log('BeforeUpload')
-            //   uploader.setOption('multipart_params', {
-            //     proId: window.PID,
-            //     paraCode: _this.$itemContainer.find('.checkbox.checked:last').closest('.item').data('itemid') || 'end'
-            //   })
-            // },
             UploadProgress(up, file) {
               console.log('upload progress', file.percent)
             },
@@ -168,29 +173,6 @@ define(['scripts/editor/editorTpl', 'scripts/fetch'],
           }
         })
         uploader.init() //初始化
-
-
-        /*
-        uploader.bind('FilesAdded', (uploader, files) => {
-          console.log('file add')
-          uploader.settings.multipart_params.proid = window.PID
-          uploader.settings.multipart_params.paraCode = this.$itemContainer.find('.checkbox.checked:last').closest('.item').data('itemid') || 'end'
-
-          // 开始上传
-          uploader.start()
-
-        })
-        uploader.bind('UploadProgress', (uploader, file) => {
-          console.log('upload progress', file.percent)
-        })
-        uploader.bind('UploadComplete', (uploader, files) => {
-          this.itemLists(listPage)
-          console.log('UploadComplete')
-        })
-        uploader.bind('Error', (uploader, errObject) => {
-          console.log('Error')
-        })*/
-
       },
       bindPager() {
         this.pager = new Pager({
@@ -198,6 +180,10 @@ define(['scripts/editor/editorTpl', 'scripts/fetch'],
         })
 
         $(this.pager).on('pager', (e, page) => {
+          if (isShowUEditor) {
+            alert('请先保存编辑的内容')
+            return false
+          }
           this.itemLists(page)
         })
       },
@@ -231,7 +217,6 @@ define(['scripts/editor/editorTpl', 'scripts/fetch'],
         })
         return adjoin
         console.log('adjoin: ', adjoin)
-        console.log('item: ', checkedItem)
       },
       // 添加段落
       addItem(targetId = '') {
@@ -258,8 +243,14 @@ define(['scripts/editor/editorTpl', 'scripts/fetch'],
       },
       // 合并段落
       coalesceItem() {
+        let arr = []
+
+        $('.item .checked').map(function(){
+          arr.push(this.getAttribute('data-itemid'))
+        })
+
         fetch.coalesceItem({
-          paraCodes: this.arrCheckedItem,
+          paraCodes: arr,
           page: listPage
         }).then(data => {
           this.arrCheckedItem.length = 0

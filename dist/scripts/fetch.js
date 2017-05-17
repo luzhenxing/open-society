@@ -1,20 +1,6 @@
 'use strict';
 
-define(['scripts/ajax'], function (ajax) {
-  var origin = 'http://47.93.77.208:8080',
-      urls = {
-    categorys: origin + '/api/v1/first-categorys',
-    projects: origin + '/api/v1/projects',
-    tempProjects: origin + '/api/v1/temp-projects',
-    paragraphs: origin + '/api/v1/projects/' + window.PID + '/paragraphs',
-    mergeParagraphs: origin + '/api/v1/projects/' + window.PID + '/merge-paragraphs',
-    revises: origin + '/api/v1/revises',
-    mergeRevises: origin + '/api/v1/merge-revises',
-    parasRevises: origin + '/api/v1/paras-revises/temp',
-    submitRevises: origin + '/api/v1/submit-revises',
-    tempSubmitRevises: origin + '/api/v1/temp-paras-revises',
-    paragraphRevises: origin + '/api/v1/paragraph-revises'
-  };
+define(['scripts/urls', 'scripts/ajax'], function (urls, ajax) {
 
   return {
     // 一级分类

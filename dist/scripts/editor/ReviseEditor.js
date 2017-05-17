@@ -1,6 +1,6 @@
 'use strict';
 
-define(['scripts/editor/editorTpl', 'scripts/fetch'], function (tpl, fetch) {
+define(['scripts/editor/editorTpl', 'scripts/urls', 'scripts/fetch'], function (tpl, urls, fetch) {
 
   var isShowUEditor = false,
       listPage = 1;
@@ -90,9 +90,19 @@ define(['scripts/editor/editorTpl', 'scripts/fetch'], function (tpl, fetch) {
         }
       })
       // 取消
-      .on('click', '.hook-cancel-save,.hook-prev', this.hide.bind(this))
+      .on('click', '.hook-cancel-save,.hook-prev', function () {
+        if (isShowUEditor) {
+          alert('请先保存编辑的内容');
+          return false;
+        }
+        _this2.hide();
+      })
       // 暂存
       .on('click', '.hook-save', function () {
+        if (isShowUEditor) {
+          alert('请先保存编辑的内容');
+          return false;
+        }
         fetch.tempSaveRevises({
           "id": window.PID,
           "paraCode": _this2.paraCode
@@ -104,6 +114,10 @@ define(['scripts/editor/editorTpl', 'scripts/fetch'], function (tpl, fetch) {
       })
       // 段落新增段提交
       .on('click', '.hook-submit', function () {
+        if (isShowUEditor) {
+          alert('请先保存编辑的内容');
+          return false;
+        }
         fetch.saveRevises({
           "id": window.PID,
           "paraCode": _this2.paraCode
@@ -121,12 +135,13 @@ define(['scripts/editor/editorTpl', 'scripts/fetch'], function (tpl, fetch) {
       this.bindPager();
     },
     bindUpload: function bindUpload() {
-      var _this = this;
+      var _this = this,
+          token = 'Bearer ' + $.cookie('X-Authorization');
       var uploader = new plupload.Uploader({ //实例化一个plupload上传对象
         browse_button: 'browse',
         container: 'browse-wrapper',
         runtimes: 'html5,flash,silverlight,html4',
-        url: 'http://47.93.77.208:8080/api/v1/projects/files',
+        url: urls.revisesFiles,
         flash_swf_url: 'scripts/common/plupload/Moxie.swf',
         silverlight_xap_url: 'scripts/common/plupload/Moxie.xap',
         max_retries: 3,
@@ -135,9 +150,9 @@ define(['scripts/editor/editorTpl', 'scripts/fetch'], function (tpl, fetch) {
           proId: window.PID,
           paraCode: _this.$itemContainer.find('.checkbox.checked:last').closest('.item').data('itemid') || 'end'
         },
-        // headers: {
-        //   'X-Authorization': "Bearer eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiIxMzUyMTg1MTk1NSIsImp0aSI6Ijg2MDY4OTYyNzcwNTAyMDQxNiIsInNjb3BlcyI6WyIvOkdFVCJdLCJpc3MiOiJodHRwOi8vb3N3b3JkLmNvbSIsImlhdCI6MTQ5NDgzMTg3MSwiZXhwIjoxNDk0ODM5MDcxfQ.BOsYmt-HsZOxrt29fpAUKtf8JO0Nvu9gR-4LvR7yZZX7kiRrENfmvLF3wUPAA9KCcqqMGb_kP03hmxcjghXWQg"
-        // },
+        headers: {
+          'X-Authorization': token
+        },
         filters: {
           mime_types: [{ title: 'Word file', extensions: 'doc,docx' }],
           max_file_size: '10mb'
@@ -154,14 +169,6 @@ define(['scripts/editor/editorTpl', 'scripts/fetch'], function (tpl, fetch) {
             // 开始上传
             uploader.start();
           },
-
-          // BeforeUpload(up, file) {
-          //   console.log('BeforeUpload')
-          //   uploader.setOption('multipart_params', {
-          //     proId: window.PID,
-          //     paraCode: _this.$itemContainer.find('.checkbox.checked:last').closest('.item').data('itemid') || 'end'
-          //   })
-          // },
           UploadProgress: function UploadProgress(up, file) {
             console.log('upload progress', file.percent);
           },
@@ -187,6 +194,10 @@ define(['scripts/editor/editorTpl', 'scripts/fetch'], function (tpl, fetch) {
       });
 
       $(this.pager).on('pager', function (e, page) {
+        if (isshowueditor) {
+          alert('请先保存编辑的内容');
+          return false;
+        }
         _this3.itemLists(page);
       });
     },
@@ -267,11 +278,16 @@ define(['scripts/editor/editorTpl', 'scripts/fetch'], function (tpl, fetch) {
     coalesceItem: function coalesceItem() {
       var _this5 = this;
 
+      var arr = [];
+
+      $('.item .checked').map(function () {
+        arr.push(this.getAttribute('data-itemid'));
+      });
       fetch.coalesceRevise({
         id: this.proId,
         // userId: window.userId,
         paraCode: this.paraCode,
-        reviseIds: this.arrCheckedItem,
+        reviseIds: arr,
         page: listPage
       }).then(function (data) {
         _this5.arrCheckedItem.length = 0;

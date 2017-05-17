@@ -6,6 +6,7 @@ define(['scripts/fetch'], (fetch) => {
     this.currentPage = 1
     this.addCount = 0
     this.reviseCount = 0
+    this.total = 1
 
     this.$layer = null
     this.$sourceDom = null
@@ -62,6 +63,20 @@ define(['scripts/fetch'], (fetch) => {
           _this.currentPage = 1
           _this.fetchList()
         })
+        .on('click', '.hook-support' , function() {
+          console.log($(this).data('id'))
+        })
+        .on('click', '.hook-go', function() {
+          _this.currentPage = $(this).data('page')
+          _this.fetchList()
+        })
+        .on('click', '.hook-btn-go', function() {
+          let page = _this.$layer.find('.hook-page-text').val()
+          if (!window.isNaN(page) && (page > 0 && page <= this.total)) {
+            _this.currentPage = page
+            _this.fetchList()
+          }
+        })
 
       $.fn.scrollUnique = function () {
         return $(this).each(function () {
@@ -93,7 +108,10 @@ define(['scripts/fetch'], (fetch) => {
 
       this.$layer.find('.content').scrollUnique()
     },
-    setPosition() {},
+    setPosition() {
+      let top = this.$sourceDom.position().top
+      this.$layer.css({top})
+    },
     fetchList() {
       let url = this.currentType == 'add'
           ? 'reviseList'
@@ -101,15 +119,18 @@ define(['scripts/fetch'], (fetch) => {
         data = {
           proId: this.proId,
           paraCode: this.paraCode,
-          page: this.currentPage,
-          userId: 0
+          page: this.currentPage
         },
         $content = this.$layer.find('.content')
+      this.setPosition()
       $content.html(
         '<div class="loading"><img src="/images/loading.svg" /></div>')
 
       fetch[url](data).then(data => {
         $content.html(this.itemInner(data))
+        console.log(this.$layer.find('.item-pager'))
+        this.$layer.find('.item-pager').html(this.pagerInner(data))
+
       })
     },
     itemInner({sliceList}) {
@@ -118,15 +139,12 @@ define(['scripts/fetch'], (fetch) => {
       sliceList.forEach(list => {
         inner += `
           <dt>
-            <span class="time">${list.createDate}</span> <span>${list.userName}</span>
-          </dt>
-          <dd>
-            <div class="item-inner">
-              ${list.content}
-            </div>
+            <img class="avatar" src="" alt="${list.userName}">
+            <span>${list.userName}</span>
+            <span class="time">${list.createDate}</span>
             <div class="item-oper">
-              <a class="hook-support" href="javascript:;">
-                <i class="iconfont icon-dianzan"></i> <span>赞</span>
+              <a class="support hook-support" data-id="${list.id}" href="javascript:;">
+                <i class="iconfont icon-dianzan1"></i>
               </a>
               <a>
                 <i class="iconfont icon-guanlizhe"></i> <span>3</span>
@@ -135,12 +153,48 @@ define(['scripts/fetch'], (fetch) => {
                 <i class="iconfont icon-canyuzhe"></i> <span>2</span>
               </a>
             </div>
+          </dt>
+          <dd>
+            <div class="item-inner">
+              ${list.content}
+            </div>
           </dd>
         `
       })
 
       inner += '</dl>'
 
+      return inner
+    },
+    pagerInner({count, size, from}) {
+      let total = Math.ceil(count / size),
+        inner = ''
+
+      this.total = total
+
+      if (total > 1) {
+        inner += `
+          <div class="form-inline">
+            <span class="pager-text">第${from}页</span>
+            <ul class="pagination">
+              <li class="${from === 1 ? 'disabled': ''}">
+                <a href="javascript:;" class="hook-go" data-page="${from === 1 ? '1': (from - 1)}" aria-label="Previous">
+                  上一页
+                </a>
+              </li>
+              <li class="${from === total ? 'disabled': ''}">
+                <a href="javascript:;" class="hook-go" data-page="${from === total ? from: (from + 1)}" aria-label="Next">
+                  下一页
+                </a>
+              </li>
+            </ul>
+            <span class="pager-text">共${total}页</span>
+            <span class="pager-text">到 <input class="form-control hook-page-text" type="text" value="${from}"> 页
+              <button class="btn btn-default hook-btn-go">确定</button>
+            </span>
+          </div>
+        `
+      }
       return inner
     }
   }

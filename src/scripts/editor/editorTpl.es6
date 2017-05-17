@@ -99,9 +99,8 @@ define(() => {
     },
     item({id, itemId, type, content}) {
       return `
-      <div id="item_${id}" class="item" data-itemid="${itemId ||
-      ''}" data-type="${type}">
-        <label class="checkbox" for="checkbox_${id}">
+      <div id="item_${id}" class="item" data-itemid="${itemId || ''}" data-type="${type}">
+        <label class="checkbox" for="checkbox_${id}" data-itemid="${itemId || ''}">
           <input class="hook-item-checkbox" id="checkbox_${id}" type="checkbox">
         </label>
         <div class="item-content">

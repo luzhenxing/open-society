@@ -23,6 +23,10 @@ requirejs(['scripts/editor/ReviseEditor',
 
 
     $('.detail-article')
+      // 点击段落显示操作
+      .on('click', '.detail-item-inner', function() {
+        $(this).siblings('.detail-item-oper').find('.oper').show()
+      })
       // 添加
       .on('click', '.hook-add', function (e) {
         let $item = $(this).closest('.detail-item'),

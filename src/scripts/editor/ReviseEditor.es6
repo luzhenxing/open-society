@@ -1,5 +1,5 @@
-define(['scripts/editor/editorTpl', 'scripts/fetch'],
-  (tpl, fetch) => {
+define(['scripts/editor/editorTpl', 'scripts/urls', 'scripts/fetch'],
+  (tpl, urls, fetch) => {
 
     let isShowUEditor = false,
       listPage = 1
@@ -88,9 +88,19 @@ define(['scripts/editor/editorTpl', 'scripts/fetch'],
             }
           })
           // 取消
-          .on('click', '.hook-cancel-save,.hook-prev', this.hide.bind(this))
+          .on('click', '.hook-cancel-save,.hook-prev', () => {
+            if (isShowUEditor) {
+              alert('请先保存编辑的内容')
+              return false
+            }
+            this.hide()
+          })
           // 暂存
           .on('click', '.hook-save', () => {
+            if (isShowUEditor) {
+              alert('请先保存编辑的内容')
+              return false
+            }
             fetch.tempSaveRevises({
               "id": window.PID,
               "paraCode": this.paraCode
@@ -102,6 +112,10 @@ define(['scripts/editor/editorTpl', 'scripts/fetch'],
           })
           // 段落新增段提交
           .on('click', '.hook-submit', () => {
+            if (isShowUEditor) {
+              alert('请先保存编辑的内容')
+              return false
+            }
             fetch.saveRevises({
               "id": window.PID,
               "paraCode": this.paraCode
@@ -119,12 +133,13 @@ define(['scripts/editor/editorTpl', 'scripts/fetch'],
         this.bindPager()
       },
       bindUpload() {
-        let _this = this;
+        let _this = this,
+          token = `Bearer ${$.cookie('X-Authorization')}`
         const uploader = new plupload.Uploader({ //实例化一个plupload上传对象
           browse_button: 'browse',
           container: 'browse-wrapper',
           runtimes : 'html5,flash,silverlight,html4',
-          url: `http://47.93.77.208:8080/api/v1/projects/files`,
+          url: urls.revisesFiles,
           flash_swf_url: 'scripts/common/plupload/Moxie.swf',
           silverlight_xap_url: 'scripts/common/plupload/Moxie.xap',
           max_retries: 3,
@@ -133,9 +148,9 @@ define(['scripts/editor/editorTpl', 'scripts/fetch'],
             proId: window.PID,
             paraCode: _this.$itemContainer.find('.checkbox.checked:last').closest('.item').data('itemid') || 'end'
           },
-          // headers: {
-          //   'X-Authorization': "Bearer eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiIxMzUyMTg1MTk1NSIsImp0aSI6Ijg2MDY4OTYyNzcwNTAyMDQxNiIsInNjb3BlcyI6WyIvOkdFVCJdLCJpc3MiOiJodHRwOi8vb3N3b3JkLmNvbSIsImlhdCI6MTQ5NDgzMTg3MSwiZXhwIjoxNDk0ODM5MDcxfQ.BOsYmt-HsZOxrt29fpAUKtf8JO0Nvu9gR-4LvR7yZZX7kiRrENfmvLF3wUPAA9KCcqqMGb_kP03hmxcjghXWQg"
-          // },
+          headers: {
+            'X-Authorization': token
+          },
           filters: {
             mime_types: [
               {title: 'Word file', extensions: 'doc,docx'}
@@ -155,13 +170,6 @@ define(['scripts/editor/editorTpl', 'scripts/fetch'],
               uploader.start()
 
             },
-            // BeforeUpload(up, file) {
-            //   console.log('BeforeUpload')
-            //   uploader.setOption('multipart_params', {
-            //     proId: window.PID,
-            //     paraCode: _this.$itemContainer.find('.checkbox.checked:last').closest('.item').data('itemid') || 'end'
-            //   })
-            // },
             UploadProgress(up, file) {
               console.log('upload progress', file.percent)
             },
@@ -185,6 +193,10 @@ define(['scripts/editor/editorTpl', 'scripts/fetch'],
         })
 
         $(this.pager).on('pager', (e, page) => {
+          if (isshowueditor) {
+            alert('请先保存编辑的内容')
+            return false
+          }
           this.itemLists(page)
         })
       },
@@ -258,11 +270,16 @@ define(['scripts/editor/editorTpl', 'scripts/fetch'],
       },
       // 合并段落
       coalesceItem() {
+        let arr = []
+
+        $('.item .checked').map(function(){
+          arr.push(this.getAttribute('data-itemid'))
+        })
         fetch.coalesceRevise({
           id: this.proId,
           // userId: window.userId,
           paraCode: this.paraCode,
-          reviseIds: this.arrCheckedItem,
+          reviseIds: arr,
           page: listPage
         }).then(data => {
           this.arrCheckedItem.length = 0

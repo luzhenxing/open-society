@@ -8,6 +8,7 @@ define(['scripts/fetch'], function (fetch) {
     this.currentPage = 1;
     this.addCount = 0;
     this.reviseCount = 0;
+    this.total = 1;
 
     this.$layer = null;
     this.$sourceDom = null;
@@ -49,6 +50,17 @@ define(['scripts/fetch'], function (fetch) {
         _this.currentType = $this.data('type');
         _this.currentPage = 1;
         _this.fetchList();
+      }).on('click', '.hook-support', function () {
+        console.log($(this).data('id'));
+      }).on('click', '.hook-go', function () {
+        _this.currentPage = $(this).data('page');
+        _this.fetchList();
+      }).on('click', '.hook-btn-go', function () {
+        var page = _this.$layer.find('.hook-page-text').val();
+        if (!window.isNaN(page) && page > 0 && page <= this.total) {
+          _this.currentPage = page;
+          _this.fetchList();
+        }
       });
 
       $.fn.scrollUnique = function () {
@@ -78,7 +90,10 @@ define(['scripts/fetch'], function (fetch) {
 
       this.$layer.find('.content').scrollUnique();
     },
-    setPosition: function setPosition() {},
+    setPosition: function setPosition() {
+      var top = this.$sourceDom.position().top;
+      this.$layer.css({ top: top });
+    },
     fetchList: function fetchList() {
       var _this2 = this;
 
@@ -86,14 +101,16 @@ define(['scripts/fetch'], function (fetch) {
           data = {
         proId: this.proId,
         paraCode: this.paraCode,
-        page: this.currentPage,
-        userId: 0
+        page: this.currentPage
       },
           $content = this.$layer.find('.content');
+      this.setPosition();
       $content.html('<div class="loading"><img src="/images/loading.svg" /></div>');
 
       fetch[url](data).then(function (data) {
         $content.html(_this2.itemInner(data));
+        console.log(_this2.$layer.find('.item-pager'));
+        _this2.$layer.find('.item-pager').html(_this2.pagerInner(data));
       });
     },
     itemInner: function itemInner(_ref) {
@@ -102,11 +119,26 @@ define(['scripts/fetch'], function (fetch) {
       var inner = '<dl class="item">';
 
       sliceList.forEach(function (list) {
-        inner += '\n          <dt>\n            <span class="time">' + list.createDate + '</span> <span>' + list.userName + '</span>\n          </dt>\n          <dd>\n            <div class="item-inner">\n              ' + list.content + '\n            </div>\n            <div class="item-oper">\n              <a class="hook-support" href="javascript:;">\n                <i class="iconfont icon-dianzan"></i> <span>\u8D5E</span>\n              </a>\n              <a>\n                <i class="iconfont icon-guanlizhe"></i> <span>3</span>\n              </a>\n              <a>\n                <i class="iconfont icon-canyuzhe"></i> <span>2</span>\n              </a>\n            </div>\n          </dd>\n        ';
+        inner += '\n          <dt>\n            <img class="avatar" src="" alt="' + list.userName + '">\n            <span>' + list.userName + '</span>\n            <span class="time">' + list.createDate + '</span>\n            <div class="item-oper">\n              <a class="support hook-support" data-id="' + list.id + '" href="javascript:;">\n                <i class="iconfont icon-dianzan1"></i>\n              </a>\n              <a>\n                <i class="iconfont icon-guanlizhe"></i> <span>3</span>\n              </a>\n              <a>\n                <i class="iconfont icon-canyuzhe"></i> <span>2</span>\n              </a>\n            </div>\n          </dt>\n          <dd>\n            <div class="item-inner">\n              ' + list.content + '\n            </div>\n          </dd>\n        ';
       });
 
       inner += '</dl>';
 
+      return inner;
+    },
+    pagerInner: function pagerInner(_ref2) {
+      var count = _ref2.count,
+          size = _ref2.size,
+          from = _ref2.from;
+
+      var total = Math.ceil(count / size),
+          inner = '';
+
+      this.total = total;
+
+      if (total > 1) {
+        inner += '\n          <div class="form-inline">\n            <span class="pager-text">\u7B2C' + from + '\u9875</span>\n            <ul class="pagination">\n              <li class="' + (from === 1 ? 'disabled' : '') + '">\n                <a href="javascript:;" class="hook-go" data-page="' + (from === 1 ? '1' : from - 1) + '" aria-label="Previous">\n                  \u4E0A\u4E00\u9875\n                </a>\n              </li>\n              <li class="' + (from === total ? 'disabled' : '') + '">\n                <a href="javascript:;" class="hook-go" data-page="' + (from === total ? from : from + 1) + '" aria-label="Next">\n                  \u4E0B\u4E00\u9875\n                </a>\n              </li>\n            </ul>\n            <span class="pager-text">\u5171' + total + '\u9875</span>\n            <span class="pager-text">\u5230 <input class="form-control hook-page-text" type="text" value="' + from + '"> \u9875\n              <button class="btn btn-default hook-btn-go">\u786E\u5B9A</button>\n            </span>\n          </div>\n        ';
+      }
       return inner;
     }
   };

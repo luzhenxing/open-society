@@ -20,6 +20,10 @@ requirejs(['scripts/editor/ReviseEditor', 'scripts/editor/ItemReviseEditor', 'sc
   });
 
   $('.detail-article')
+  // 点击段落显示操作
+  .on('click', '.detail-item-inner', function () {
+    $(this).siblings('.detail-item-oper').find('.oper').show();
+  })
   // 添加
   .on('click', '.hook-add', function (e) {
     var $item = $(this).closest('.detail-item'),

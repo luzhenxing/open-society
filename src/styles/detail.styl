@@ -113,10 +113,15 @@ a:active
 
 .detail-article
   float: left
+  padding-bottom: 40px
   width: 640px
 
+.detail-item-wrap
+  position: relative
+  padding-top: 16px
+
 .detail-item
-  margin-top: 16px
+  padding-bottom: 16px
   text-align: justify
   .detail-item-inner
     img
@@ -124,6 +129,7 @@ a:active
       border: 0
       max-width: 100%
   .detail-item-oper
+    height: 22px
     text-align: right
     color: #1BA860
     .oper
@@ -134,13 +140,19 @@ a:active
       span
         vertical-align: top
 
+.item-pager-fixed
+  position: fixed
+  z-index: 10
+  bottom: 0
+  width: 640px
+
 .detail-aside
   float: right
   position: relative
-  margin-top: 70px
   width: 430px
 
 .detail-aside-layer
+  position: relative
   border-radius: 4px
   box-shadow: 0 2px 4px 2px rgba(0, 0, 0, 0.1)
   padding-bottom: 20px
@@ -164,7 +176,7 @@ a:active
   .content
     padding: 0 20px
     overflow: auto
-    max-height: 300px
+    max-height: 478px
 
     dl.item
       margin-top: 20px
@@ -175,11 +187,42 @@ a:active
         margin-bottom: 0
         padding-bottom: 0
         border-bottom: 0
+
       dt
+        position: relative
+        margin-top: 14px
+        padding-left: 45px
         padding-bottom: 4px
+
+        .avatar
+          float: left
+          margin-left: -45px
+          width: 32px
+          height: 32px
+          border-radius: 50%
+
         .time
-          float: right
+          display: block
           color: #999
+          font-size: 12px
+
+        .item-oper
+          position: absolute
+          top: 0
+          right: 0
+          margin-top: 4px
+          text-align: right
+          color: #999
+          .support
+            margin-left: 0
+            margin-right: 6px
+            padding-right: 8px;
+            border-right: 1px solid #D8D8D8
+          a
+            margin-left: 6px
+            color: #999
+            .icon-dianzan1
+              color: #21BD6D
       dd
         padding-bottom: 4px
         text-align: justify
@@ -190,12 +233,4 @@ a:active
             vertical-align: top
             border: 0
             max-width: 100%
-        .item-oper
-          margin-top: 4px
-          text-align: right
-          color: #999
-          a
-            margin-left: 12px
-            color: #999
-            .icon-dianzan1
-              color: #21BD6D
+

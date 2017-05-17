@@ -130,10 +130,15 @@ a:active {
 }
 .detail-article {
   float: left;
+  padding-bottom: 40px;
   width: 640px;
 }
+.detail-item-wrap {
+  position: relative;
+  padding-top: 16px;
+}
 .detail-item {
-  margin-top: 16px;
+  padding-bottom: 16px;
   text-align: justify;
 }
 .detail-item .detail-item-inner img {
@@ -142,6 +147,7 @@ a:active {
   max-width: 100%;
 }
 .detail-item .detail-item-oper {
+  height: 22px;
   text-align: right;
   color: #1ba860;
 }
@@ -155,13 +161,19 @@ a:active {
 .detail-item .detail-item-oper .oper span {
   vertical-align: top;
 }
+.item-pager-fixed {
+  position: fixed;
+  z-index: 10;
+  bottom: 0;
+  width: 640px;
+}
 .detail-aside {
   float: right;
   position: relative;
-  margin-top: 70px;
   width: 430px;
 }
 .detail-aside-layer {
+  position: relative;
   border-radius: 4px;
   box-shadow: 0 2px 4px 2px rgba(0,0,0,0.1);
   padding-bottom: 20px;
@@ -190,7 +202,7 @@ a:active {
 .detail-aside-layer .content {
   padding: 0 20px;
   overflow: auto;
-  max-height: 300px;
+  max-height: 478px;
 }
 .detail-aside-layer .content dl.item {
   margin-top: 20px;
@@ -204,11 +216,43 @@ a:active {
   border-bottom: 0;
 }
 .detail-aside-layer .content dl.item dt {
+  position: relative;
+  margin-top: 14px;
+  padding-left: 45px;
   padding-bottom: 4px;
 }
+.detail-aside-layer .content dl.item dt .avatar {
+  float: left;
+  margin-left: -45px;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+}
 .detail-aside-layer .content dl.item dt .time {
-  float: right;
+  display: block;
   color: #999;
+  font-size: 12px;
+}
+.detail-aside-layer .content dl.item dt .item-oper {
+  position: absolute;
+  top: 0;
+  right: 0;
+  margin-top: 4px;
+  text-align: right;
+  color: #999;
+}
+.detail-aside-layer .content dl.item dt .item-oper .support {
+  margin-left: 0;
+  margin-right: 6px;
+  padding-right: 8px;
+  border-right: 1px solid #d8d8d8;
+}
+.detail-aside-layer .content dl.item dt .item-oper a {
+  margin-left: 6px;
+  color: #999;
+}
+.detail-aside-layer .content dl.item dt .item-oper a .icon-dianzan1 {
+  color: #21bd6d;
 }
 .detail-aside-layer .content dl.item dd {
   padding-bottom: 4px;
@@ -221,16 +265,4 @@ a:active {
   vertical-align: top;
   border: 0;
   max-width: 100%;
-}
-.detail-aside-layer .content dl.item dd .item-oper {
-  margin-top: 4px;
-  text-align: right;
-  color: #999;
-}
-.detail-aside-layer .content dl.item dd .item-oper a {
-  margin-left: 12px;
-  color: #999;
-}
-.detail-aside-layer .content dl.item dd .item-oper a .icon-dianzan1 {
-  color: #21bd6d;
 }
