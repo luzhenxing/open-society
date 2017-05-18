@@ -194,7 +194,7 @@ define(['scripts/editor/editorTpl', 'scripts/urls', 'scripts/fetch'], function (
       });
 
       $(this.pager).on('pager', function (e, page) {
-        if (isshowueditor) {
+        if (isShowUEditor) {
           alert('请先保存编辑的内容');
           return false;
         }

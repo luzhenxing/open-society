@@ -193,7 +193,7 @@ define(['scripts/editor/editorTpl', 'scripts/urls', 'scripts/fetch'],
         })
 
         $(this.pager).on('pager', (e, page) => {
-          if (isshowueditor) {
+          if (isShowUEditor) {
             alert('请先保存编辑的内容')
             return false
           }
