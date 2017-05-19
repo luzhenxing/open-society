@@ -111,7 +111,7 @@ define(['scripts/editor/editorTpl', 'scripts/urls', 'scripts/fetch'],
             }
             fetch.saveProject(window.PROJECT_DATA).then(message => {
               alert(message)
-              window.location = 'https://www.baidu.com'
+              window.location = '/index'
             })
           })
 
