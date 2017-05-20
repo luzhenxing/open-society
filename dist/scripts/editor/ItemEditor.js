@@ -1,6 +1,6 @@
 'use strict';
 
-define(['scripts/editor/editorTpl', 'scripts/urls', 'scripts/fetch'], function (tpl, urls, fetch) {
+define(['scripts/editor/editorTpl', 'scripts/urls', 'scripts/fetch', 'scripts/token'], function (tpl, urls, fetch, token) {
 
   var isShowUEditor = false,
       listPage = 1;
@@ -111,6 +111,12 @@ define(['scripts/editor/editorTpl', 'scripts/urls', 'scripts/fetch'], function (
           alert('请先保存编辑的内容');
           return false;
         }
+
+        if ($.isEmptyObject(_this2.objItemSet)) {
+          alert('你创建的项目没有内容,不能提交,可暂存或取消');
+          return false;
+        }
+
         fetch.saveProject(window.PROJECT_DATA).then(function (message) {
           alert(message);
           window.location = '/index';
@@ -121,8 +127,7 @@ define(['scripts/editor/editorTpl', 'scripts/urls', 'scripts/fetch'], function (
       this.bindPager();
     },
     bindUpload: function bindUpload() {
-      var _this = this,
-          token = 'Bearer ' + $.cookie('X-Authorization');
+      var _this = this;
       var uploader = new plupload.Uploader({ //实例化一个plupload上传对象
         browse_button: 'browse',
         container: 'browse-wrapper',
@@ -133,8 +138,7 @@ define(['scripts/editor/editorTpl', 'scripts/urls', 'scripts/fetch'], function (
         max_retries: 3,
         multi_selection: false,
         multipart_params: {
-          proId: window.PID,
-          paraCode: _this.$itemContainer.find('.checkbox.checked:last').closest('.item').data('itemid') || 'end'
+          proId: window.PID
         },
         headers: {
           'X-Authorization': token
@@ -146,11 +150,9 @@ define(['scripts/editor/editorTpl', 'scripts/urls', 'scripts/fetch'], function (
 
         init: {
           FilesAdded: function FilesAdded(up, files) {
+            var paraCode = _this.$itemContainer.find('.checkbox.checked:last').closest('.item').data('itemid') || 'end';
             console.log('file add');
-            uploader.setOption('multipart_params', {
-              proId: window.PID,
-              paraCode: _this.$itemContainer.find('.checkbox.checked:last').closest('.item').data('itemid') || 'end'
-            });
+            uploader.setOption('url', urls.projectsFiles + '?paraCode=' + paraCode);
 
             // 开始上传
             uploader.start();
@@ -481,6 +483,8 @@ define(['scripts/editor/editorTpl', 'scripts/urls', 'scripts/fetch'], function (
         setUEditorStatus(false);
         console.log(_this10.objItemSet);
         $(_this10).trigger('item.add');
+        _this10.checkItem(true);
+        _this10.$item.find('.hook-item-checkbox').prop('checked', true);
       });
     },
     updateItem: function updateItem() {
@@ -494,6 +498,8 @@ define(['scripts/editor/editorTpl', 'scripts/urls', 'scripts/fetch'], function (
         _this11.$itemInner.html(_this11.content);
         _this11.showInner();
         setUEditorStatus(false);
+        _this11.checkItem(true);
+        _this11.$item.find('.hook-item-checkbox').prop('checked', true);
       });
     },
     cancelSave: function cancelSave() {

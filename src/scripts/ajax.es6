@@ -1,7 +1,6 @@
-define(() => {
+define(['scripts/token'], (token) => {
   return {
     ajaxData(url, data = {}, type = 'GET'){
-      let token = `Bearer ${$.cookie('X-Authorization')}`
       const promise = $.Deferred()
 
       $.ajax({

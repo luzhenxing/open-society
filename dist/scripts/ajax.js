@@ -1,12 +1,11 @@
 'use strict';
 
-define(function () {
+define(['scripts/token'], function (token) {
   return {
     ajaxData: function ajaxData(url) {
       var data = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
       var type = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : 'GET';
 
-      var token = 'Bearer ' + $.cookie('X-Authorization');
       var promise = $.Deferred();
 
       $.ajax({

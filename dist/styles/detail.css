@@ -60,36 +60,33 @@ a:active {
   background: #21bd6d;
   color: #fff;
 }
-.item-revise-container {
-  padding: 20px 40px;
-}
-.item-revise-container dl.info {
+.detail-header dl.info {
   zoom: 1;
   line-height: 18px;
 }
-.item-revise-container dl.info:after {
+.detail-header dl.info:after {
   content: '';
   display: block;
   height: 0;
   clear: both;
 }
-.item-revise-container dl.info dt {
+.detail-header dl.info dt {
   float: left;
 }
-.item-revise-container dl.info.info-fl {
+.detail-header dl.info.info-fl {
   padding-left: 3em;
 }
-.item-revise-container dl.info.info-fl dt {
+.detail-header dl.info.info-fl dt {
   margin-left: -3em;
 }
-.item-revise-container .fold {
+.detail-header .fold {
   margin-top: 6px;
   display: block;
 }
-.item-revise-container .fold .iconfont {
+.detail-header .fold .iconfont {
   font-size: 12px;
 }
-.item-revise-container .fold a {
+.detail-header .fold a {
   color: #666;
 }
 .detail-container {

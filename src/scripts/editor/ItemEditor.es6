@@ -1,5 +1,5 @@
-define(['scripts/editor/editorTpl', 'scripts/urls', 'scripts/fetch'],
-  (tpl, urls, fetch) => {
+define(['scripts/editor/editorTpl', 'scripts/urls', 'scripts/fetch', 'scripts/token'],
+  (tpl, urls, fetch, token) => {
 
     let isShowUEditor = false,
       listPage = 1
@@ -109,6 +109,12 @@ define(['scripts/editor/editorTpl', 'scripts/urls', 'scripts/fetch'],
               alert('请先保存编辑的内容')
               return false
             }
+
+            if ($.isEmptyObject(this.objItemSet)) {
+              alert('你创建的项目没有内容,不能提交,可暂存或取消')
+              return false
+            }
+
             fetch.saveProject(window.PROJECT_DATA).then(message => {
               alert(message)
               window.location = '/index'
@@ -120,8 +126,7 @@ define(['scripts/editor/editorTpl', 'scripts/urls', 'scripts/fetch'],
         this.bindPager()
       },
       bindUpload() {
-        let _this = this,
-          token = `Bearer ${$.cookie('X-Authorization')}`
+        let _this = this
         const uploader = new plupload.Uploader({ //实例化一个plupload上传对象
           browse_button: 'browse',
           container: 'browse-wrapper',
@@ -132,8 +137,7 @@ define(['scripts/editor/editorTpl', 'scripts/urls', 'scripts/fetch'],
           max_retries: 3,
           multi_selection: false,
           multipart_params: {
-            proId: window.PID,
-            paraCode: _this.$itemContainer.find('.checkbox.checked:last').closest('.item').data('itemid') || 'end'
+            proId: window.PID
           },
           headers: {
             'X-Authorization': token
@@ -147,11 +151,9 @@ define(['scripts/editor/editorTpl', 'scripts/urls', 'scripts/fetch'],
 
           init: {
             FilesAdded(up, files) {
+              let paraCode = _this.$itemContainer.find('.checkbox.checked:last').closest('.item').data('itemid') || 'end'
               console.log('file add')
-              uploader.setOption('multipart_params', {
-                proId: window.PID,
-                paraCode: _this.$itemContainer.find('.checkbox.checked:last').closest('.item').data('itemid') || 'end'
-              })
+              uploader.setOption('url',  `${urls.projectsFiles}?paraCode=${paraCode}`)
 
               // 开始上传
               uploader.start()
@@ -447,6 +449,8 @@ define(['scripts/editor/editorTpl', 'scripts/urls', 'scripts/fetch'],
           setUEditorStatus(false)
           console.log(this.objItemSet)
           $(this).trigger('item.add')
+          this.checkItem(true)
+          this.$item.find('.hook-item-checkbox').prop('checked', true)
         })
       },
       updateItem() {
@@ -458,6 +462,8 @@ define(['scripts/editor/editorTpl', 'scripts/urls', 'scripts/fetch'],
           this.$itemInner.html(this.content)
           this.showInner()
           setUEditorStatus(false)
+          this.checkItem(true)
+          this.$item.find('.hook-item-checkbox').prop('checked', true)
         })
       },
       cancelSave() {
