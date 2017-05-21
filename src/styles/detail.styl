@@ -51,7 +51,8 @@ a:active
         text-align: center
         border-radius: 4px
         color: #21BD6D
-        &.btn-detail.btn-create
+        &.btn-create
+        &.btn-publish
           position: absolute
           top: 0
           right: 0
@@ -61,6 +62,9 @@ a:active
           line-height: 36px
           background: #21BD6D
           color: #FFF
+        &.btn-publish
+          background: transparent
+          color: #21BD6D
 
   dl.info
     clearfix()
@@ -112,6 +116,9 @@ a:active
   float: left
   padding-bottom: 40px
   width: 640px
+  &.information-article
+    padding-bottom: 0
+    width: 770px
 
 .detail-item-wrap
   position: relative
@@ -231,3 +238,20 @@ a:active
             border: 0
             max-width: 100%
 
+.revise-layout
+  clearfix()
+  margin-top: 40px
+  .layout-fl
+    float: left
+    width: 540px
+  .layout-fr
+    float: right
+    width: 540px
+  .detail-item
+    position: relative
+    .detail-item-subject
+      position: absolute
+      top: -18px
+      height: 18px
+      line-height: 18px
+      color: #21BD6D
