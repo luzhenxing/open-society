@@ -512,6 +512,7 @@ define(['scripts/editor/editorTpl', 'scripts/urls', 'scripts/fetch', 'scripts/to
         _this10.itemId = data.reviseId;
         _this10.$item.data('type', _this10.type);
         _this10.$item.data('itemid', _this10.itemId);
+        _this10.$item.find('.checkbox').data('itemid', _this10.itemId);
         _this10.$itemInner.html(_this10.content);
         _this10.objItemSet[_this10.itemId] = _this10;
         _this10.showInner();

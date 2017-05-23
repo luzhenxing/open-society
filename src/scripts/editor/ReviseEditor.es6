@@ -477,6 +477,7 @@ define(['scripts/editor/editorTpl', 'scripts/urls', 'scripts/fetch', 'scripts/to
           this.itemId = data.reviseId
           this.$item.data('type', this.type)
           this.$item.data('itemid', this.itemId)
+          this.$item.find('.checkbox').data('itemid', this.itemId)
           this.$itemInner.html(this.content)
           this.objItemSet[this.itemId] = this
           this.showInner()
