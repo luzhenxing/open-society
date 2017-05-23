@@ -292,6 +292,9 @@ define(['scripts/editor/editorTpl', 'scripts/urls', 'scripts/fetch', 'scripts/to
 
       var sliceList = _ref.sliceList;
 
+      if (!sliceList) {
+        return false;
+      }
       this.$itemContainer.empty();
       this.objItemSet = {};
       this.arrCheckedItem.length = 0;

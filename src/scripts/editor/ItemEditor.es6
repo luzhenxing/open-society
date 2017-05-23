@@ -275,6 +275,9 @@ define(['scripts/editor/editorTpl', 'scripts/urls', 'scripts/fetch', 'scripts/to
         })
       },
       renderItem({sliceList}) {
+        if (!sliceList) {
+          return false;
+        }
         this.$itemContainer.empty()
         this.objItemSet = {}
         this.arrCheckedItem.length = 0
