@@ -116,6 +116,9 @@ define(['scripts/fetch'], function (fetch) {
     itemInner: function itemInner(_ref) {
       var sliceList = _ref.sliceList;
 
+      if (!sliceList) {
+        return false;
+      }
       var inner = '<dl class="item">';
 
       sliceList.forEach(function (list) {

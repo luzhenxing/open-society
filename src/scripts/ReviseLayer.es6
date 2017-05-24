@@ -134,6 +134,9 @@ define(['scripts/fetch'], (fetch) => {
       })
     },
     itemInner({sliceList}) {
+      if (!sliceList) {
+        return false;
+      }
       let inner = '<dl class="item">'
 
       sliceList.forEach(list => {
