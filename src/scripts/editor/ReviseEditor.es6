@@ -270,7 +270,7 @@ define(['scripts/editor/editorTpl', 'scripts/urls', 'scripts/fetch', 'scripts/to
         let arr = []
 
         $('.item .checked').map(function(){
-          arr.push(this.getAttribute('data-itemid'))
+          arr.push($(this).data('itemid'))
         })
         fetch.coalesceRevise({
           id: this.proId,
@@ -505,10 +505,10 @@ define(['scripts/editor/editorTpl', 'scripts/urls', 'scripts/fetch', 'scripts/to
       cancelSave() {
         if (this.type === 'create') {
           // 段落集合大于一段以上，可以销毁当前段落，防止编辑页空白无数据
-          if (Object.keys(this.objItemSet).length) {
+          // if (Object.keys(this.objItemSet).length) {
             setUEditorStatus(false)
             this.destroy()
-          }
+          // }
         } else {
           setUEditorStatus(false)
           this.showInner()
