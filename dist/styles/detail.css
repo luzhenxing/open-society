@@ -147,7 +147,7 @@ a:active {
   padding-bottom: 16px;
   text-align: justify;
 }
-.detail-item.active .detail-item-inner {
+.detail-item.current .detail-item-inner {
   background: #ebfff6;
 }
 .detail-item .detail-item-inner img {

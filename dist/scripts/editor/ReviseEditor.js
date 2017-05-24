@@ -161,7 +161,7 @@ define(['scripts/editor/editorTpl', 'scripts/urls', 'scripts/fetch', 'scripts/to
           FilesAdded: function FilesAdded(up, files) {
             var paraCode = _this.$itemContainer.find('.checkbox.checked:last').closest('.item').data('itemid') || 'end';
             console.log('file add');
-            uploader.setOption('url', urls.projectsFiles + '?paraCode=' + paraCode);
+            uploader.setOption('url', urls.revisesFiles + '?paraCode=' + paraCode);
 
             // 开始上传
             uploader.start();

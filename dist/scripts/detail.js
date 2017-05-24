@@ -20,10 +20,10 @@ requirejs(['scripts/editor/ReviseEditor', 'scripts/editor/ItemReviseEditor', 'sc
   });
 
   var addItemActive = function addItemActive($item) {
-    if ($item.hasClass('active')) {
+    if ($item.hasClass('current')) {
       return false;
     }
-    $item.addClass('active').siblings().removeClass('active');
+    $item.addClass('current').siblings().removeClass('current');
   };
 
   $('.detail-article').on('click', '.detail-item', function () {
