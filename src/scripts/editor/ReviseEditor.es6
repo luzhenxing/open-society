@@ -291,7 +291,7 @@ define(['scripts/editor/editorTpl', 'scripts/urls', 'scripts/fetch', 'scripts/to
       // 段落列表
       itemLists(page = 1) {
         listPage = page
-        fetch.reviseList({
+        fetch.tempReviseList({
           proId: window.PID,
           // userId: window.userId,
           paraCode: this.paraCode,
@@ -332,7 +332,13 @@ define(['scripts/editor/editorTpl', 'scripts/urls', 'scripts/fetch', 'scripts/to
         $(item).on('item.check', (checked) => {})
         $(item).on('item.add', () => {
           console.log('添加成功')
-          // this.itemLists(listPage)
+          if (!!this.arrCheckedItem.length) {
+            this.arrCheckedItem.forEach((itemid) => {
+              let item = this.objItemSet[itemid]
+              item.checkItem(false)
+              item.$item.find('.hook-item-checkbox').prop('checked', false)
+            })
+          }
         })
       }
     }

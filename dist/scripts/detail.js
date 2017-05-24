@@ -19,10 +19,37 @@ requirejs(['scripts/editor/ReviseEditor', 'scripts/editor/ItemReviseEditor', 'sc
     $foldDown.addClass('hidden');
   });
 
-  $('.detail-article')
+  var addItemActive = function addItemActive($item) {
+    if ($item.hasClass('active')) {
+      return false;
+    }
+    $item.addClass('active').siblings().removeClass('active');
+  };
+
+  $('.detail-article').on('click', '.detail-item', function () {
+    addItemActive($(this));
+  })
   // 点击段落显示操作
+  // add & revise
   .on('click', '.detail-item-inner', function () {
-    $(this).siblings('.detail-item-oper').find('.oper').show();
+    var $item = $(this).closest('.detail-item'),
+        paraCode = $item.data('paracode'),
+        addCount = parseInt($item.data('add-count')) || 0,
+        reviseCount = parseInt($item.data('revise-count')) || 0;
+
+    if (addCount == 0 && reviseCount == 0) {
+      $item.find('.detail-item-oper .oper').show();
+    } else {
+      reviseLayer.$sourceDom = $item;
+      reviseLayer.paraCode = paraCode;
+      reviseLayer.addCount = addCount;
+      reviseLayer.reviseCount = reviseCount;
+      if (reviseCount != 0) {
+        reviseLayer.show('revise');
+      } else if (addCount != 0) {
+        reviseLayer.show('add');
+      }
+    }
   })
   // 添加
   .on('click', '.hook-add', function (e) {

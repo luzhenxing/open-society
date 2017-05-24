@@ -304,7 +304,13 @@ define(['scripts/editor/editorTpl', 'scripts/urls', 'scripts/fetch', 'scripts/to
         $(item).on('item.check', (checked) => {})
         $(item).on('item.add', () => {
           console.log('添加成功')
-          // this.itemLists(listPage)
+          if (!!this.arrCheckedItem.length) {
+            this.arrCheckedItem.forEach((itemid) => {
+              let item = this.objItemSet[itemid]
+              item.checkItem(false)
+              item.$item.find('.hook-item-checkbox').prop('checked', false)
+            })
+          }
         })
       }
     }

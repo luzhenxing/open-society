@@ -305,7 +305,7 @@ define(['scripts/editor/editorTpl', 'scripts/urls', 'scripts/fetch', 'scripts/to
       var page = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 1;
 
       listPage = page;
-      fetch.reviseList({
+      fetch.tempReviseList({
         proId: window.PID,
         // userId: window.userId,
         paraCode: this.paraCode,
@@ -353,10 +353,18 @@ define(['scripts/editor/editorTpl', 'scripts/urls', 'scripts/fetch', 'scripts/to
     // 提交
     submit: function submit() {},
     pushItem: function pushItem(item) {
+      var _this8 = this;
+
       $(item).on('item.check', function (checked) {});
       $(item).on('item.add', function () {
         console.log('添加成功');
-        // this.itemLists(listPage)
+        if (!!_this8.arrCheckedItem.length) {
+          _this8.arrCheckedItem.forEach(function (itemid) {
+            var item = _this8.objItemSet[itemid];
+            item.checkItem(false);
+            item.$item.find('.hook-item-checkbox').prop('checked', false);
+          });
+        }
       });
     }
   };
@@ -417,7 +425,7 @@ define(['scripts/editor/editorTpl', 'scripts/urls', 'scripts/fetch', 'scripts/to
       }
     },
     bindEvent: function bindEvent() {
-      var _this8 = this;
+      var _this9 = this;
 
       var _this = this;
       this.$item
@@ -433,29 +441,29 @@ define(['scripts/editor/editorTpl', 'scripts/urls', 'scripts/fetch', 'scripts/to
         if (isShowUEditor) {
           return false;
         }
-        if (_this8.ueditor) {
-          _this8.setContent(_this8.content);
+        if (_this9.ueditor) {
+          _this9.setContent(_this9.content);
           // this.setUEditorHeight()
         } else {
-          _this8.initEditor();
+          _this9.initEditor();
         }
-        _this8.showEditor();
+        _this9.showEditor();
       })
       // 保存内容
       .on('click', '.hook-editor-save', function () {
-        _this8.content = _this8.getContent();
+        _this9.content = _this9.getContent();
         // 没有itemId为新增
-        if (_this8.itemId === '') {
-          _this8.addItem();
+        if (_this9.itemId === '') {
+          _this9.addItem();
         } else {
-          _this8.updateItem();
+          _this9.updateItem();
         }
       })
       // 取消保存
       .on('click', '.hook-editor-cancel', this.cancelSave.bind(this));
     },
     initEditor: function initEditor() {
-      var _this9 = this;
+      var _this10 = this;
 
       var height = Math.max(UEDITOR_MIN_HEIGHT, this.$item.height());
       this.ueditor = UE.getEditor('editor_' + this.id, {
@@ -464,7 +472,7 @@ define(['scripts/editor/editorTpl', 'scripts/urls', 'scripts/fetch', 'scripts/to
       });
 
       this.ueditor.addListener('contentchange', function () {
-        _this9.$item.find('.hook-editor-save').prop('disabled', _this9.isContentEmpty());
+        _this10.$item.find('.hook-editor-save').prop('disabled', _this10.isContentEmpty());
       });
     },
 
@@ -499,7 +507,7 @@ define(['scripts/editor/editorTpl', 'scripts/urls', 'scripts/fetch', 'scripts/to
       this.$itemInner.show();
     },
     addItem: function addItem() {
-      var _this10 = this;
+      var _this11 = this;
 
       fetch.addRevises({
         id: this.proId,
@@ -508,22 +516,22 @@ define(['scripts/editor/editorTpl', 'scripts/urls', 'scripts/fetch', 'scripts/to
         content: this.content,
         page: listPage
       }).then(function (data) {
-        _this10.type = 'edit';
-        _this10.itemId = data.reviseId;
-        _this10.$item.data('type', _this10.type);
-        _this10.$item.data('itemid', _this10.itemId);
-        _this10.$item.find('.checkbox').data('itemid', _this10.itemId);
-        _this10.$itemInner.html(_this10.content);
-        _this10.objItemSet[_this10.itemId] = _this10;
-        _this10.showInner();
+        _this11.type = 'edit';
+        _this11.itemId = data.reviseId;
+        _this11.$item.data('type', _this11.type);
+        _this11.$item.data('itemid', _this11.itemId);
+        _this11.$item.find('.checkbox').data('itemid', _this11.itemId);
+        _this11.$itemInner.html(_this11.content);
+        _this11.objItemSet[_this11.itemId] = _this11;
+        _this11.showInner();
         setUEditorStatus(false);
-        $(_this10).trigger('item.add');
-        _this10.checkItem(true);
-        _this10.$item.find('.hook-item-checkbox').prop('checked', true);
+        $(_this11).trigger('item.add');
+        _this11.checkItem(true);
+        _this11.$item.find('.hook-item-checkbox').prop('checked', true);
       });
     },
     updateItem: function updateItem() {
-      var _this11 = this;
+      var _this12 = this;
 
       fetch.updateRevises({
         id: this.proId,
@@ -532,11 +540,11 @@ define(['scripts/editor/editorTpl', 'scripts/urls', 'scripts/fetch', 'scripts/to
         content: this.content
       }).then(function (data) {
         console.log(data);
-        _this11.$itemInner.html(_this11.content);
-        _this11.showInner();
+        _this12.$itemInner.html(_this12.content);
+        _this12.showInner();
         setUEditorStatus(false);
-        _this11.checkItem(true);
-        _this11.$item.find('.hook-item-checkbox').prop('checked', true);
+        _this12.checkItem(true);
+        _this12.$item.find('.hook-item-checkbox').prop('checked', true);
       });
     },
     cancelSave: function cancelSave() {
@@ -590,14 +598,14 @@ define(['scripts/editor/editorTpl', 'scripts/urls', 'scripts/fetch', 'scripts/to
       this.bindEvent();
     },
     bindEvent: function bindEvent() {
-      var _this12 = this;
+      var _this13 = this;
 
       var _this = this;
       this.$pager.on('click', 'li:not(.disabled,.active) > .hook-go', function () {
         $(_this).trigger('pager', [$(this).data('page')]);
       }).on('click', '.hook-btn-go', function () {
-        var page = parseInt(_this12.$pager.find('.hook-page-text').val());
-        if (!window.isNaN(page) && page > 0 && page <= _this12.total) {
+        var page = parseInt(_this13.$pager.find('.hook-page-text').val());
+        if (!window.isNaN(page) && page > 0 && page <= _this13.total) {
           $(_this).trigger('pager', [page]);
         }
       });

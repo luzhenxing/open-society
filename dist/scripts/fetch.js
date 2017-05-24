@@ -73,6 +73,11 @@ define(['scripts/urls', 'scripts/ajax'], function (urls, ajax) {
     reviseList: function reviseList(data) {
       return ajax.getData(urls.parasRevises, data);
     },
+
+    // 段落的添加列表
+    tempReviseList: function tempReviseList(data) {
+      return ajax.getData(urls.tempParasRevises, data);
+    },
     paragraphRevisesList: function paragraphRevisesList(data) {
       return ajax.getData(urls.paragraphRevises, data);
     },

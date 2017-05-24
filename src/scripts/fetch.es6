@@ -57,6 +57,10 @@ define(['scripts/urls', 'scripts/ajax'], (urls, ajax) => {
     reviseList(data) {
       return ajax.getData(urls.parasRevises, data)
     },
+    // 段落的添加列表
+    tempReviseList(data) {
+      return ajax.getData(urls.tempParasRevises, data)
+    },
     paragraphRevisesList(data) {
       return ajax.getData(urls.paragraphRevises, data)
     },
