@@ -1,4 +1,4 @@
 define(() => {
-  // return `Bearer ${$.cookie('X-Authorization')}`
-  return `Bearer eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiIxMzAwMDAwMDAwMCIsImp0aSI6Ijg2NDcyODI2NTk3Mzg2NjQ5NiIsInNjb3BlcyI6WyIvOkdFVCJdLCJpc3MiOiJodHRwOi8vb3N3b3JkLmNvbSIsImlhdCI6MTQ5NTYxNDAyMSwiZXhwIjoxNDk1NjIxMjIxfQ.Uz5MDJKHVCo1eS4aDMhZ5sVfMiY035bUqHzxz0M1Nyv3X4s209Xep2U6ocEdAuFoppXzN-q1HO-ZVX3Dmg65eA`
+  return `Bearer ${$.cookie('X-Authorization')}`
+  // return `Bearer eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiIxMzAwMDAwMDAwMCIsImp0aSI6Ijg2NDcyODI2NTk3Mzg2NjQ5NiIsInNjb3BlcyI6WyIvOkdFVCJdLCJpc3MiOiJodHRwOi8vb3N3b3JkLmNvbSIsImlhdCI6MTQ5NTY5NTYyNSwiZXhwIjoxNDk1NzAyODI1fQ.8pRh0HbAKIDsKSIeirSn6PgT0VzFNPXEnL7KAr53JYE5Tyk4VInO4ni-WHrdQVwBA35I923VQjryGuW8yqbW9Q`
 })

@@ -1,6 +1,7 @@
-define(['scripts/editor/editorTpl', 'scripts/urls', 'scripts/fetch', 'scripts/token'],
-  (tpl, urls, fetch, token) => {
-
+define(
+  ['scripts/editor/editorTpl', 'scripts/urls', 'scripts/fetch', 'scripts/token',
+    'scripts/tips'],
+  (tpl, urls, fetch, token, tips) => {
     let isShowUEditor = false,
       listPage = 1
 
@@ -36,6 +37,7 @@ define(['scripts/editor/editorTpl', 'scripts/urls', 'scripts/fetch', 'scripts/to
       this.pager = null
 
       this.objItemSet = {}
+      this.uploadingTips = null
 
       // 选中段落
       this.arrCheckedItem = []
@@ -58,11 +60,14 @@ define(['scripts/editor/editorTpl', 'scripts/urls', 'scripts/fetch', 'scripts/to
         // this.$itemEditor.find('[data-toggle="tooltip"]').tooltip()
 
         this.$itemEditor
-          // 添加段落
+        // 添加段落
           .on('click', '.hook-add-item', () => {
             if (this.arrCheckedItem.length !== 1 &&
               !$.isEmptyObject(this.objItemSet)) {
-              alert('请选择一个段落进行添加')
+              tips.show({
+                type: 'warning',
+                content: '请选择一个段落进行添加'
+              })
             } else {
               this.addItem(this.arrCheckedItem[0])
             }
@@ -70,7 +75,10 @@ define(['scripts/editor/editorTpl', 'scripts/urls', 'scripts/fetch', 'scripts/to
           // 删除段落
           .on('click', '.hook-delete-item', () => {
             if (!this.arrCheckedItem.length) {
-              alert('请选择要删除的段落')
+              tips.show({
+                type: 'warning',
+                content: '请选择要删除的段落'
+              })
             } else {
               this.deleteItem()
             }
@@ -78,17 +86,26 @@ define(['scripts/editor/editorTpl', 'scripts/urls', 'scripts/fetch', 'scripts/to
           // 合并段落
           .on('click', '.hook-coalesce-item', () => {
             if (this.arrCheckedItem.length < 2) {
-              alert('请选择要合并的段落')
+              tips.show({
+                type: 'warning',
+                content: '请选择要合并的段落'
+              })
             } else if (!this.isAdjoin()) {
-              alert('请选择相邻的段落')
+              tips.show({
+                type: 'warning',
+                content: '请选择相邻的段落'
+              })
             } else {
               this.coalesceItem()
             }
           })
           // 取消
           .on('click', '.hook-cancel-save,.hook-prev', () => {
-            if (isShowUEditor) {
-              alert('请先保存编辑的内容')
+            if (isShowUEditorisShowUEditor) {
+              tips.show({
+                type: 'warning',
+                content: '请先保存编辑的内容'
+              })
               return false
             }
             this.hide()
@@ -96,31 +113,39 @@ define(['scripts/editor/editorTpl', 'scripts/urls', 'scripts/fetch', 'scripts/to
           // 暂存
           .on('click', '.hook-save', () => {
             if (isShowUEditor) {
-              alert('请先保存编辑的内容')
+              tips.show({
+                type: 'warning',
+                content: '请先保存编辑的内容'
+              })
               return false
             }
             fetch.tempSaveProject(window.PROJECT_DATA).then(message => {
-              alert(message)
+              tips.show(message)
             })
           })
           // 提交 创建项目
           .on('click', '.hook-submit', () => {
             if (isShowUEditor) {
-              alert('请先保存编辑的内容')
+              tips.show({
+                type: 'warning',
+                content: '请先保存编辑的内容'
+              })
               return false
             }
 
             if ($.isEmptyObject(this.objItemSet)) {
-              alert('你创建的项目没有内容,不能提交,可暂存或取消')
+              tips.show({
+                type: 'warning',
+                content: '你创建的项目没有内容,不能提交,可暂存或取消'
+              })
               return false
             }
 
             fetch.saveProject(window.PROJECT_DATA).then(message => {
-              alert(message)
+              tips.show(message)
               window.location = '/index'
             })
           })
-
 
         this.bindUpload()
         this.bindPager()
@@ -130,7 +155,7 @@ define(['scripts/editor/editorTpl', 'scripts/urls', 'scripts/fetch', 'scripts/to
         const uploader = new plupload.Uploader({ //实例化一个plupload上传对象
           browse_button: 'browse',
           container: 'browse-wrapper',
-          runtimes : 'html5,flash,silverlight,html4',
+          runtimes: 'html5,flash,silverlight,html4',
           url: urls.projectsFiles,
           flash_swf_url: 'scripts/common/plupload/Moxie.swf',
           silverlight_xap_url: 'scripts/common/plupload/Moxie.xap',
@@ -151,26 +176,36 @@ define(['scripts/editor/editorTpl', 'scripts/urls', 'scripts/fetch', 'scripts/to
 
           init: {
             FilesAdded(up, files) {
-              let paraCode = _this.$itemContainer.find('.checkbox.checked:last').closest('.item').data('itemid') || 'end'
+              let paraCode = _this.$itemContainer.find('.checkbox.checked:last')
+                  .closest('.item')
+                  .data('itemid') || 'end'
               console.log('file add')
-              uploader.setOption('url',  `${urls.projectsFiles}?paraCode=${paraCode}`)
+              uploader.setOption('url',
+                `${urls.projectsFiles}?paraCode=${paraCode}`)
 
+              _this.uploadingTips = $(tpl.uploadingTips(files[0]))
+              _this.uploadingTips.appendTo('body')
+              setUEditorStatus(true)
               // 开始上传
               uploader.start()
 
             },
             UploadProgress(up, file) {
               console.log('upload progress', file.percent)
+              _this.uploadingTips.find('.percent > em').css('width', `${file.percent}%`)
             },
             UploadComplete(uploader, files) {
               _this.itemLists(listPage)
+              _this.uploadingTips.remove()
+              _this.uploadingTips = null
+              setUEditorStatus(false)
               console.log('UploadComplete')
             },
             Error(uploader, errObject) {
-              console.log('Error')
-            },
-            OptionChanged(up, name, value, oldValue){
-              console.log('OptionChanged', name, value, oldValue)
+              tips.show({
+                type: 'warning',
+                content: '上传错误'
+              })
             }
           }
         })
@@ -183,7 +218,10 @@ define(['scripts/editor/editorTpl', 'scripts/urls', 'scripts/fetch', 'scripts/to
 
         $(this.pager).on('pager', (e, page) => {
           if (isShowUEditor) {
-            alert('请先保存编辑的内容')
+            tips.show({
+              type: 'warning',
+              content: '请先保存编辑的内容'
+            })
             return false
           }
           this.itemLists(page)
@@ -247,7 +285,7 @@ define(['scripts/editor/editorTpl', 'scripts/urls', 'scripts/fetch', 'scripts/to
       coalesceItem() {
         let arr = []
 
-        $('.item .checked').map(function(){
+        $('.item .checked').map(function () {
           arr.push($(this).data('itemid'))
         })
 
@@ -276,7 +314,7 @@ define(['scripts/editor/editorTpl', 'scripts/urls', 'scripts/fetch', 'scripts/to
       },
       renderItem({sliceList}) {
         if (!sliceList) {
-          return false;
+          return false
         }
         this.$itemContainer.empty()
         this.objItemSet = {}
@@ -480,8 +518,8 @@ define(['scripts/editor/editorTpl', 'scripts/urls', 'scripts/fetch', 'scripts/to
         if (this.type === 'create') {
           // 段落集合大于一段以上，可以销毁当前段落，防止编辑页空白无数据
           // if (Object.keys(this.objItemSet).length) {
-            setUEditorStatus(false)
-            this.destroy()
+          setUEditorStatus(false)
+          this.destroy()
           // }
         } else {
           setUEditorStatus(false)

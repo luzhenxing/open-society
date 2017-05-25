@@ -1,11 +1,11 @@
 'use strict';
 
-requirejs(['scripts/create-form', 'scripts/editor/ItemEditor', 'scripts/fetch', 'scripts/select-category'], function (form, ItemEditor, fetch) {
+requirejs(['scripts/create-form', 'scripts/editor/ItemEditor', 'scripts/fetch', 'scripts/tips', 'scripts/select-category'], function (form, ItemEditor, fetch, tips) {
 
   // 暂存
   $('#btn-save').on('click', function () {
     form.getFormData().then(fetch.tempSaveProject).then(function (message) {
-      alert(message);
+      tips.show(message);
     });
   });
 

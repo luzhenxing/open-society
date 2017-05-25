@@ -1,14 +1,15 @@
 requirejs(['scripts/create-form',
   'scripts/editor/ItemEditor',
   'scripts/fetch',
-  'scripts/select-category'], (form, ItemEditor, fetch) => {
+  'scripts/tips',
+  'scripts/select-category'], (form, ItemEditor, fetch, tips) => {
 
   // 暂存
   $('#btn-save').on('click', () => {
     form.getFormData()
       .then(fetch.tempSaveProject)
       .then(message => {
-        alert(message)
+        tips.show(message)
       })
   })
 

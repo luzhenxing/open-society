@@ -1,5 +1,5 @@
-define(['scripts/editor/editorTpl', 'scripts/urls', 'scripts/fetch', 'scripts/token'],
-  (tpl, urls, fetch, token) => {
+define(['scripts/editor/editorTpl', 'scripts/urls', 'scripts/fetch', 'scripts/token', 'scripts/tips'],
+  (tpl, urls, fetch, token, tips) => {
 
     let isShowUEditor = false,
       listPage = 1
@@ -39,6 +39,7 @@ define(['scripts/editor/editorTpl', 'scripts/urls', 'scripts/fetch', 'scripts/to
       this.pager = null
 
       this.objItemSet = {}
+      this.uploadingTips = null
 
       // 选中段落
       this.arrCheckedItem = []
@@ -64,7 +65,10 @@ define(['scripts/editor/editorTpl', 'scripts/urls', 'scripts/fetch', 'scripts/to
           .on('click', '.hook-add-item', () => {
             if (this.arrCheckedItem.length !== 1 &&
               !$.isEmptyObject(this.objItemSet)) {
-              alert('请选择一个段落进行添加')
+              tips.show({
+                type: 'warning',
+                content: '请选择一个段落进行添加'
+              })
             } else {
               this.addItem(this.arrCheckedItem[0])
             }
@@ -72,7 +76,10 @@ define(['scripts/editor/editorTpl', 'scripts/urls', 'scripts/fetch', 'scripts/to
           // 删除段落
           .on('click', '.hook-delete-item', () => {
             if (!this.arrCheckedItem.length) {
-              alert('请选择要删除的段落')
+              tips.show({
+                type: 'warning',
+                content: '请选择要删除的段落'
+              })
             } else {
               this.deleteItem()
             }
@@ -80,9 +87,15 @@ define(['scripts/editor/editorTpl', 'scripts/urls', 'scripts/fetch', 'scripts/to
           // 合并段落
           .on('click', '.hook-coalesce-item', () => {
             if (this.arrCheckedItem.length < 2) {
-              alert('请选择要合并的段落')
+              tips.show({
+                type: 'warning',
+                content: '请选择要合并的段落'
+              })
             } else if (!this.isAdjoin()) {
-              alert('请选择相邻的段落')
+              tips.show({
+                type: 'warning',
+                content: '请选择相邻的段落'
+              })
             } else {
               this.coalesceItem()
             }
@@ -90,7 +103,10 @@ define(['scripts/editor/editorTpl', 'scripts/urls', 'scripts/fetch', 'scripts/to
           // 取消
           .on('click', '.hook-cancel-save,.hook-prev', () => {
             if (isShowUEditor) {
-              alert('请先保存编辑的内容')
+              tips.show({
+                type: 'warning',
+                content: '请先保存编辑的内容'
+              })
               return false
             }
             this.hide()
@@ -98,7 +114,10 @@ define(['scripts/editor/editorTpl', 'scripts/urls', 'scripts/fetch', 'scripts/to
           // 暂存
           .on('click', '.hook-save', () => {
             if (isShowUEditor) {
-              alert('请先保存编辑的内容')
+              tips.show({
+                type: 'warning',
+                content: '请先保存编辑的内容'
+              })
               return false
             }
             fetch.tempSaveRevises({
@@ -107,13 +126,16 @@ define(['scripts/editor/editorTpl', 'scripts/urls', 'scripts/fetch', 'scripts/to
               // "userId": window.userId,
               // "userName": window.userName
             }).then(message => {
-              alert(message)
+              tips.show(message)
             })
           })
           // 段落新增段提交
           .on('click', '.hook-submit', () => {
             if (isShowUEditor) {
-              alert('请先保存编辑的内容')
+              tips.show({
+                type: 'warning',
+                content: '请先保存编辑的内容'
+              })
               return false
             }
             fetch.saveRevises({
@@ -122,7 +144,7 @@ define(['scripts/editor/editorTpl', 'scripts/urls', 'scripts/fetch', 'scripts/to
               // "userId": window.userId,
               // "userName": window.userName
             }).then(message => {
-              alert(message)
+              tips.show(message)
               this.hide()
 
               $(`[data-paracode=${this.paraCode}]`).find('.hook-add-list').trigger('click')
@@ -144,8 +166,7 @@ define(['scripts/editor/editorTpl', 'scripts/urls', 'scripts/fetch', 'scripts/to
           max_retries: 3,
           multi_selection: false,
           multipart_params: {
-            proId: window.PID,
-            paraCode: _this.$itemContainer.find('.checkbox.checked:last').closest('.item').data('itemid') || 'end'
+            proId: window.PID
           },
           headers: {
             'X-Authorization': token
@@ -159,9 +180,13 @@ define(['scripts/editor/editorTpl', 'scripts/urls', 'scripts/fetch', 'scripts/to
 
           init: {
             FilesAdded(up, files) {
-              let paraCode = _this.$itemContainer.find('.checkbox.checked:last').closest('.item').data('itemid') || 'end'
+              let reviseId = _this.$itemContainer.find('.checkbox.checked:last').closest('.item').data('itemid') || 'end'
               console.log('file add')
-              uploader.setOption('url',  `${urls.revisesFiles}?paraCode=${paraCode}`)
+              uploader.setOption('url', `${urls.revisesFiles}?paraCode=${_this.paraCode}&reviseId=${reviseId}`)
+
+              _this.uploadingTips = $(tpl.uploadingTips(files[0]))
+              _this.uploadingTips.appendTo('body')
+              setUEditorStatus(true)
 
               // 开始上传
               uploader.start()
@@ -169,16 +194,20 @@ define(['scripts/editor/editorTpl', 'scripts/urls', 'scripts/fetch', 'scripts/to
             },
             UploadProgress(up, file) {
               console.log('upload progress', file.percent)
+              _this.uploadingTips.find('.percent > em').css('width', `${file.percent}%`)
             },
             UploadComplete(uploader, files) {
               _this.itemLists(listPage)
+              _this.uploadingTips.remove()
+              _this.uploadingTips = null
+              setUEditorStatus(false)
               console.log('UploadComplete')
             },
             Error(uploader, errObject) {
-              console.log('Error')
-            },
-            OptionChanged(up, name, value, oldValue){
-              console.log('OptionChanged', name, value, oldValue)
+              tips.show({
+                type: 'warning',
+                content: '上传错误'
+              })
             }
           }
         })
@@ -191,7 +220,10 @@ define(['scripts/editor/editorTpl', 'scripts/urls', 'scripts/fetch', 'scripts/to
 
         $(this.pager).on('pager', (e, page) => {
           if (isShowUEditor) {
-            alert('请先保存编辑的内容')
+            tips.show({
+              type: 'warning',
+              content: '请先保存编辑的内容'
+            })
             return false
           }
           this.itemLists(page)
@@ -235,8 +267,6 @@ define(['scripts/editor/editorTpl', 'scripts/urls', 'scripts/fetch', 'scripts/to
           }
         })
         return adjoin
-        console.log('adjoin: ', adjoin)
-        console.log('item: ', checkedItem)
       },
       // 添加段落
       addItem(targetId = '') {

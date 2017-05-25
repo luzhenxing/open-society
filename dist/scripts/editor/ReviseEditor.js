@@ -1,6 +1,6 @@
 'use strict';
 
-define(['scripts/editor/editorTpl', 'scripts/urls', 'scripts/fetch', 'scripts/token'], function (tpl, urls, fetch, token) {
+define(['scripts/editor/editorTpl', 'scripts/urls', 'scripts/fetch', 'scripts/token', 'scripts/tips'], function (tpl, urls, fetch, token, tips) {
 
   var isShowUEditor = false,
       listPage = 1;
@@ -40,6 +40,7 @@ define(['scripts/editor/editorTpl', 'scripts/urls', 'scripts/fetch', 'scripts/to
     this.pager = null;
 
     this.objItemSet = {};
+    this.uploadingTips = null;
 
     // 选中段落
     this.arrCheckedItem = [];
@@ -66,7 +67,10 @@ define(['scripts/editor/editorTpl', 'scripts/urls', 'scripts/fetch', 'scripts/to
       // 添加段落
       .on('click', '.hook-add-item', function () {
         if (_this2.arrCheckedItem.length !== 1 && !$.isEmptyObject(_this2.objItemSet)) {
-          alert('请选择一个段落进行添加');
+          tips.show({
+            type: 'warning',
+            content: '请选择一个段落进行添加'
+          });
         } else {
           _this2.addItem(_this2.arrCheckedItem[0]);
         }
@@ -74,7 +78,10 @@ define(['scripts/editor/editorTpl', 'scripts/urls', 'scripts/fetch', 'scripts/to
       // 删除段落
       .on('click', '.hook-delete-item', function () {
         if (!_this2.arrCheckedItem.length) {
-          alert('请选择要删除的段落');
+          tips.show({
+            type: 'warning',
+            content: '请选择要删除的段落'
+          });
         } else {
           _this2.deleteItem();
         }
@@ -82,9 +89,15 @@ define(['scripts/editor/editorTpl', 'scripts/urls', 'scripts/fetch', 'scripts/to
       // 合并段落
       .on('click', '.hook-coalesce-item', function () {
         if (_this2.arrCheckedItem.length < 2) {
-          alert('请选择要合并的段落');
+          tips.show({
+            type: 'warning',
+            content: '请选择要合并的段落'
+          });
         } else if (!_this2.isAdjoin()) {
-          alert('请选择相邻的段落');
+          tips.show({
+            type: 'warning',
+            content: '请选择相邻的段落'
+          });
         } else {
           _this2.coalesceItem();
         }
@@ -92,7 +105,10 @@ define(['scripts/editor/editorTpl', 'scripts/urls', 'scripts/fetch', 'scripts/to
       // 取消
       .on('click', '.hook-cancel-save,.hook-prev', function () {
         if (isShowUEditor) {
-          alert('请先保存编辑的内容');
+          tips.show({
+            type: 'warning',
+            content: '请先保存编辑的内容'
+          });
           return false;
         }
         _this2.hide();
@@ -100,7 +116,10 @@ define(['scripts/editor/editorTpl', 'scripts/urls', 'scripts/fetch', 'scripts/to
       // 暂存
       .on('click', '.hook-save', function () {
         if (isShowUEditor) {
-          alert('请先保存编辑的内容');
+          tips.show({
+            type: 'warning',
+            content: '请先保存编辑的内容'
+          });
           return false;
         }
         fetch.tempSaveRevises({
@@ -109,13 +128,16 @@ define(['scripts/editor/editorTpl', 'scripts/urls', 'scripts/fetch', 'scripts/to
           // "userId": window.userId,
           // "userName": window.userName
         }).then(function (message) {
-          alert(message);
+          tips.show(message);
         });
       })
       // 段落新增段提交
       .on('click', '.hook-submit', function () {
         if (isShowUEditor) {
-          alert('请先保存编辑的内容');
+          tips.show({
+            type: 'warning',
+            content: '请先保存编辑的内容'
+          });
           return false;
         }
         fetch.saveRevises({
@@ -124,7 +146,7 @@ define(['scripts/editor/editorTpl', 'scripts/urls', 'scripts/fetch', 'scripts/to
           // "userId": window.userId,
           // "userName": window.userName
         }).then(function (message) {
-          alert(message);
+          tips.show(message);
           _this2.hide();
 
           $('[data-paracode=' + _this2.paraCode + ']').find('.hook-add-list').trigger('click');
@@ -146,8 +168,7 @@ define(['scripts/editor/editorTpl', 'scripts/urls', 'scripts/fetch', 'scripts/to
         max_retries: 3,
         multi_selection: false,
         multipart_params: {
-          proId: window.PID,
-          paraCode: _this.$itemContainer.find('.checkbox.checked:last').closest('.item').data('itemid') || 'end'
+          proId: window.PID
         },
         headers: {
           'X-Authorization': token
@@ -159,25 +180,33 @@ define(['scripts/editor/editorTpl', 'scripts/urls', 'scripts/fetch', 'scripts/to
 
         init: {
           FilesAdded: function FilesAdded(up, files) {
-            var paraCode = _this.$itemContainer.find('.checkbox.checked:last').closest('.item').data('itemid') || 'end';
+            var reviseId = _this.$itemContainer.find('.checkbox.checked:last').closest('.item').data('itemid') || 'end';
             console.log('file add');
-            uploader.setOption('url', urls.revisesFiles + '?paraCode=' + paraCode);
+            uploader.setOption('url', urls.revisesFiles + '?paraCode=' + _this.paraCode + '&reviseId=' + reviseId);
+
+            _this.uploadingTips = $(tpl.uploadingTips(files[0]));
+            _this.uploadingTips.appendTo('body');
+            setUEditorStatus(true);
 
             // 开始上传
             uploader.start();
           },
           UploadProgress: function UploadProgress(up, file) {
             console.log('upload progress', file.percent);
+            _this.uploadingTips.find('.percent > em').css('width', file.percent + '%');
           },
           UploadComplete: function UploadComplete(uploader, files) {
             _this.itemLists(listPage);
+            _this.uploadingTips.remove();
+            _this.uploadingTips = null;
+            setUEditorStatus(false);
             console.log('UploadComplete');
           },
           Error: function Error(uploader, errObject) {
-            console.log('Error');
-          },
-          OptionChanged: function OptionChanged(up, name, value, oldValue) {
-            console.log('OptionChanged', name, value, oldValue);
+            tips.show({
+              type: 'warning',
+              content: '上传错误'
+            });
           }
         }
       });
@@ -192,7 +221,10 @@ define(['scripts/editor/editorTpl', 'scripts/urls', 'scripts/fetch', 'scripts/to
 
       $(this.pager).on('pager', function (e, page) {
         if (isShowUEditor) {
-          alert('请先保存编辑的内容');
+          tips.show({
+            type: 'warning',
+            content: '请先保存编辑的内容'
+          });
           return false;
         }
         _this3.itemLists(page);
@@ -235,8 +267,6 @@ define(['scripts/editor/editorTpl', 'scripts/urls', 'scripts/fetch', 'scripts/to
         }
       });
       return adjoin;
-      console.log('adjoin: ', adjoin);
-      console.log('item: ', checkedItem);
     },
 
     // 添加段落

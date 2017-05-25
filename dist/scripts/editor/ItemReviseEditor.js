@@ -1,6 +1,6 @@
 'use strict';
 
-define(['scripts/editor/editorTpl', 'scripts/fetch'], function (tpl, fetch) {
+define(['scripts/editor/editorTpl', 'scripts/fetch', 'scripts/tips'], function (tpl, fetch, tips) {
   function ItemReviseEditor() {
     this.name = 'ReviseEditor';
     this.proId = window.PID;
@@ -11,6 +11,7 @@ define(['scripts/editor/editorTpl', 'scripts/fetch'], function (tpl, fetch) {
 
     this.init();
   }
+
   ItemReviseEditor.prototype = {
     constructor: ItemReviseEditor,
     init: function init() {
@@ -33,7 +34,8 @@ define(['scripts/editor/editorTpl', 'scripts/fetch'], function (tpl, fetch) {
           proId: _this.proId,
           paraCode: _this.paraCode
         }).then(function (message) {
-          alert(message);
+          tips.show(message);
+          $('[data-paracode=' + _this.paraCode + ']').find('.hook-revise-list').trigger('click');
           _this.hide();
         });
       }).on('click', '.hook-submit', function () {
@@ -42,7 +44,7 @@ define(['scripts/editor/editorTpl', 'scripts/fetch'], function (tpl, fetch) {
           paraCode: _this.paraCode,
           content: _this.ueditor.getContent()
         }).then(function (message) {
-          alert(message);
+          tips.show(message);
           console.log($('[data-paracode=' + _this.paraCode + ']'));
           $('[data-paracode=' + _this.paraCode + ']').find('.hook-revise-list').trigger('click');
           _this.hide();

@@ -51,7 +51,15 @@ define(['scripts/fetch'], function (fetch) {
         _this.currentPage = 1;
         _this.fetchList();
       }).on('click', '.hook-support', function () {
-        console.log($(this).data('id'));
+        console.log('proId', _this.proId);
+        console.log('paraCode', _this.paraCode);
+        console.log('reviseId', $(this).data('id'));
+        var $icon = $(this).find('.iconfont');
+        if ($icon.hasClass('icon-dianzan')) {
+          $icon.removeClass('icon-dianzan').addClass('icon-dianzan1');
+        } else {
+          $icon.removeClass('icon-dianzan1').addClass('icon-dianzan');
+        }
       }).on('click', '.hook-go', function () {
         _this.currentPage = $(this).data('page');
         _this.fetchList();
@@ -122,7 +130,7 @@ define(['scripts/fetch'], function (fetch) {
       var inner = '<dl class="item">';
 
       sliceList.forEach(function (list) {
-        inner += '\n          <dt>\n            <img class="avatar" src="" alt="' + list.userName + '">\n            <span>' + list.userName + '</span>\n            <span class="time">' + list.createDate + '</span>\n            <div class="item-oper">\n              <a class="support hook-support" data-id="' + list.id + '" href="javascript:;">\n                <i class="iconfont icon-dianzan1"></i>\n              </a>\n              <a>\n                <i class="iconfont icon-guanlizhe"></i> <span>3</span>\n              </a>\n              <a>\n                <i class="iconfont icon-canyuzhe"></i> <span>2</span>\n              </a>\n            </div>\n          </dt>\n          <dd>\n            <div class="item-inner">\n              ' + list.content + '\n            </div>\n          </dd>\n        ';
+        inner += '\n          <dt>\n            <img class="avatar" src="" alt="' + list.userName + '">\n            <span>' + list.userName + '</span>\n            <span class="time">' + list.createDate + '</span>\n            <div class="item-oper">\n              <a class="support hook-support" data-id="' + list.id + '" href="javascript:;">\n                <i class="iconfont icon-dianzan"></i>\n              </a>\n              <a>\n                <i class="iconfont icon-guanlizhe"></i> <span>3</span>\n              </a>\n              <a>\n                <i class="iconfont icon-canyuzhe"></i> <span>2</span>\n              </a>\n            </div>\n          </dt>\n          <dd>\n            <div class="item-inner">\n              ' + list.content + '\n            </div>\n          </dd>\n        ';
       });
 
       inner += '</dl>';

@@ -1,6 +1,18 @@
 define(() => {
 
   return {
+    uploadingTips({name, size}){
+      return `
+        <div class="upload-tips-layer">
+          <div class="upload-tips">
+            <span class="subject">正在导入文档</span>
+            <span class="percent"><em style="width: 30%"></em></span>
+            <span class="file">${name}（${(size / 1000).toFixed(2)}k）</span>
+          </div>
+        </div>
+       
+      `
+    },
     itemEditorLayer(type) {
       let title = '创建项目',
         bottomBtns = `

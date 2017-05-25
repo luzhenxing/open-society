@@ -64,7 +64,16 @@ define(['scripts/fetch'], (fetch) => {
           _this.fetchList()
         })
         .on('click', '.hook-support' , function() {
-          console.log($(this).data('id'))
+          console.log('proId', _this.proId)
+          console.log('paraCode', _this.paraCode)
+          console.log('reviseId', $(this).data('id'))
+          let $icon = $(this).find('.iconfont')
+          if ($icon.hasClass('icon-dianzan')) {
+            $icon.removeClass('icon-dianzan').addClass('icon-dianzan1')
+          } else {
+            $icon.removeClass('icon-dianzan1').addClass('icon-dianzan')
+          }
+
         })
         .on('click', '.hook-go', function() {
           _this.currentPage = $(this).data('page')
@@ -147,7 +156,7 @@ define(['scripts/fetch'], (fetch) => {
             <span class="time">${list.createDate}</span>
             <div class="item-oper">
               <a class="support hook-support" data-id="${list.id}" href="javascript:;">
-                <i class="iconfont icon-dianzan1"></i>
+                <i class="iconfont icon-dianzan"></i>
               </a>
               <a>
                 <i class="iconfont icon-guanlizhe"></i> <span>3</span>

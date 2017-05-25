@@ -3,6 +3,12 @@
 define(function () {
 
   return {
+    uploadingTips: function uploadingTips(_ref) {
+      var name = _ref.name,
+          size = _ref.size;
+
+      return '\n        <div class="upload-tips-layer">\n          <div class="upload-tips">\n            <span class="subject">\u6B63\u5728\u5BFC\u5165\u6587\u6863</span>\n            <span class="percent"><em style="width: 30%"></em></span>\n            <span class="file">' + name + '\uFF08' + (size / 1000).toFixed(2) + 'k\uFF09</span>\n          </div>\n        </div>\n       \n      ';
+    },
     itemEditorLayer: function itemEditorLayer(type) {
       var title = '创建项目',
           bottomBtns = '\n          <button type="button" class="btn btn-default hook-cancel-save">\u53D6\u6D88</button>\n          <button type="button" class="btn btn-default hook-save">\u6682\u5B58</button>\n          <button type="button" class="btn btn-default hook-prev">\u4E0A\u4E00\u6B65</button>\n          <button type="button" class="btn btn-success hook-submit">\u63D0\u4EA4</button>\n        ';
@@ -15,17 +21,17 @@ define(function () {
     itemReviseEditorLayer: function itemReviseEditorLayer() {
       return '\n        <div id="item-editor-layer" class="item-editor-layer">\n          <div class="item-editor-container">\n            <div class="item-editor-header">\n              <h3>\u4FEE\u8BA2</h3>\n            </div>\n            <div class="item-editor-content" style="height: 560px;">\n              <div class="item-container item-revise-container">\n                <div id="editor_revise" class="item-editor"></div>\n              </div>\n            </div>\n            <div class="item-editor-bottom">\n              <div class="u-btn-group text-center">\n                <button type="button" class="btn btn-default hook-cancel-save">\u53D6\u6D88</button>\n                <button type="button" class="btn btn-default hook-delete">\u5220\u9664\u6BB5</button>\n                <button type="button" class="btn btn-success hook-submit">\u63D0\u4EA4</button>\n              </div>\n            </div>\n            \n          </div>\n          \n        </div>\n      ';
     },
-    item: function item(_ref) {
-      var id = _ref.id,
-          itemId = _ref.itemId,
-          type = _ref.type,
-          content = _ref.content;
+    item: function item(_ref2) {
+      var id = _ref2.id,
+          itemId = _ref2.itemId,
+          type = _ref2.type,
+          content = _ref2.content;
 
       return '\n      <div id="item_' + id + '" class="item" data-itemid="' + (itemId || '') + '" data-type="' + type + '">\n        <label class="checkbox" for="checkbox_' + id + '" data-itemid="' + (itemId || '') + '">\n          <input class="hook-item-checkbox" id="checkbox_' + id + '" type="checkbox">\n        </label>\n        <div class="item-content">\n          <div class="item-editor-wrap">\n            <div id="editor_' + id + '" class="item-editor"></div>\n            <div class="editor-btn-group">\n              <button class="btn btn-default btn-xs hook-editor-cancel">\u53D6\u6D88</button>\n              <button class="btn btn-success btn-xs hook-editor-save"' + (type === 'create' ? ' disabled' : '') + '>\u4FDD\u5B58</button>\n            </div>\n          </div>\n          <div class="item-inner">' + content + '</div>\n        </div>\n      </div>\n      ';
     },
-    pager: function pager(_ref2) {
-      var curPage = _ref2.curPage,
-          total = _ref2.total;
+    pager: function pager(_ref3) {
+      var curPage = _ref3.curPage,
+          total = _ref3.total;
 
       var pagination = function pagination() {
         // 最多显示几个页码

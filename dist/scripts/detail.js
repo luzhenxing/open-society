@@ -24,7 +24,28 @@ requirejs(['scripts/editor/ReviseEditor', 'scripts/editor/ItemReviseEditor', 'sc
       return false;
     }
     $item.addClass('current').siblings().removeClass('current');
+  },
+
+  /**
+   * 获取url参数值
+   * @param  {string} name [param]
+   * @return {string}      [paramValue]
+   */
+  getQueryParam = function getQueryParam(name) {
+    name = name.replace(/[\[]/, '\\\[').replace(/[\]]/, '\\\]');
+    var regexS = '[\\?&]' + name + '=([^&#]*)',
+        regex = new RegExp(regexS),
+        resluts = regex.exec(window.location.href);
+    if (resluts == null) {
+      return null;
+    } else {
+      return resluts[1];
+    }
   };
+
+  if (!!getQueryParam('editTemp') && !!getQueryParam('paraCode')) {
+    reviseEditor.show(getQueryParam('paraCode'));
+  }
 
   $('.detail-article').on('click', '.detail-item', function () {
     addItemActive($(this));

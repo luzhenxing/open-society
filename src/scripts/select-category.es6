@@ -24,6 +24,13 @@ define(['scripts/fetch'], (fetch) => {
   })
 
   renderCategory($cate1, 'getCate1').then(() => {
-    renderCategory($cate2, 'getCate2', $cate1.val())
+    if (!!window.firstClassId) {
+      $cate1.val(window.firstClassId)
+    }
+    renderCategory($cate2, 'getCate2', $cate1.val()).then(() => {
+      if (!!window.secondClassId) {
+        $cate2.val(window.secondClassId)
+      }
+    })
   })
 })

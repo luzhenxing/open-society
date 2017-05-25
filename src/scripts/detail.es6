@@ -22,20 +22,39 @@ requirejs(['scripts/editor/ReviseEditor',
     })
 
     const addItemActive = ($item) => {
-      if ($item.hasClass('current')) {
-        return false
+        if ($item.hasClass('current')) {
+          return false
+        }
+        $item.addClass('current').siblings().removeClass('current')
+      },
+      /**
+       * 获取url参数值
+       * @param  {string} name [param]
+       * @return {string}      [paramValue]
+       */
+      getQueryParam = (name) => {
+        name = name.replace(/[\[]/, '\\\[').replace(/[\]]/, '\\\]')
+        let regexS = '[\\?&]' + name + '=([^&#]*)',
+          regex = new RegExp(regexS),
+          resluts = regex.exec(window.location.href)
+        if (resluts == null) {
+          return null
+        } else {
+          return resluts[1]
+        }
       }
-      $item.addClass('current').siblings().removeClass('current')
+
+    if (!!getQueryParam('editTemp') && !!getQueryParam('paraCode')) {
+      reviseEditor.show(getQueryParam('paraCode'))
     }
 
-
     $('.detail-article')
-      .on('click', '.detail-item', function() {
+      .on('click', '.detail-item', function () {
         addItemActive($(this))
       })
       // 点击段落显示操作
       // add & revise
-      .on('click', '.detail-item-inner', function() {
+      .on('click', '.detail-item-inner', function () {
         let $item = $(this).closest('.detail-item'),
           paraCode = $item.data('paracode'),
           addCount = parseInt($item.data('add-count')) || 0,
@@ -77,7 +96,8 @@ requirejs(['scripts/editor/ReviseEditor',
           addCount = $item.data('add-count') || 0,
           reviseCount = $item.data('revise-count') || 0
 
-        if ((type == 'add' && addCount == 0) || (type == 'revise' && reviseCount == 0)) {
+        if ((type == 'add' && addCount == 0) ||
+          (type == 'revise' && reviseCount == 0)) {
           return false
         }
 
