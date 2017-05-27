@@ -6,6 +6,7 @@ define(['scripts/editor/editorTpl', 'scripts/fetch', 'scripts/tips'], function (
     this.proId = window.PID;
     this.paraCode = '';
 
+    this.$detailItem = null;
     this.$itemEditor = null;
     this.ueditor = null;
 
@@ -30,12 +31,16 @@ define(['scripts/editor/editorTpl', 'scripts/fetch', 'scripts/tips'], function (
       this.$itemEditor.on('click', '.hook-cancel-save', function () {
         _this.hide();
       }).on('click', '.hook-delete', function () {
+        console.log(_this.$detailItem.data('revise-count'));
         fetch.deleteParagraphRevises({
           proId: _this.proId,
           paraCode: _this.paraCode
         }).then(function (message) {
           tips.show(message);
-          $('[data-paracode=' + _this.paraCode + ']').find('.hook-revise-list').trigger('click');
+
+          _this.$detailItem.data('revise-count', parseInt(_this.$detailItem.data('revise-count')) + 1);
+
+          _this.$detailItem.find('.hook-revise-list').trigger('click');
           _this.hide();
         });
       }).on('click', '.hook-submit', function () {
@@ -45,15 +50,19 @@ define(['scripts/editor/editorTpl', 'scripts/fetch', 'scripts/tips'], function (
           content: _this.ueditor.getContent()
         }).then(function (message) {
           tips.show(message);
-          console.log($('[data-paracode=' + _this.paraCode + ']'));
-          $('[data-paracode=' + _this.paraCode + ']').find('.hook-revise-list').trigger('click');
+
+          _this.$detailItem.data('revise-count', parseInt(_this.$detailItem.data('revise-count')) + 1);
+
+          _this.$detailItem.find('.hook-revise-list').trigger('click');
           _this.hide();
         });
       });
     },
     show: function show(paraCode, content) {
+      this.$detailItem = $('.detail-item[data-paracode=' + paraCode + ']');
       this.paraCode = paraCode;
       // this.addItem()
+
       this.ueditor.setContent(content);
       this.$itemEditor.fadeIn(100);
       // this.itemLists(listPage)

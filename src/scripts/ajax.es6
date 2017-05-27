@@ -1,4 +1,4 @@
-define(['scripts/token'], (token) => {
+define(['scripts/token', 'scripts/tips'], (token, tips) => {
   return {
     ajaxData(url, data = {}, type = 'GET'){
       const promise = $.Deferred()
@@ -16,6 +16,10 @@ define(['scripts/token'], (token) => {
           if (result.code === '000000') {
             promise.resolve(result.datas || result.message)
           } else {
+            tips.show({
+              type: 'warning',
+              content: result.message
+            })
             throw new Error(result.message)
             promise.reject(result)
           }

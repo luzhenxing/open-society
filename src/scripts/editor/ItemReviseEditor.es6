@@ -5,6 +5,7 @@ define(['scripts/editor/editorTpl', 'scripts/fetch', 'scripts/tips'],
       this.proId = window.PID
       this.paraCode = ''
 
+      this.$detailItem = null
       this.$itemEditor = null
       this.ueditor = null
 
@@ -28,12 +29,16 @@ define(['scripts/editor/editorTpl', 'scripts/fetch', 'scripts/tips'],
           this.hide()
         })
           .on('click', '.hook-delete', () => {
+            console.log(this.$detailItem.data('revise-count'))
             fetch.deleteParagraphRevises({
               proId: this.proId,
               paraCode: this.paraCode
             }).then(message => {
               tips.show(message)
-              $(`[data-paracode=${this.paraCode}]`)
+
+              this.$detailItem.data('revise-count', parseInt(this.$detailItem.data('revise-count')) + 1)
+
+              this.$detailItem
                 .find('.hook-revise-list')
                 .trigger('click')
               this.hide()
@@ -46,8 +51,10 @@ define(['scripts/editor/editorTpl', 'scripts/fetch', 'scripts/tips'],
               content: this.ueditor.getContent()
             }).then(message => {
               tips.show(message)
-              console.log($(`[data-paracode=${this.paraCode}]`))
-              $(`[data-paracode=${this.paraCode}]`)
+
+              this.$detailItem.data('revise-count', parseInt(this.$detailItem.data('revise-count')) + 1)
+
+              this.$detailItem
                 .find('.hook-revise-list')
                 .trigger('click')
               this.hide()
@@ -55,8 +62,10 @@ define(['scripts/editor/editorTpl', 'scripts/fetch', 'scripts/tips'],
           })
       },
       show(paraCode, content) {
+        this.$detailItem = $(`.detail-item[data-paracode=${paraCode}]`)
         this.paraCode = paraCode
         // this.addItem()
+
         this.ueditor.setContent(content)
         this.$itemEditor.fadeIn(100)
         // this.itemLists(listPage)

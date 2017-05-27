@@ -1,6 +1,6 @@
 'use strict';
 
-define(['scripts/token'], function (token) {
+define(['scripts/token', 'scripts/tips'], function (token, tips) {
   return {
     ajaxData: function ajaxData(url) {
       var data = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
@@ -21,6 +21,10 @@ define(['scripts/token'], function (token) {
           if (result.code === '000000') {
             promise.resolve(result.datas || result.message);
           } else {
+            tips.show({
+              type: 'warning',
+              content: result.message
+            });
             throw new Error(result.message);
             promise.reject(result);
           }

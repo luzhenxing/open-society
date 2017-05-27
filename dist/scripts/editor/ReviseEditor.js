@@ -149,6 +149,8 @@ define(['scripts/editor/editorTpl', 'scripts/urls', 'scripts/fetch', 'scripts/to
           tips.show(message);
           _this2.hide();
 
+          $('[data-paracode=' + _this2.paraCode + ']').data('add-count', parseInt($('[data-paracode=' + _this2.paraCode + ']').data('add-count')) + 1);
+
           $('[data-paracode=' + _this2.paraCode + ']').find('.hook-add-list').trigger('click');
         });
       });

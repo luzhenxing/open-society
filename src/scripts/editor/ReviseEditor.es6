@@ -147,6 +147,8 @@ define(['scripts/editor/editorTpl', 'scripts/urls', 'scripts/fetch', 'scripts/to
               tips.show(message)
               this.hide()
 
+              $(`[data-paracode=${this.paraCode}]`).data('add-count', parseInt($(`[data-paracode=${this.paraCode}]`).data('add-count')) + 1)
+
               $(`[data-paracode=${this.paraCode}]`).find('.hook-add-list').trigger('click')
             })
           })
