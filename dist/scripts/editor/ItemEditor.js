@@ -101,7 +101,7 @@ define(['scripts/editor/editorTpl', 'scripts/urls', 'scripts/fetch', 'scripts/to
       })
       // 取消
       .on('click', '.hook-cancel-save,.hook-prev', function () {
-        if (isShowUEditorisShowUEditor) {
+        if (isShowUEditor) {
           tips.show({
             type: 'warning',
             content: '请先保存编辑的内容'

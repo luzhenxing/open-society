@@ -4,6 +4,11 @@ requirejs(['scripts/create-form',
   'scripts/tips',
   'scripts/select-category'], (form, ItemEditor, fetch, tips) => {
 
+  // 取消
+  $('#btn-cancel').on('click', () => {
+    window.location.href = '/index'
+  })
+
   // 暂存
   $('#btn-save').on('click', () => {
     form.getFormData()
@@ -17,7 +22,7 @@ requirejs(['scripts/create-form',
   $('#btn-next').on('click', () => {
     form.getFormData().then(data => {
       window.PROJECT_DATA = data
-      if (! window.itemEditor) {
+      if (!window.itemEditor) {
         window.itemEditor = new ItemEditor()
       }
       itemEditor.show()

@@ -2,6 +2,11 @@
 
 requirejs(['scripts/create-form', 'scripts/editor/ItemEditor', 'scripts/fetch', 'scripts/tips', 'scripts/select-category'], function (form, ItemEditor, fetch, tips) {
 
+  // 取消
+  $('#btn-cancel').on('click', function () {
+    window.location.href = '/index';
+  });
+
   // 暂存
   $('#btn-save').on('click', function () {
     form.getFormData().then(fetch.tempSaveProject).then(function (message) {

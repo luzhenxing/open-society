@@ -101,7 +101,7 @@ define(
           })
           // 取消
           .on('click', '.hook-cancel-save,.hook-prev', () => {
-            if (isShowUEditorisShowUEditor) {
+            if (isShowUEditor) {
               tips.show({
                 type: 'warning',
                 content: '请先保存编辑的内容'
