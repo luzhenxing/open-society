@@ -396,6 +396,10 @@ td {
 .checkbox-inline {
   cursor: default;
 }
+.create-container {
+  margin: 0 auto;
+  width: 1000px;
+}
 .upload-tips-layer {
   position: fixed;
   z-index: 1500;
@@ -471,6 +475,7 @@ td {
 .u-create-project-form .control-label {
   color: #777;
   font-weight: normal;
+  white-space: nowrap;
 }
 .u-create-project-form .u-select-control {
   padding-bottom: 10px;

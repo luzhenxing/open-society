@@ -603,7 +603,7 @@ define(['scripts/editor/editorTpl', 'scripts/urls', 'scripts/fetch', 'scripts/to
       renderPage({curPage, limit, count}) {
         const total = Math.ceil(count / limit)
         this.total = total
-        if (total === 1) {
+        if (total <= 1) {
           // 只有一页无需翻页
           this.$pager.hide()
           return false
