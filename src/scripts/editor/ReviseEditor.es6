@@ -561,6 +561,9 @@ define(['scripts/editor/editorTpl', 'scripts/urls', 'scripts/fetch', 'scripts/to
       },
       checkItem(checked) {
         const $label = this.$item.find('.checkbox')
+        if (checked && $label.is('.checked')) {
+          return false
+        }
 
         this.checked = checked
         if (checked) {

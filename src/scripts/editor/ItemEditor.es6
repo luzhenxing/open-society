@@ -535,6 +535,9 @@ define(
       },
       checkItem(checked) {
         const $label = this.$item.find('.checkbox')
+        if (checked && $label.is('.checked')) {
+          return false
+        }
 
         if (checked) {
           $label.addClass('checked')
