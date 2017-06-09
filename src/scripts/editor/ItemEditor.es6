@@ -463,7 +463,7 @@ define(
       },
       // 内容是否为空
       isContentEmpty(){
-        return this.ueditor.getContentTxt().trim() === ''
+        return !this.ueditor.hasContents()
       },
       // 设置高度
       setUEditorHeight(){

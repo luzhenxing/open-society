@@ -492,7 +492,7 @@ define(['scripts/editor/editorTpl', 'scripts/urls', 'scripts/fetch', 'scripts/to
 
     // 内容是否为空
     isContentEmpty: function isContentEmpty() {
-      return this.ueditor.getContentTxt().trim() === '';
+      return !this.ueditor.hasContents();
     },
 
     // 设置高度
