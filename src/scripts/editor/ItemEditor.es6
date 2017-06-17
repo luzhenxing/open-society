@@ -179,7 +179,7 @@ define(
               let paraCode = _this.$itemContainer.find('.checkbox.checked:last')
                   .closest('.item')
                   .data('itemid') || 'end'
-              console.log('file add')
+              // console.log('file add')
               uploader.setOption('url',
                 `${urls.projectsFiles}?paraCode=${paraCode}`)
 
@@ -191,7 +191,7 @@ define(
 
             },
             UploadProgress(up, file) {
-              console.log('upload progress', file.percent)
+              // console.log('upload progress', file.percent)
               _this.uploadingTips.find('.percent > em').css('width', `${file.percent}%`)
             },
             UploadComplete(uploader, files) {
@@ -199,7 +199,7 @@ define(
               _this.uploadingTips.remove()
               _this.uploadingTips = null
               setUEditorStatus(false)
-              console.log('UploadComplete')
+              // console.log('UploadComplete')
             },
             Error(uploader, errObject) {
               tips.show({
@@ -256,7 +256,7 @@ define(
           }
         })
         return adjoin
-        console.log('adjoin: ', adjoin)
+        // console.log('adjoin: ', adjoin)
       },
       // 添加段落
       addItem(targetId = '') {
@@ -312,10 +312,9 @@ define(
           this.renderItem(data)
         })
       },
-      renderItem({sliceList}) {
-        if (!sliceList) {
-          return false
-        }
+      renderItem(data) {
+        let sliceList = data.sliceList || []
+
         this.$itemContainer.empty()
         this.objItemSet = {}
         this.arrCheckedItem.length = 0
@@ -341,7 +340,7 @@ define(
       pushItem(item) {
         $(item).on('item.check', (checked) => {})
         $(item).on('item.add', () => {
-          console.log('添加成功')
+          // console.log('添加成功')
           if (!!this.arrCheckedItem.length) {
             this.arrCheckedItem.forEach((itemid) => {
               let item = this.objItemSet[itemid]
@@ -495,7 +494,7 @@ define(
           this.objItemSet[this.itemId] = this
           this.showInner()
           setUEditorStatus(false)
-          console.log(this.objItemSet)
+          // console.log(this.objItemSet)
           $(this).trigger('item.add')
           this.checkItem(true)
           this.$item.find('.hook-item-checkbox').prop('checked', true)
@@ -506,7 +505,7 @@ define(
           paraCode: this.itemId,
           content: this.content
         }).then(data => {
-          console.log(data)
+          // console.log(data)
           this.$itemInner.html(this.content)
           this.showInner()
           setUEditorStatus(false)
@@ -548,7 +547,7 @@ define(
           arrDelete(this.arrCheckedItem, this.itemId)
         }
         this.checked = checked
-        console.log(this.arrCheckedItem)
+        // console.log(this.arrCheckedItem)
         $(this).trigger('item.check', [checked])
       }
     }

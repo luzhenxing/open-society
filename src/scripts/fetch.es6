@@ -30,6 +30,7 @@ define(['scripts/urls', 'scripts/ajax'], (urls, ajax) => {
     },
     // 合并段落
     coalesceItem(data) {
+      console.log(urls.mergeParagraphs)
       return ajax.putData(urls.mergeParagraphs, data)
     },
     // 获取段落列表

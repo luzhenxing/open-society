@@ -175,7 +175,7 @@ define(['scripts/editor/editorTpl', 'scripts/urls', 'scripts/fetch', 'scripts/to
         init: {
           FilesAdded: function FilesAdded(up, files) {
             var paraCode = _this.$itemContainer.find('.checkbox.checked:last').closest('.item').data('itemid') || 'end';
-            console.log('file add');
+            // console.log('file add')
             uploader.setOption('url', urls.projectsFiles + '?paraCode=' + paraCode);
 
             _this.uploadingTips = $(tpl.uploadingTips(files[0]));
@@ -185,7 +185,7 @@ define(['scripts/editor/editorTpl', 'scripts/urls', 'scripts/fetch', 'scripts/to
             uploader.start();
           },
           UploadProgress: function UploadProgress(up, file) {
-            console.log('upload progress', file.percent);
+            // console.log('upload progress', file.percent)
             _this.uploadingTips.find('.percent > em').css('width', file.percent + '%');
           },
           UploadComplete: function UploadComplete(uploader, files) {
@@ -193,7 +193,7 @@ define(['scripts/editor/editorTpl', 'scripts/urls', 'scripts/fetch', 'scripts/to
             _this.uploadingTips.remove();
             _this.uploadingTips = null;
             setUEditorStatus(false);
-            console.log('UploadComplete');
+            // console.log('UploadComplete')
           },
           Error: function Error(uploader, errObject) {
             tips.show({
@@ -251,7 +251,7 @@ define(['scripts/editor/editorTpl', 'scripts/urls', 'scripts/fetch', 'scripts/to
         }
       });
       return adjoin;
-      console.log('adjoin: ', adjoin);
+      // console.log('adjoin: ', adjoin)
     },
 
     // 添加段落
@@ -321,14 +321,11 @@ define(['scripts/editor/editorTpl', 'scripts/urls', 'scripts/fetch', 'scripts/to
         _this6.renderItem(data);
       });
     },
-    renderItem: function renderItem(_ref) {
+    renderItem: function renderItem(data) {
       var _this7 = this;
 
-      var sliceList = _ref.sliceList;
+      var sliceList = data.sliceList || [];
 
-      if (!sliceList) {
-        return false;
-      }
       this.$itemContainer.empty();
       this.objItemSet = {};
       this.arrCheckedItem.length = 0;
@@ -347,10 +344,10 @@ define(['scripts/editor/editorTpl', 'scripts/urls', 'scripts/fetch', 'scripts/to
     },
 
     // 分页
-    showPager: function showPager(_ref2) {
-      var from = _ref2.from,
-          size = _ref2.size,
-          count = _ref2.count;
+    showPager: function showPager(_ref) {
+      var from = _ref.from,
+          size = _ref.size,
+          count = _ref.count;
 
       this.pager.renderPage({ curPage: from, limit: size, count: count });
     },
@@ -362,7 +359,7 @@ define(['scripts/editor/editorTpl', 'scripts/urls', 'scripts/fetch', 'scripts/to
 
       $(item).on('item.check', function (checked) {});
       $(item).on('item.add', function () {
-        console.log('添加成功');
+        // console.log('添加成功')
         if (!!_this8.arrCheckedItem.length) {
           _this8.arrCheckedItem.forEach(function (itemid) {
             var item = _this8.objItemSet[itemid];
@@ -527,7 +524,7 @@ define(['scripts/editor/editorTpl', 'scripts/urls', 'scripts/fetch', 'scripts/to
         _this11.objItemSet[_this11.itemId] = _this11;
         _this11.showInner();
         setUEditorStatus(false);
-        console.log(_this11.objItemSet);
+        // console.log(this.objItemSet)
         $(_this11).trigger('item.add');
         _this11.checkItem(true);
         _this11.$item.find('.hook-item-checkbox').prop('checked', true);
@@ -540,7 +537,7 @@ define(['scripts/editor/editorTpl', 'scripts/urls', 'scripts/fetch', 'scripts/to
         paraCode: this.itemId,
         content: this.content
       }).then(function (data) {
-        console.log(data);
+        // console.log(data)
         _this12.$itemInner.html(_this12.content);
         _this12.showInner();
         setUEditorStatus(false);
@@ -583,13 +580,13 @@ define(['scripts/editor/editorTpl', 'scripts/urls', 'scripts/fetch', 'scripts/to
         arrDelete(this.arrCheckedItem, this.itemId);
       }
       this.checked = checked;
-      console.log(this.arrCheckedItem);
+      // console.log(this.arrCheckedItem)
       $(this).trigger('item.check', [checked]);
     }
   };
 
-  function Pager(_ref3) {
-    var $pager = _ref3.$pager;
+  function Pager(_ref2) {
+    var $pager = _ref2.$pager;
 
     this.$pager = $pager;
 
@@ -614,10 +611,10 @@ define(['scripts/editor/editorTpl', 'scripts/urls', 'scripts/fetch', 'scripts/to
         }
       });
     },
-    renderPage: function renderPage(_ref4) {
-      var curPage = _ref4.curPage,
-          limit = _ref4.limit,
-          count = _ref4.count;
+    renderPage: function renderPage(_ref3) {
+      var curPage = _ref3.curPage,
+          limit = _ref3.limit,
+          count = _ref3.count;
 
       var total = Math.ceil(count / limit);
       this.total = total;

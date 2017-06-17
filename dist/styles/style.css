@@ -562,6 +562,8 @@ td {
 }
 .item-pager .form-inline .form-control {
   display: inline-block;
+  width: 48px;
+  vertical-align: top;
 }
 .item-pager .form-inline .pager-text {
   font-size: 12px;

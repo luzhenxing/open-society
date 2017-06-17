@@ -38,6 +38,7 @@ define(['scripts/urls', 'scripts/ajax'], function (urls, ajax) {
 
     // 合并段落
     coalesceItem: function coalesceItem(data) {
+      console.log(urls.mergeParagraphs);
       return ajax.putData(urls.mergeParagraphs, data);
     },
 

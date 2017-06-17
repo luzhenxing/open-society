@@ -64,9 +64,9 @@ define(['scripts/fetch'], (fetch) => {
           _this.fetchList()
         })
         .on('click', '.hook-support' , function() {
-          console.log('proId', _this.proId)
-          console.log('paraCode', _this.paraCode)
-          console.log('reviseId', $(this).data('id'))
+          // console.log('proId', _this.proId)
+          // console.log('paraCode', _this.paraCode)
+          // console.log('reviseId', $(this).data('id'))
           let $icon = $(this).find('.iconfont')
           if ($icon.hasClass('icon-dianzan')) {
             $icon.removeClass('icon-dianzan').addClass('icon-dianzan1')
@@ -137,7 +137,7 @@ define(['scripts/fetch'], (fetch) => {
 
       fetch[url](data).then(data => {
         $content.html(this.itemInner(data))
-        console.log(this.$layer.find('.item-pager'))
+        // console.log(this.$layer.find('.item-pager'))
         this.$layer.find('.item-pager').html(this.pagerInner(data))
 
       })

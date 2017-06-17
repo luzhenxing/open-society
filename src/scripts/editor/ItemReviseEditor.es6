@@ -9,6 +9,8 @@ define(['scripts/editor/editorTpl', 'scripts/fetch', 'scripts/tips'],
       this.$itemEditor = null
       this.ueditor = null
 
+      this.initContent = ''
+
       this.init()
     }
 
@@ -29,7 +31,7 @@ define(['scripts/editor/editorTpl', 'scripts/fetch', 'scripts/tips'],
           this.hide()
         })
           .on('click', '.hook-delete', () => {
-            console.log(this.$detailItem.data('revise-count'))
+            // console.log(this.$detailItem.data('revise-count'))
             fetch.deleteParagraphRevises({
               proId: this.proId,
               paraCode: this.paraCode
@@ -45,10 +47,19 @@ define(['scripts/editor/editorTpl', 'scripts/fetch', 'scripts/tips'],
             })
           })
           .on('click', '.hook-submit', () => {
+            let content = this.ueditor.getContent()
+
+            if (content === this.initContent) {
+              tips.show({
+                type: 'warning',
+                content: '请对内容进行修改后提交'
+              })
+              return false
+            }
             fetch.saveParagraphRevises({
               id: this.proId,
               paraCode: this.paraCode,
-              content: this.ueditor.getContent()
+              content
             }).then(message => {
               tips.show(message)
 
@@ -64,9 +75,11 @@ define(['scripts/editor/editorTpl', 'scripts/fetch', 'scripts/tips'],
       show(paraCode, content) {
         this.$detailItem = $(`.detail-item[data-paracode=${paraCode}]`)
         this.paraCode = paraCode
+
         // this.addItem()
 
         this.ueditor.setContent(content)
+        this.initContent = this.ueditor.getContent()
         this.$itemEditor.fadeIn(100)
         // this.itemLists(listPage)
       },

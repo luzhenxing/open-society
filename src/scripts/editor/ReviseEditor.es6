@@ -183,7 +183,7 @@ define(['scripts/editor/editorTpl', 'scripts/urls', 'scripts/fetch', 'scripts/to
           init: {
             FilesAdded(up, files) {
               let reviseId = _this.$itemContainer.find('.checkbox.checked:last').closest('.item').data('itemid') || 'end'
-              console.log('file add')
+              // console.log('file add')
               uploader.setOption('url', `${urls.revisesFiles}?paraCode=${_this.paraCode}&reviseId=${reviseId}`)
 
               _this.uploadingTips = $(tpl.uploadingTips(files[0]))
@@ -195,7 +195,7 @@ define(['scripts/editor/editorTpl', 'scripts/urls', 'scripts/fetch', 'scripts/to
 
             },
             UploadProgress(up, file) {
-              console.log('upload progress', file.percent)
+              // console.log('upload progress', file.percent)
               _this.uploadingTips.find('.percent > em').css('width', `${file.percent}%`)
             },
             UploadComplete(uploader, files) {
@@ -203,7 +203,7 @@ define(['scripts/editor/editorTpl', 'scripts/urls', 'scripts/fetch', 'scripts/to
               _this.uploadingTips.remove()
               _this.uploadingTips = null
               setUEditorStatus(false)
-              console.log('UploadComplete')
+              // console.log('UploadComplete')
             },
             Error(uploader, errObject) {
               tips.show({
@@ -333,10 +333,9 @@ define(['scripts/editor/editorTpl', 'scripts/urls', 'scripts/fetch', 'scripts/to
           this.renderItem(data)
         })
       },
-      renderItem({sliceList}) {
-        if (!sliceList) {
-          return false;
-        }
+      renderItem(data) {
+        let sliceList = data.sliceList || []
+
         this.$itemContainer.empty()
         this.objItemSet = {}
         this.arrCheckedItem.length = 0
@@ -363,7 +362,7 @@ define(['scripts/editor/editorTpl', 'scripts/urls', 'scripts/fetch', 'scripts/to
       pushItem(item) {
         $(item).on('item.check', (checked) => {})
         $(item).on('item.add', () => {
-          console.log('添加成功')
+          // console.log('添加成功')
           if (!!this.arrCheckedItem.length) {
             this.arrCheckedItem.forEach((itemid) => {
               let item = this.objItemSet[itemid]
@@ -532,7 +531,7 @@ define(['scripts/editor/editorTpl', 'scripts/urls', 'scripts/fetch', 'scripts/to
           reviseId: this.itemId,
           content: this.content
         }).then(data => {
-          console.log(data)
+          // console.log(data)
           this.$itemInner.html(this.content)
           this.showInner()
           setUEditorStatus(false)
@@ -574,7 +573,7 @@ define(['scripts/editor/editorTpl', 'scripts/urls', 'scripts/fetch', 'scripts/to
 
           arrDelete(this.arrCheckedItem, this.itemId)
         }
-        console.log(this.arrCheckedItem)
+        // console.log(this.arrCheckedItem)
         $(this).trigger('item.check', [checked])
       }
     }

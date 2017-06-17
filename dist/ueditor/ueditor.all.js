@@ -1,7 +1,7 @@
 /*!
- * ueditor
- * version: 2.0.0
- * build: Sat Apr 22 2017 00:45:04 GMT+0800 (CST)
+ * UEditor
+ * version: ueditor
+ * build: Sun Sep 25 2016 11:06:46 GMT+0800 (CST)
  */
 
 (function(){
@@ -13,14 +13,20 @@ var baidu = window.baidu || {};
 
 window.baidu = baidu;
 
-window.UE = baidu.editor = {
-    plugins:{},
-    commands:{},
-    instants:{},
-    I18N:{},
-    _customizeUI:{},
-    version:'1.5.0'
-};
+window.UE = baidu.editor =  window.UE || {};
+
+UE.plugins = {};
+
+UE.commands = {};
+
+UE.instants = {};
+
+UE.I18N = {};
+
+UE._customizeUI = {};
+
+UE.version = "1.4.3";
+
 var dom = UE.dom = {};
 
 // core/browser.js
@@ -49,7 +55,7 @@ var browser = UE.browser = function(){
          * }
          * ```
          */
-        ie		:  /(msie\s|trident.*rv:)([\w.]+)/i.test(agent),
+        ie		:  /(msie\s|trident.*rv:)([\w.]+)/.test(agent),
 
         /**
          * @property {boolean} opera 检测当前浏览器是否为Opera
@@ -731,7 +737,7 @@ var utils = UE.utils = {
     },
 
     /**
-     * 将str中的html符号转义,将转义“'，&，<，"，>，”，“”七个字符
+     * 将str中的html符号转义,将转义“'，&，<，"，>”五个字符
      * @method unhtml
      * @param { String } str 需要转义的字符串
      * @return { String } 转义后的字符串
@@ -745,7 +751,7 @@ var utils = UE.utils = {
      * ```
      */
     unhtml:function (str, reg) {
-        return str ? str.replace(reg || /[&<">'](?:(amp|lt|ldquo|rdquo|quot|gt|#39|nbsp|#\d+);)?/g, function (a, b) {
+        return str ? str.replace(reg || /[&<">'](?:(amp|lt|quot|gt|#39|nbsp|#\d+);)?/g, function (a, b) {
             if (b) {
                 return a;
             } else {
@@ -753,12 +759,28 @@ var utils = UE.utils = {
                     '<':'&lt;',
                     '&':'&amp;',
                     '"':'&quot;',
-                     '“':'&ldquo;',
-                    '”':'&rdquo;',
                     '>':'&gt;',
-                    '\'':'&#39;'
+                    "'":'&#39;'
                 }[a]
             }
+
+        }) : '';
+    },
+    /**
+     * 将url中的html字符转义， 仅转义  ', ", <, > 四个字符
+     * @param  { String } str 需要转义的字符串
+     * @param  { RegExp } reg 自定义的正则
+     * @return { String }     转义后的字符串
+     */
+    unhtmlForUrl:function (str, reg) {
+        return str ? str.replace(reg || /[<">']/g, function (a) {
+            return {
+                '<':'&lt;',
+                '&':'&amp;',
+                '"':'&quot;',
+                '>':'&gt;',
+                "'":'&#39;'
+            }[a]
 
         }) : '';
     },
@@ -780,15 +802,13 @@ var utils = UE.utils = {
      * ```
      */
     html:function (str) {
-        return str ? str.replace(/&((g|l|quo|ldquo|rdquo)t|amp|#39|nbsp);/g, function (m) {
+        return str ? str.replace(/&((g|l|quo)t|amp|#39|nbsp);/g, function (m) {
             return {
                 '&lt;':'<',
                 '&amp;':'&',
                 '&quot;':'"',
-                '&ldquo;':'“',
-                '&rdquo;':'”',
                 '&gt;':'>',
-                '&#39;':'\'',
+                '&#39;':"'",
                 '&nbsp;':' '
             }[m]
         }) : '';
@@ -925,7 +945,7 @@ var utils = UE.utils = {
             element.onerror = function () {
                 throw Error('The load ' + (obj.href || obj.src) + ' fails,check the url settings of file ueditor.config.js ')
             };
-            doc.getElementsByTagName('head')[0].appendChild(element);
+            doc.getElementsByTagName("head")[0].appendChild(element);
         }
     }(),
 
@@ -976,13 +996,13 @@ var utils = UE.utils = {
      */
     fixColor:function (name, value) {
         if (/color/i.test(name) && /rgba?/.test(value)) {
-            var array = value.split(',');
+            var array = value.split(",");
             if (array.length > 3)
-                return '';
-            value = '#';
+                return "";
+            value = "#";
             for (var i = 0, color; color = array[i++];) {
                 color = parseInt(color.replace(/[^\d]/gi, ''), 10).toString(16);
-                value += color.length == 1 ? '0' + color : color;
+                value += color.length == 1 ? "0" + color : color;
             }
             value = value.toUpperCase();
         }
@@ -1035,7 +1055,7 @@ var utils = UE.utils = {
         val += opt(padding, 'padding') + opt(margin, 'margin');
         return val.replace(/^[ \n\r\t;]*|[ \n\r\t]*$/, '').replace(/;([ \n\r\t]+)|\1;/g, ';')
             .replace(/(&((l|g)t|quot|#39))?;{2,}/g, function (a, b) {
-                return b ? b + ';;' : ';'
+                return b ? b + ";;" : ';'
             });
     },
 
@@ -1136,7 +1156,7 @@ var utils = UE.utils = {
             win = win || window;
             var doc = win.document;
             onready && fnArr.push(onready);
-            if (doc.readyState === 'complete') {
+            if (doc.readyState === "complete") {
                 doReady(doc);
             } else {
                 doc.isReady && doReady(doc);
@@ -1144,7 +1164,7 @@ var utils = UE.utils = {
                     (function () {
                         if (doc.isReady) return;
                         try {
-                            doc.documentElement.doScroll('left');
+                            doc.documentElement.doScroll("left");
                         } catch (error) {
                             setTimeout(arguments.callee, 0);
                             return;
@@ -1155,8 +1175,8 @@ var utils = UE.utils = {
                         doReady(doc)
                     });
                 } else {
-                    doc.addEventListener('DOMContentLoaded', function () {
-                        doc.removeEventListener('DOMContentLoaded', arguments.callee, false);
+                    doc.addEventListener("DOMContentLoaded", function () {
+                        doc.removeEventListener("DOMContentLoaded", arguments.callee, false);
                         doReady(doc);
                     }, false);
                     win.addEventListener('load', function () {
@@ -1258,18 +1278,18 @@ var utils = UE.utils = {
         var strArr = [];
         for (var i in json) {
             //忽略默认的几个参数
-            if(i=='method' || i=='timeout' || i=='async') continue;
+            if(i=="method" || i=="timeout" || i=="async") continue;
             //传递过来的对象和函数不在提交之列
-            if (!((typeof json[i]).toLowerCase() == 'function' || (typeof json[i]).toLowerCase() == 'object')) {
-                strArr.push( encodeURIComponent(i) + '='+encodeURIComponent(json[i]) );
+            if (!((typeof json[i]).toLowerCase() == "function" || (typeof json[i]).toLowerCase() == "object")) {
+                strArr.push( encodeURIComponent(i) + "="+encodeURIComponent(json[i]) );
             } else if (utils.isArray(json[i])) {
                 //支持传数组内容
                 for(var j = 0; j < json[i].length; j++) {
-                    strArr.push( encodeURIComponent(i) + '[]='+encodeURIComponent(json[i][j]) );
+                    strArr.push( encodeURIComponent(i) + "[]="+encodeURIComponent(json[i][j]) );
                 }
             }
         }
-        return strArr.join('&');
+        return strArr.join("&");
     },
     formatUrl:function (url) {
         var u = url.replace(/&&/g, '&');
@@ -1302,7 +1322,7 @@ var utils = UE.utils = {
         if (window.JSON) {
             return JSON.parse(s);
         } else {
-            return (new Function('return ' + utils.trim(s || '')))();
+            return (new Function("return " + utils.trim(s || '')))();
         }
 
     },
@@ -1315,13 +1335,13 @@ var utils = UE.utils = {
         } else {
 
             var escapeMap = {
-                '\b': '\\b',
-                '\t': '\\t',
-                '\n': '\\n',
-                '\f': '\\f',
-                '\r': '\\r',
+                "\b": '\\b',
+                "\t": '\\t',
+                "\n": '\\n',
+                "\f": '\\f',
+                "\r": '\\r',
                 '"' : '\\"',
-                '\\': '\\\\'
+                "\\": '\\\\'
             };
 
             function encodeString(source) {
@@ -1334,7 +1354,7 @@ var utils = UE.utils = {
                                 return c;
                             }
                             c = match.charCodeAt();
-                            return '\\u00'
+                            return "\\u00"
                             + Math.floor(c / 16).toString(16)
                             + (c % 16).toString(16);
                         });
@@ -1343,7 +1363,7 @@ var utils = UE.utils = {
             }
 
             function encodeArray(source) {
-                var result = ['['],
+                var result = ["["],
                     l = source.length,
                     preComma, i, item;
 
@@ -1351,9 +1371,9 @@ var utils = UE.utils = {
                     item = source[i];
 
                     switch (typeof item) {
-                        case 'undefined':
-                        case 'function':
-                        case 'unknown':
+                        case "undefined":
+                        case "function":
+                        case "unknown":
                             break;
                         default:
                             if(preComma) {
@@ -1363,8 +1383,8 @@ var utils = UE.utils = {
                             preComma = 1;
                     }
                 }
-                result.push(']');
-                return result.join('');
+                result.push("]");
+                return result.join("");
             }
 
             function pad(source) {
@@ -1372,11 +1392,11 @@ var utils = UE.utils = {
             }
 
             function encodeDate(source){
-                return '"' + source.getFullYear() + '-'
-                + pad(source.getMonth() + 1) + '-'
-                + pad(source.getDate()) + 'T'
-                + pad(source.getHours()) + ':'
-                + pad(source.getMinutes()) + ':'
+                return '"' + source.getFullYear() + "-"
+                + pad(source.getMonth() + 1) + "-"
+                + pad(source.getDate()) + "T"
+                + pad(source.getHours()) + ":"
+                + pad(source.getMinutes()) + ":"
                 + pad(source.getSeconds()) + '"';
             }
 
@@ -1386,7 +1406,7 @@ var utils = UE.utils = {
                         return 'undefined';
 
                     case 'number':
-                        return isFinite(value) ? String(value) : 'null';
+                        return isFinite(value) ? String(value) : "null";
 
                     case 'string':
                         return encodeString(value);
@@ -1675,7 +1695,7 @@ var dtd = dom.dtd = (function() {
         D = X( {iframe:1}, C ),
         E = _({hr:1,ul:1,menu:1,div:1,blockquote:1,noscript:1,table:1,center:1,address:1,dir:1,pre:1,h5:1,dl:1,h4:1,noframes:1,h6:1,ol:1,h1:1,h3:1,h2:1}),
         F = _({ins:1,del:1,script:1,style:1}),
-        G = X( _({mark:1,b:1,acronym:1,bdo:1,'var':1,'#':1,abbr:1,code:1,br:1,i:1,cite:1,kbd:1,u:1,strike:1,s:1,tt:1,strong:1,q:1,samp:1,em:1,dfn:1,span:1}), F ),
+        G = X( _({b:1,acronym:1,bdo:1,'var':1,'#':1,abbr:1,code:1,br:1,i:1,cite:1,kbd:1,u:1,strike:1,s:1,tt:1,strong:1,q:1,samp:1,em:1,dfn:1,span:1}), F ),
         H = X( _({sub:1,img:1,embed:1,object:1,sup:1,basefont:1,map:1,applet:1,font:1,big:1,small:1}), G ),
         I = X( _({p:1}), H ),
         J = X( _({iframe:1}), H, B ),
@@ -1829,8 +1849,7 @@ var dtd = dom.dtd = (function() {
         pre : X( G, C ),
         p : X(_({'a':1}),L),
         em :L,
-        dfn : L,
-        mark:L
+        dfn : L
     });
 })();
 
@@ -1864,20 +1883,20 @@ function getDomNode(node, start, ltr, startFromChild, fn, guard) {
     return tmpNode;
 }
 var attrFix = ie && browser.version < 9 ? {
-        tabindex:'tabIndex',
-        readonly:'readOnly',
-        'for':'htmlFor',
-        'class':'className',
-        maxlength:'maxLength',
-        cellspacing:'cellSpacing',
-        cellpadding:'cellPadding',
-        rowspan:'rowSpan',
-        colspan:'colSpan',
-        usemap:'useMap',
-        frameborder:'frameBorder'
+        tabindex:"tabIndex",
+        readonly:"readOnly",
+        "for":"htmlFor",
+        "class":"className",
+        maxlength:"maxLength",
+        cellspacing:"cellSpacing",
+        cellpadding:"cellPadding",
+        rowspan:"rowSpan",
+        colspan:"colSpan",
+        usemap:"useMap",
+        frameborder:"frameBorder"
     } : {
-        tabindex:'tabIndex',
-        readonly:'readOnly'
+        tabindex:"tabIndex",
+        readonly:"readOnly"
     },
     styleBlock = utils.listToMap([
         '-webkit-box', '-moz-box', 'block' ,
@@ -2974,7 +2993,7 @@ var domUtils = dom.domUtils = {
                 if (node === ci.parentNode) {
                     domUtils.trimWhiteTextNode(node);
                     if (node.childNodes.length == 1) {
-                        node.style.cssText = ci.style.cssText + ';' + node.style.cssText;
+                        node.style.cssText = ci.style.cssText + ";" + node.style.cssText;
                         domUtils.remove(ci, true);
                         continue;
                     }
@@ -3060,11 +3079,11 @@ var domUtils = dom.domUtils = {
                 if (parent.tagName == 'SPAN' && !domUtils.isSameStyle(parent, node)
                     || (parent.tagName == 'A' && node.tagName == 'SPAN')) {
                     if (parent.childNodes.length > 1 || parent !== node.parentNode) {
-                        node.style.cssText = parent.style.cssText + ';' + node.style.cssText;
+                        node.style.cssText = parent.style.cssText + ";" + node.style.cssText;
                         parent = parent.parentNode;
                         continue;
                     } else {
-                        parent.style.cssText += ';' + node.style.cssText;
+                        parent.style.cssText += ";" + node.style.cssText;
                         //trace:952 a标签要保持下划线
                         if (parent.tagName == 'A') {
                             parent.style.textDecoration = 'underline';
@@ -3170,7 +3189,7 @@ var domUtils = dom.domUtils = {
             return false;
         };
         node.unselectable = 'on';
-        node.setAttribute('unselectable', 'on');
+        node.setAttribute("unselectable", "on");
         for (var i = 0, ci; ci = node.all[i++];) {
             switch (ci.tagName.toLowerCase()) {
                 case 'iframe' :
@@ -3180,7 +3199,7 @@ var domUtils = dom.domUtils = {
                     break;
                 default :
                     ci.unselectable = 'on';
-                    node.setAttribute('unselectable', 'on');
+                    node.setAttribute("unselectable", "on");
             }
         }
     } : function (node) {
@@ -3304,7 +3323,7 @@ var domUtils = dom.domUtils = {
                         node.className = value;
                         break;
                     case 'style' :
-                        node.style.cssText = node.style.cssText + ';' + value;
+                        node.style.cssText = node.style.cssText + ";" + value;
                         break;
                     case 'innerHTML':
                         node[attr] = value;
@@ -3371,7 +3390,7 @@ var domUtils = dom.domUtils = {
                     ( element.currentStyle || element.style )[utils.cssStyleToDomStyle(styleName)]);
 
         } catch (e) {
-            return '';
+            return "";
         }
         return utils.transUnitToPx(utils.fixColor(styleName, value));
     },
@@ -5534,12 +5553,6 @@ var fillCharReg = new RegExp(domUtils.fillChar, 'g');
                         domUtils.setAttributes(elm, attrs);
                     }
                     elm.appendChild(frag);
-                    //针对嵌套span的全局样式指定，做容错处理
-                    if(elm.tagName == 'SPAN' && attrs && attrs.style){
-                        utils.each(elm.getElementsByTagName('span'),function(s){
-                            s.style.cssText = s.style.cssText + ';' + attrs.style;
-                        })
-                    }
                     range.insertNode(list ? top : elm);
                     //处理下滑线在a上的情况
                     var aNode;
@@ -6527,8 +6540,8 @@ var fillCharReg = new RegExp(domUtils.fillChar, 'g');
      */
     function setValue(form, editor) {
         var textarea;
-        if (editor.options.textarea) {
-            if (utils.isString(editor.options.textarea)) {
+        if (editor.textarea) {
+            if (utils.isString(editor.textarea)) {
                 for (var i = 0, ti, tis = domUtils.getElementsByTagName(form, 'textarea'); ti = tis[i++];) {
                     if (ti.id == 'ueditor_textarea_' + editor.options.textarea) {
                         textarea = ti;
@@ -6543,7 +6556,7 @@ var fillCharReg = new RegExp(domUtils.fillChar, 'g');
             form.appendChild(textarea = domUtils.createElement(document, 'textarea', {
                 'name': editor.options.textarea,
                 'id': 'ueditor_textarea_' + editor.options.textarea,
-                'style': 'display:none'
+                'style': "display:none"
             }));
             //不要产生多个textarea
             editor.textarea = textarea;
@@ -6569,7 +6582,7 @@ var fillCharReg = new RegExp(domUtils.fillChar, 'g');
     function langReadied(me){
         me.langIsReady = true;
 
-        me.fireEvent('langReady');
+        me.fireEvent("langReady");
     }
 
     /**
@@ -6745,10 +6758,10 @@ var fillCharReg = new RegExp(domUtils.fillChar, 'g');
 
         }else{
             utils.loadFile(document, {
-                src: me.options.langPath + me.options.lang + '/' + me.options.lang + '.js',
-                tag: 'script',
-                type: 'text/javascript',
-                defer: 'defer'
+                src: me.options.langPath + me.options.lang + "/" + me.options.lang + ".js",
+                tag: "script",
+                type: "text/javascript",
+                defer: "defer"
             }, function () {
                 UE.plugin.load(me);
                 langReadied(me);
@@ -6894,39 +6907,33 @@ var fillCharReg = new RegExp(domUtils.fillChar, 'g');
                 }
 
                 container.style.width = /%$/.test(options.initialFrameWidth) ?  '100%' : options.initialFrameWidth-
-                    getStyleValue('padding-left')- getStyleValue('padding-right') +'px';
+                    getStyleValue("padding-left")- getStyleValue("padding-right") +'px';
                 container.style.height = /%$/.test(options.initialFrameHeight) ?  '100%' : options.initialFrameHeight -
-                    getStyleValue('padding-top')- getStyleValue('padding-bottom') +'px';
+                    getStyleValue("padding-top")- getStyleValue("padding-bottom") +'px';
 
                 container.style.zIndex = options.zIndex;
 
                 var html = ( ie && browser.version < 9  ? '' : '<!DOCTYPE html>') +
-                    '<html xmlns=\'http://www.w3.org/1999/xhtml\' class=\'view\' >' +
-                    '<head>' +
+                    '<html xmlns=\'http://www.w3.org/1999/xhtml\' class=\'view\' ><head>' +
                     '<style type=\'text/css\'>' +
                     //设置四周的留边
                     '.view{padding:0;word-wrap:break-word;cursor:text;height:90%;}\n' +
                     //设置默认字体和字号
                     //font-family不能呢随便改，在safari下fillchar会有解析问题
-                    'body{margin:8px;font-family:sans-serif;font-size:12px;}' +
+                    'body{margin:8px;font-family:sans-serif;font-size:16px;}' +
                     //设置段落间距
                     'p{margin:5px 0;}</style>' +
-                    (options.iframeCssUrl ? '<link rel=\'stylesheet\' type=\'text/css\' href=\'' + utils.unhtml(options.iframeCssUrl) + '\'/>' : '' ) +
+                    ( options.iframeCssUrl ? '<link rel=\'stylesheet\' type=\'text/css\' href=\'' + utils.unhtml(options.iframeCssUrl) + '\'/>' : '' ) +
                     (options.initialStyle ? '<style>' + options.initialStyle + '</style>' : '') +
-                    '</head>' +
-                    '<body class=\'view\' ></body>' +
+                    '</head><body class=\'view\' ></body>' +
                     '<script type=\'text/javascript\' ' + (ie ? 'defer=\'defer\'' : '' ) +' id=\'_initialScript\'>' +
                     'setTimeout(function(){editor = window.parent.UE.instants[\'ueditorInstant' + me.uid + '\'];editor._setup(document);},0);' +
-                    'var _tmpScript = document.getElementById(\'_initialScript\');_tmpScript.parentNode.removeChild(_tmpScript);' +
-                    '</script>' +
-                    (options.iframeJsUrl ? ('<script type=\'text/javascript\' src=\'' + utils.unhtml(options.iframeJsUrl) + '\'></script>'):'') +
-                    '</html>';
-
+                    'var _tmpScript = document.getElementById(\'_initialScript\');_tmpScript.parentNode.removeChild(_tmpScript);</script></html>';
                 container.appendChild(domUtils.createElement(document, 'iframe', {
                     id: 'ueditor_' + me.uid,
-                    width: '100%',
-                    height: '100%',
-                    frameborder: '0',
+                    width: "100%",
+                    height: "100%",
+                    frameborder: "0",
                     //先注释掉了，加的原因忘记了，但开启会直接导致全屏模式下内容多时不会出现滚动条
 //                    scrolling :'no',
                     src: 'javascript:void(function(){document.open();' + (options.customDomain && document.domain != location.hostname ?  'document.domain="' + document.domain + '";' : '') +
@@ -7174,7 +7181,7 @@ var fillCharReg = new RegExp(domUtils.fillChar, 'g');
                         var key = ti[0], param = ti[1];
                         if (/^(ctrl)(\+shift)?\+(\d+)$/.test(key.toLowerCase()) || /^(\d+)$/.test(key)) {
                             if (( (RegExp.$1 == 'ctrl' ? (e.ctrlKey || e.metaKey) : 0)
-                                && (RegExp.$2 != '' ? e[RegExp.$2.slice(1) + 'Key'] : 1)
+                                && (RegExp.$2 != "" ? e[RegExp.$2.slice(1) + "Key"] : 1)
                                 && keyCode == RegExp.$3
                                 ) ||
                                 keyCode == RegExp.$1
@@ -7885,9 +7892,9 @@ var fillCharReg = new RegExp(domUtils.fillChar, 'g');
         getLang: function (path) {
             var lang = UE.I18N[this.options.lang];
             if (!lang) {
-                throw Error('not import language file');
+                throw Error("not import language file");
             }
-            path = (path || '').split('.');
+            path = (path || "").split(".");
             for (var i = 0, ci; ci = path[i++];) {
                 lang = lang[ci];
                 if (!lang)break;
@@ -8083,7 +8090,7 @@ UE.Editor.defaultOptions = function(editor){
                     'dataType': isJsonp ? 'jsonp':'',
                     'onsuccess':function(r){
                         try {
-                            var config = isJsonp ? r:eval('('+r.responseText+')');
+                            var config = isJsonp ? r:eval("("+r.responseText+")");
                             utils.extend(me.options, config);
                             me.fireEvent('serverConfigLoaded');
                             me._serverConfigLoaded = true;
@@ -8148,11 +8155,11 @@ UE.ajax = function() {
     //创建一个ajaxRequest对象
     var fnStr = 'XMLHttpRequest()';
     try {
-        new ActiveXObject('Msxml2.XMLHTTP');
+        new ActiveXObject("Msxml2.XMLHTTP");
         fnStr = 'ActiveXObject(\'Msxml2.XMLHTTP\')';
     } catch (e) {
         try {
-            new ActiveXObject('Microsoft.XMLHTTP');
+            new ActiveXObject("Microsoft.XMLHTTP");
             fnStr = 'ActiveXObject(\'Microsoft.XMLHTTP\')'
         } catch (e) {
         }
@@ -8168,20 +8175,20 @@ UE.ajax = function() {
         var strArr = [];
         for (var i in json) {
             //忽略默认的几个参数
-            if(i=='method' || i=='timeout' || i=='async' || i=='dataType' || i=='callback') continue;
+            if(i=="method" || i=="timeout" || i=="async" || i=="dataType" || i=="callback") continue;
             //忽略控制
             if(json[i] == undefined || json[i] == null) continue;
             //传递过来的对象和函数不在提交之列
-            if (!((typeof json[i]).toLowerCase() == 'function' || (typeof json[i]).toLowerCase() == 'object')) {
-                strArr.push( encodeURIComponent(i) + '='+encodeURIComponent(json[i]) );
+            if (!((typeof json[i]).toLowerCase() == "function" || (typeof json[i]).toLowerCase() == "object")) {
+                strArr.push( encodeURIComponent(i) + "="+encodeURIComponent(json[i]) );
             } else if (utils.isArray(json[i])) {
             //支持传数组内容
                 for(var j = 0; j < json[i].length; j++) {
-                    strArr.push( encodeURIComponent(i) + '[]='+encodeURIComponent(json[i][j]) );
+                    strArr.push( encodeURIComponent(i) + "[]="+encodeURIComponent(json[i][j]) );
                 }
             }
         }
-        return strArr.join('&');
+        return strArr.join("&");
     }
 
     function doAjax(url, ajaxOptions) {
@@ -8190,7 +8197,7 @@ UE.ajax = function() {
             timeIsOut = false,
         //默认参数
             defaultAjaxOptions = {
-                method:'POST',
+                method:"POST",
                 timeout:5000,
                 async:true,
                 data:{},//需要传递对象的话只能覆盖
@@ -8200,7 +8207,7 @@ UE.ajax = function() {
                 }
             };
 
-        if (typeof url === 'object') {
+        if (typeof url === "object") {
             ajaxOptions = url;
             url = ajaxOptions.url;
         }
@@ -8210,7 +8217,7 @@ UE.ajax = function() {
         var submitStr = json2str(ajaxOpts);  // { name:"Jim",city:"Beijing" } --> "name=Jim&city=Beijing"
         //如果用户直接通过data参数传递json对象过来，则也要将此json对象转化为字符串
         if (!utils.isEmptyObject(ajaxOpts.data)){
-            submitStr += (submitStr? '&':'') + json2str(ajaxOpts.data);
+            submitStr += (submitStr? "&":"") + json2str(ajaxOpts.data);
         }
         //超时检测
         var timerID = setTimeout(function() {
@@ -8222,7 +8229,7 @@ UE.ajax = function() {
         }, ajaxOpts.timeout);
 
         var method = ajaxOpts.method.toUpperCase();
-        var str = url + (url.indexOf('?')==-1?'?':'&') + (method=='POST'?'':submitStr+ '&noCache=' + +new Date);
+        var str = url + (url.indexOf("?")==-1?"?":"&") + (method=="POST"?"":submitStr+ "&noCache=" + +new Date);
         xhr.open(method, str, ajaxOpts.async);
         xhr.onreadystatechange = function() {
             if (xhr.readyState == 4) {
@@ -8233,7 +8240,7 @@ UE.ajax = function() {
                 }
             }
         };
-        if (method == 'POST') {
+        if (method == "POST") {
             xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
             xhr.send(submitStr);
         } else {
@@ -8274,7 +8281,7 @@ UE.ajax = function() {
         var queryStr = json2str(opts);  // { name:"Jim",city:"Beijing" } --> "name=Jim&city=Beijing"
         //如果用户直接通过data参数传递json对象过来，则也要将此json对象转化为字符串
         if (!utils.isEmptyObject(opts.data)){
-            queryStr += (queryStr? '&':'') + json2str(opts.data);
+            queryStr += (queryStr? "&":"") + json2str(opts.data);
         }
         if (queryStr) {
             url = url.replace(/\?/, '?' + queryStr + '&');
@@ -8437,7 +8444,7 @@ var filterWord = UE.filterWord = function () {
 
     function filterPasteWord( str ) {
         return str.replace(/[\t\r\n]+/g,' ')
-                .replace( /<!--[\s\S]*?-->/ig, '' )
+                .replace( /<!--[\s\S]*?-->/ig, "" )
                 //转换图片
                 .replace(/<v:shape [^>]*>[\s\S]*?.<\/v:shape>/gi,function(str){
                     //opera能自己解析出image所这里直接返回空
@@ -8461,8 +8468,8 @@ var filterWord = UE.filterWord = function () {
                 .replace(/<\/?div[^>]*>/g,'')
                 //去掉多余的属性
                 .replace( /v:\w+=(["']?)[^'"]+\1/g, '' )
-                .replace( /<(!|script[^>]*>.*?<\/script(?=[>\s])|\/?(\?xml(:\w+)?|xml|meta|link|style|\w+:\w+)(?=[\s\/>]))[^>]*>/gi, '' )
-                .replace( /<p [^>]*class="?MsoHeading"?[^>]*>(.*?)<\/p>/gi, '<p><strong>$1</strong></p>' )
+                .replace( /<(!|script[^>]*>.*?<\/script(?=[>\s])|\/?(\?xml(:\w+)?|xml|meta|link|style|\w+:\w+)(?=[\s\/>]))[^>]*>/gi, "" )
+                .replace( /<p [^>]*class="?MsoHeading"?[^>]*>(.*?)<\/p>/gi, "<p><strong>$1</strong></p>" )
                 //去掉多余的属性
                 .replace( /\s+(class|lang|align)\s*=\s*(['"]?)([\w-]+)\2/ig, function(str,name,marks,val){
                     //保留list的标示
@@ -8477,7 +8484,7 @@ var filterWord = UE.filterWord = function () {
                     var n = [],
                         s = style.replace( /^\s+|\s+$/, '' )
                             .replace(/&#39;/g,'\'')
-                            .replace( /&quot;/gi, '\'' )
+                            .replace( /&quot;/gi, "'" )
                             .replace(/[\d.]+(cm|pt)/g,function(str){
                                 return utils.transUnitToPx(str)
                             })
@@ -8486,7 +8493,7 @@ var filterWord = UE.filterWord = function () {
                     for ( var i = 0,v; v = s[i];i++ ) {
 
                         var name, value,
-                            parts = v.split( ':' );
+                            parts = v.split( ":" );
 
                         if ( parts.length == 2 ) {
                             name = parts[0].toLowerCase();
@@ -8499,63 +8506,63 @@ var filterWord = UE.filterWord = function () {
                             }
 
                             switch ( name ) {
-                                case 'mso-padding-alt':
-                                case 'mso-padding-top-alt':
-                                case 'mso-padding-right-alt':
-                                case 'mso-padding-bottom-alt':
-                                case 'mso-padding-left-alt':
-                                case 'mso-margin-alt':
-                                case 'mso-margin-top-alt':
-                                case 'mso-margin-right-alt':
-                                case 'mso-margin-bottom-alt':
-                                case 'mso-margin-left-alt':
+                                case "mso-padding-alt":
+                                case "mso-padding-top-alt":
+                                case "mso-padding-right-alt":
+                                case "mso-padding-bottom-alt":
+                                case "mso-padding-left-alt":
+                                case "mso-margin-alt":
+                                case "mso-margin-top-alt":
+                                case "mso-margin-right-alt":
+                                case "mso-margin-bottom-alt":
+                                case "mso-margin-left-alt":
                                 //ie下会出现挤到一起的情况
                                //case "mso-table-layout-alt":
-                                case 'mso-height':
-                                case 'mso-width':
-                                case 'mso-vertical-align-alt':
+                                case "mso-height":
+                                case "mso-width":
+                                case "mso-vertical-align-alt":
                                     //trace:1819 ff下会解析出padding在table上
                                     if(!/<table/.test(tag))
-                                        n[i] = name.replace( /^mso-|-alt$/g, '' ) + ':' + transUnit( value );
+                                        n[i] = name.replace( /^mso-|-alt$/g, "" ) + ":" + transUnit( value );
                                     continue;
-                                case 'horiz-align':
-                                    n[i] = 'text-align:' + value;
-                                    continue;
-
-                                case 'vert-align':
-                                    n[i] = 'vertical-align:' + value;
+                                case "horiz-align":
+                                    n[i] = "text-align:" + value;
                                     continue;
 
-                                case 'font-color':
-                                case 'mso-foreground':
-                                    n[i] = 'color:' + value;
+                                case "vert-align":
+                                    n[i] = "vertical-align:" + value;
                                     continue;
 
-                                case 'mso-background':
-                                case 'mso-highlight':
-                                    n[i] = 'background:' + value;
+                                case "font-color":
+                                case "mso-foreground":
+                                    n[i] = "color:" + value;
                                     continue;
 
-                                case 'mso-default-height':
-                                    n[i] = 'min-height:' + transUnit( value );
+                                case "mso-background":
+                                case "mso-highlight":
+                                    n[i] = "background:" + value;
                                     continue;
 
-                                case 'mso-default-width':
-                                    n[i] = 'min-width:' + transUnit( value );
+                                case "mso-default-height":
+                                    n[i] = "min-height:" + transUnit( value );
                                     continue;
 
-                                case 'mso-padding-between-alt':
-                                    n[i] = 'border-collapse:separate;border-spacing:' + transUnit( value );
+                                case "mso-default-width":
+                                    n[i] = "min-width:" + transUnit( value );
                                     continue;
 
-                                case 'text-line-through':
-                                    if ( (value == 'single') || (value == 'double') ) {
-                                        n[i] = 'text-decoration:line-through';
+                                case "mso-padding-between-alt":
+                                    n[i] = "border-collapse:separate;border-spacing:" + transUnit( value );
+                                    continue;
+
+                                case "text-line-through":
+                                    if ( (value == "single") || (value == "double") ) {
+                                        n[i] = "text-decoration:line-through";
                                     }
                                     continue;
-                                case 'mso-zero-height':
-                                    if ( value == 'yes' ) {
-                                        n[i] = 'display:none';
+                                case "mso-zero-height":
+                                    if ( value == "yes" ) {
+                                        n[i] = "display:none";
                                     }
                                     continue;
 //                                case 'background':
@@ -8574,7 +8581,7 @@ var filterWord = UE.filterWord = function () {
                                 continue;
                             }
 
-                            n[i] = name + ':' + parts[1];
+                            n[i] = name + ":" + parts[1];
                         }
                     }
                     return tag + (n.length ? ' style="' + n.join( ';').replace(/;{2,}/g,';') + '"' : '');
@@ -8622,7 +8629,7 @@ var filterWord = UE.filterWord = function () {
      *     type:'element',
      *     tagName:'span',
      *     attrs:{style:'font-size:14px;'}
-     * })
+     * }
      * ```
      */
     var uNode = UE.uNode = function (obj) {
@@ -9374,10 +9381,7 @@ var filterWord = UE.filterWord = function () {
 var htmlparser = UE.htmlparser = function (htmlstr,ignoreBlank) {
     //todo 原来的方式  [^"'<>\/] 有\/就不能配对上 <TD vAlign=top background=../AAA.JPG> 这样的标签了
     //先去掉了，加上的原因忘了，这里先记录
-    //var re_tag = /<(?:(?:\/([^>]+)>)|(?:!--([\S|\s]*?)-->)|(?:([^\s\/<>]+)\s*((?:(?:"[^"]*")|(?:'[^']*')|[^"'<>])*)\/?>))/g,
-    //以上的正则表达式无法匹配:<div style="text-align:center;font-family:" font-size:14px;"=""><img src="http://hs-album.oss.aliyuncs.com/static/27/78/35/image/20161206/20161206174331_41105.gif" alt="" /><br /></div>
-    //修改为如下正则表达式:
-    var re_tag =   /<(?:(?:\/([^>]+)>)|(?:!--([\S|\s]*?)-->)|(?:([^\/\s>]+)((?:\s+[\w\-:.]+(?:\s*=\s*?(?:(?:"[^"]*")|(?:'[^']*')|[^\s"'\/>]+))?)*)[\S\s]*?(\/?)>))/g,
+    var re_tag = /<(?:(?:\/([^>]+)>)|(?:!--([\S|\s]*?)-->)|(?:([^\s\/<>]+)\s*((?:(?:"[^"]*")|(?:'[^']*')|[^"'<>])*)\/?>))/g,
         re_attr = /([\w\-:.]+)(?:(?:\s*=\s*(?:(?:"([^"]*)")|(?:'([^']*)')|([^\s>]+)))|(?=\s|$))/g;
 
     //ie下取得的html可能会有\n存在，要去掉，在处理replace(/[\t\r\n]*/g,'');代码高量的\n不能去除
@@ -9799,7 +9803,7 @@ var keymap = UE.keymap  = {
     '=':187,
     '-':189,
 
-    'b':66,
+    "b":66,
     'i':73,
     //回退
     'z':90,
@@ -9853,14 +9857,14 @@ var LocalStorage = UE.LocalStorage = (function () {
 
     function getUserData() {
 
-        var container = document.createElement('div');
-        container.style.display = 'none';
+        var container = document.createElement("div");
+        container.style.display = "none";
 
         if (!container.addBehavior) {
             return null;
         }
 
-        container.addBehavior('#default#userdata');
+        container.addBehavior("#default#userdata");
 
         return {
 
@@ -9964,8 +9968,7 @@ UE.plugins['defaultfilter'] = function () {
     var me = this;
     me.setOpt({
         'allowDivTransToP':true,
-        'disabledTableInTable':true,
-        'rgb2Hex':true
+        'disabledTableInTable':true
     });
     //默认的过滤处理
     //进入编辑器的内容处理
@@ -10167,24 +10170,6 @@ UE.plugins['defaultfilter'] = function () {
                         val = node.getAttr('id');
                         if(val && /^_baidu_bookmark_/i.test(val)){
                             node.parentNode.removeChild(node)
-                        }
-                        //将color的rgb格式转换为#16进制格式
-                        if(me.getOpt('rgb2Hex')){
-                            var cssStyle = node.getAttr('style');
-                            if(cssStyle){
-                                node.setAttr('style',cssStyle.replace(/rgba?\(([\d,\s]+)\)/g,function(a,value){
-                                    var array = value.split(',');
-                                    if (array.length > 3)
-                                        return '';
-                                    value = '#';
-                                    for (var i = 0, color; color = array[i++];) {
-                                        color = parseInt(color.replace(/[^\d]/gi, ''), 10).toString(16);
-                                        value += color.length == 1 ? '0' + color : color;
-                                    }
-                                    return value.toUpperCase();
-
-                                }))
-                            }
                         }
                         break;
                     case 'img':
@@ -10488,7 +10473,7 @@ UE.plugins['autotypeset'] = function(){
         mergeEmptyline: true,           //合并空行
         removeClass: true,              //去掉冗余的class
         removeEmptyline: false,         //去掉空行
-        textAlign:'left',               //段落的排版方式，可以是 left,right,center,justify 去掉这个属性表示不执行排版
+        textAlign:"left",               //段落的排版方式，可以是 left,right,center,justify 去掉这个属性表示不执行排版
         imageBlockLine: 'center',       //图片的浮动方式，独占一行剧中,左右浮动，默认: center,left,right,none 去掉这个属性表示不执行排版
         pasteFilter: false,             //根据规则过滤没事粘贴进来的内容
         clearFontSize: false,           //去掉所有的内嵌字号，使用编辑器默认的字号
@@ -10752,8 +10737,8 @@ UE.plugins['autotypeset'] = function(){
     }
     function ToDBC(txtstring) {
         txtstring = utils.html(txtstring);
-        var tmp = '';
-        var mark = '';/*用于判断,如果是html尖括里的标记,则不进行全角的转换*/
+        var tmp = "";
+        var mark = "";/*用于判断,如果是html尖括里的标记,则不进行全角的转换*/
         for (var i = 0; i < txtstring.length; i++) {
             if (txtstring.charCodeAt(i) == 32) {
                 tmp = tmp + String.fromCharCode(12288);
@@ -10809,15 +10794,15 @@ UE.plugins['autotypeset'] = function(){
 UE.plugin.register('autosubmit',function(){
     return {
         shortcutkey:{
-            'autosubmit':'ctrl+13' //手动提交
+            "autosubmit":"ctrl+13" //手动提交
         },
         commands:{
             'autosubmit':{
                 execCommand:function () {
                     var me=this,
-                        form = domUtils.findParentByTagName(me.iframe,'form', false);
+                        form = domUtils.findParentByTagName(me.iframe,"form", false);
                     if (form){
-                        if(me.fireEvent('beforesubmit')===false){
+                        if(me.fireEvent("beforesubmit")===false){
                             return;
                         }
                         me.sync();
@@ -10856,10 +10841,10 @@ UE.plugin.register('background', function () {
             var styles = [];
             for (var name in obj) {
                 if (obj.hasOwnProperty(name)) {
-                    styles.push(name + ':' + obj[name] + '; ');
+                    styles.push(name + ":" + obj[name] + '; ');
                 }
             }
-            utils.cssRule(cssRuleId, styles.length ? ('body{' + styles.join('') + '}') : '', me.document);
+            utils.cssRule(cssRuleId, styles.length ? ('body{' + styles.join("") + '}') : '', me.document);
         } else {
             utils.cssRule(cssRuleId, '', me.document)
         }
@@ -10877,24 +10862,24 @@ UE.plugin.register('background', function () {
         bindEvents: {
             'getAllHtml': function (type, headHtml) {
                 var body = this.body,
-                    su = domUtils.getComputedStyle(body, 'background-image'),
-                    url = '';
+                    su = domUtils.getComputedStyle(body, "background-image"),
+                    url = "";
                 if (su.indexOf(me.options.imagePath) > 0) {
-                    url = su.substring(su.indexOf(me.options.imagePath), su.length - 1).replace(/"|\(|\)/ig, '');
+                    url = su.substring(su.indexOf(me.options.imagePath), su.length - 1).replace(/"|\(|\)/ig, "");
                 } else {
-                    url = su != 'none' ? su.replace(/url\("?|"?\)/ig, '') : '';
+                    url = su != "none" ? su.replace(/url\("?|"?\)/ig, "") : "";
                 }
                 var html = '<style type="text/css">body{';
                 var bgObj = {
-                    'background-color': domUtils.getComputedStyle(body, 'background-color') || '#ffffff',
+                    "background-color": domUtils.getComputedStyle(body, "background-color") || "#ffffff",
                     'background-image': url ? 'url(' + url + ')' : '',
-                    'background-repeat': domUtils.getComputedStyle(body, 'background-repeat') || '',
-                    'background-position': browser.ie ? (domUtils.getComputedStyle(body, 'background-position-x') + ' ' + domUtils.getComputedStyle(body, 'background-position-y')) : domUtils.getComputedStyle(body, 'background-position'),
-                    'height': domUtils.getComputedStyle(body, 'height')
+                    'background-repeat': domUtils.getComputedStyle(body, "background-repeat") || "",
+                    'background-position': browser.ie ? (domUtils.getComputedStyle(body, "background-position-x") + " " + domUtils.getComputedStyle(body, "background-position-y")) : domUtils.getComputedStyle(body, "background-position"),
+                    'height': domUtils.getComputedStyle(body, "height")
                 };
                 for (var name in bgObj) {
                     if (bgObj.hasOwnProperty(name)) {
-                        html += name + ':' + bgObj[name] + '; ';
+                        html += name + ":" + bgObj[name] + "; ";
                     }
                 }
                 html += '}</style> ';
@@ -11136,7 +11121,30 @@ UE.commands['insertimage'] = {
             return;
         }
 
-        if (img && /img/i.test(img.tagName) && (img.className != 'edui-faked-video' || img.className.indexOf('edui-upload-video')!=-1) && !img.getAttribute('word_img')) {
+        function unhtmlData(imgCi) {
+
+            utils.each('width,height,border,hspace,vspace'.split(','), function (item) {
+
+                if (imgCi[item]) {
+                    imgCi[item] = parseInt(imgCi[item], 10) || 0;
+                }
+            });
+
+            utils.each('src,_src'.split(','), function (item) {
+
+                if (imgCi[item]) {
+                    imgCi[item] = utils.unhtmlForUrl(imgCi[item]);
+                }
+            });
+            utils.each('title,alt'.split(','), function (item) {
+
+                if (imgCi[item]) {
+                    imgCi[item] = utils.unhtml(imgCi[item]);
+                }
+            });
+        }
+
+        if (img && /img/i.test(img.tagName) && (img.className != "edui-faked-video" || img.className.indexOf("edui-upload-video")!=-1) && !img.getAttribute("word_img")) {
             var first = opt.shift();
             var floatStyle = first['floatStyle'];
             delete first['floatStyle'];
@@ -11154,15 +11162,17 @@ UE.commands['insertimage'] = {
             var html = [], str = '', ci;
             ci = opt[0];
             if (opt.length == 1) {
+                unhtmlData(ci);
+
                 str = '<img src="' + ci.src + '" ' + (ci._src ? ' _src="' + ci._src + '" ' : '') +
                     (ci.width ? 'width="' + ci.width + '" ' : '') +
                     (ci.height ? ' height="' + ci.height + '" ' : '') +
                     (ci['floatStyle'] == 'left' || ci['floatStyle'] == 'right' ? ' style="float:' + ci['floatStyle'] + ';"' : '') +
-                    (ci.title && ci.title != '' ? ' title="' + ci.title + '"' : '') +
-                    (ci.border && ci.border != '0' ? ' border="' + ci.border + '"' : '') +
-                    (ci.alt && ci.alt != '' ? ' alt="' + ci.alt + '"' : '') +
-                    (ci.hspace && ci.hspace != '0' ? ' hspace = "' + ci.hspace + '"' : '') +
-                    (ci.vspace && ci.vspace != '0' ? ' vspace = "' + ci.vspace + '"' : '') + '/>';
+                    (ci.title && ci.title != "" ? ' title="' + ci.title + '"' : '') +
+                    (ci.border && ci.border != "0" ? ' border="' + ci.border + '"' : '') +
+                    (ci.alt && ci.alt != "" ? ' alt="' + ci.alt + '"' : '') +
+                    (ci.hspace && ci.hspace != "0" ? ' hspace = "' + ci.hspace + '"' : '') +
+                    (ci.vspace && ci.vspace != "0" ? ' vspace = "' + ci.vspace + '"' : '') + '/>';
                 if (ci['floatStyle'] == 'center') {
                     str = '<p style="text-align: center">' + str + '</p>';
                 }
@@ -11170,6 +11180,7 @@ UE.commands['insertimage'] = {
 
             } else {
                 for (var i = 0; ci = opt[i++];) {
+                    unhtmlData(ci);
                     str = '<p ' + (ci['floatStyle'] == 'center' ? 'style="text-align: center" ' : '') + '><img src="' + ci.src + '" ' +
                         (ci.width ? 'width="' + ci.width + '" ' : '') + (ci._src ? ' _src="' + ci._src + '" ' : '') +
                         (ci.height ? ' height="' + ci.height + '" ' : '') +
@@ -11186,6 +11197,7 @@ UE.commands['insertimage'] = {
         me.fireEvent('afterinsertimage', opt)
     }
 };
+
 
 // plugins/justify.js
 /**
@@ -11295,7 +11307,7 @@ UE.plugins['justify']=function(){
         },
         queryCommandState:function () {
             var start = this.selection.getStart(),
-                cell = start && domUtils.findParentByTagName(start, ['td', 'th','caption'], true);
+                cell = start && domUtils.findParentByTagName(start, ["td", "th","caption"], true);
 
             return cell? -1:0;
         }
@@ -11736,7 +11748,7 @@ UE.plugins['font'] = function () {
                                     while (!domUtils.isBlockElm(spanParent)) {
                                         if (spanParent.tagName == 'SPAN') {
                                             //opera合并style不会加入";"
-                                            span.style.cssText = spanParent.style.cssText + ';' + span.style.cssText;
+                                            span.style.cssText = spanParent.style.cssText + ";" + span.style.cssText;
                                         }
                                         spanParent = spanParent.parentNode;
                                     }
@@ -12000,7 +12012,7 @@ UE.plugins['link'] = function(){
             //判断如果是视频的话连接不可用
             //fix 853
             var img = this.selection.getRange().getClosedNode(),
-                flag = img && (img.className == 'edui-faked-video' || img.className.indexOf('edui-upload-video')!=-1);
+                flag = img && (img.className == "edui-faked-video" || img.className.indexOf("edui-upload-video")!=-1);
             return flag ? -1 : 0;
         }
     };
@@ -12020,7 +12032,7 @@ UE.plugins['insertframe'] = function() {
         me._iframe && delete me._iframe;
     }
 
-    me.addListener('selectionchange',function(){
+    me.addListener("selectionchange",function(){
         deleteIframe();
     });
 
@@ -12479,7 +12491,7 @@ UE.commands['tolowercase'] = {
  */
 UE.commands['indent'] = {
     execCommand : function() {
-         var me = this,value = me.queryCommandState('indent') ? '0em' : (me.options.indentValue || '2em');
+         var me = this,value = me.queryCommandState("indent") ? "0em" : (me.options.indentValue || '2em');
          me.execCommand('Paragraph','p',{style:'text-indent:'+ value});
     },
     queryCommandState : function() {
@@ -12539,7 +12551,7 @@ UE.commands['preview'] = {
             d = w.document;
         d.open();
         d.write('<!DOCTYPE html><html><head><meta charset="utf-8"/><script src="'+this.options.UEDITOR_HOME_URL+'ueditor.parse.js"></script><script>' +
-            'setTimeout(function(){uParse(\'div\',{rootPath: \''+ this.options.UEDITOR_HOME_URL +'\'})},300)' +
+            "setTimeout(function(){uParse('div',{rootPath: '"+ this.options.UEDITOR_HOME_URL +"'})},300)" +
             '</script></head><body><div>'+this.getContent(null,null,true)+'</div></body></html>');
         d.close();
     },
@@ -12587,7 +12599,7 @@ UE.plugins['selectall'] = function(){
 
     //快捷键
     me.addshortcutkey({
-         'selectAll' : 'ctrl+65'
+         "selectAll" : "ctrl+65"
     });
 };
 
@@ -12653,7 +12665,7 @@ UE.plugins['paragraph'] = function() {
                         } );
                     }
                     tmpRange.setEndAfter( tmpNode );
-
+                    
                     para = range.document.createElement( style );
                     if(attrs){
                         domUtils.setAttributes(para,attrs);
@@ -12665,7 +12677,7 @@ UE.plugins['paragraph'] = function() {
                     //需要内容占位
                     if(domUtils.isEmptyNode(para)){
                         domUtils.fillChar(range.document,para);
-
+                        
                     }
 
                     tmpRange.insertNode( para );
@@ -12685,12 +12697,12 @@ UE.plugins['paragraph'] = function() {
                         }
 
                         //trace:1706 选择的就是h1-6要删除
-                        if( attrs && /h\d/i.test(parent.tagName) && !/h\d/i.test(para.tagName) ){
+                        if(attrs && /h\d/i.test(parent.tagName) && !/h\d/i.test(para.tagName) ){
                             domUtils.setAttributes(parent,attrs);
                             if(sourceCmdName && sourceCmdName == 'customstyle' && attrs.style){
                                 parent.style.cssText = attrs.style;
                             }
-                            domUtils.remove(para.parentNode,true);
+                            domUtils.remove(para,true);
                             para = parent;
                         }else{
                             domUtils.remove( para.parentNode, true );
@@ -12789,7 +12801,7 @@ UE.plugins['paragraph'] = function() {
 
         },
         doDirectionality = function(range,editor,forward){
-
+            
             var bookmark,
                 filterFn = function( node ) {
                     return   node.nodeType == 1 ? !domUtils.isBookmarkNode(node) : !domUtils.isWhitespace(node);
@@ -13024,7 +13036,7 @@ UE.plugins['horizontal'] = function(){
  * editor.execCommand( 'date');
  * ```
  */
-UE.commands['time'] = UE.commands['date'] = {
+UE.commands['time'] = UE.commands["date"] = {
     execCommand : function(cmd, format){
         var date = new Date;
 
@@ -13044,7 +13056,7 @@ UE.commands['time'] = UE.commands['date'] = {
             return format.replace(/yyyy/ig, yyyy).replace(/yy/ig, yy).replace(/mm/ig, mm).replace(/dd/ig, dd);
         }
 
-        this.execCommand('insertHtml',cmd == 'time' ? formatTime(date, format):formatDate(date, format) );
+        this.execCommand('insertHtml',cmd == "time" ? formatTime(date, format):formatDate(date, format) );
     }
 };
 
@@ -13133,14 +13145,14 @@ UE.plugins['lineheight'] = function(){
 
     me.commands['lineheight'] =  {
         execCommand : function( cmdName,value ) {
-            this.execCommand('paragraph','p',{style:'line-height:'+ (value == '1' ? 'normal' : value + 'em') });
+            this.execCommand('paragraph','p',{style:'line-height:'+ (value == "1" ? "normal" : value + 'em') });
             return true;
         },
         queryCommandValue : function() {
             var pN = domUtils.filterNodeList(this.selection.getStartElementPath(),function(node){return domUtils.isBlockElm(node)});
             if(pN){
                 var value = domUtils.getComputedStyle(pN,'line-height');
-                return value == 'normal' ? 1 : value.replace(/[^\d.]*/ig,'');
+                return value == 'normal' ? 1 : value.replace(/[^\d.]*/ig,"");
             }
         }
     };
@@ -13716,15 +13728,15 @@ UE.commands['cleardoc'] = {
         var me = this,
             enterTag = me.options.enterTag,
             range = me.selection.getRange();
-        if(enterTag == 'br'){
-            me.body.innerHTML = '<br/>';
+        if(enterTag == "br"){
+            me.body.innerHTML = "<br/>";
             range.setStart(me.body,0).setCursor();
         }else{
-            me.body.innerHTML = '<p>'+(ie ? '' : '<br/>')+'</p>';
+            me.body.innerHTML = "<p>"+(ie ? "" : "<br/>")+"</p>";
             range.setStart(me.body.firstChild,0).setCursor(false,true);
         }
         setTimeout(function(){
-            me.fireEvent('clearDoc');
+            me.fireEvent("clearDoc");
         },0);
 
     }
@@ -13767,12 +13779,6 @@ UE.plugin.register('anchor', function (){
            utils.each(root.getNodesByTagName('a'),function(a){
                var val;
                if((val = a.getAttr('name')) && !a.getAttr('href')){
-                   //过滤掉word冗余标签
-                   //_Toc\d+有可能勿命中
-                   if(/^\_Toc\d+$/.test(val)){
-                       a.parentNode.removeChild(a);
-                       return;
-                   }
                    a.tagName = 'img';
                    a.setAttr({
                        anchorname :a.getAttr('name'),
@@ -13848,10 +13854,10 @@ UE.plugins['wordcount'] = function(){
     var timer;
     me.addListener('ready',function(){
         var me = this;
-        domUtils.on(me.body,'keyup',function(evt){
+        domUtils.on(me.body,"keyup",function(evt){
             var code = evt.keyCode||evt.which,
                 //忽略的按键,ctr,alt,shift,方向键
-                ignores = {'16':1,'18':1,'20':1,'37':1,'38':1,'39':1,'40':1};
+                ignores = {"16":1,"18":1,"20":1,"37":1,"38":1,"39":1,"40":1};
             if(code in ignores) return;
             clearTimeout(timer);
             timer = setTimeout(function(){
@@ -13932,8 +13938,8 @@ UE.plugins['pagebreak'] = function () {
             var range = me.selection.getRange(),hr = me.document.createElement('hr');
             domUtils.setAttributes(hr,{
                 'class' : 'pagebreak',
-                noshade:'noshade',
-                size:'5'
+                noshade:"noshade",
+                size:"5"
             });
             domUtils.unSelectable(hr);
             //table单独处理
@@ -14038,18 +14044,18 @@ UE.plugin.register('wordimage',function(){
         commands : {
             'wordimage':{
                 execCommand:function () {
-                    var images = domUtils.getElementsByTagName(me.body, 'img');
+                    var images = domUtils.getElementsByTagName(me.body, "img");
                     var urlList = [];
                     for (var i = 0, ci; ci = images[i++];) {
-                        var url = ci.getAttribute('word_img');
+                        var url = ci.getAttribute("word_img");
                         url && urlList.push(url);
                     }
                     return urlList;
                 },
                 queryCommandState:function () {
-                    images = domUtils.getElementsByTagName(me.body, 'img');
+                    images = domUtils.getElementsByTagName(me.body, "img");
                     for (var i = 0, ci; ci = images[i++];) {
-                        if (ci.getAttribute('word_img')) {
+                        if (ci.getAttribute("word_img")) {
                             return 1;
                         }
                     }
@@ -14372,8 +14378,8 @@ UE.plugins['undo'] = function () {
     });
     //快捷键
     me.addshortcutkey({
-        'Undo':'ctrl+90', //undo
-        'Redo':'ctrl+89' //redo
+        "Undo":"ctrl+90", //undo
+        "Redo":"ctrl+89" //redo
 
     });
     var isCollapsed = true;
@@ -14467,22 +14473,16 @@ UE.plugin.register('copy', function () {
         // hover事件传递到target
         client.on('mouseover mouseout', function (e) {
             var target = e.target;
-            if (target) {
-                if (e.type == 'mouseover') {
-                    domUtils.addClass(target, 'edui-state-hover');
-                } else if (e.type == 'mouseout') {
-                    domUtils.removeClasses(target, 'edui-state-hover');
-                }
+            if (e.type == 'mouseover') {
+                domUtils.addClass(target, 'edui-state-hover');
+            } else if (e.type == 'mouseout') {
+                domUtils.removeClasses(target, 'edui-state-hover');
             }
         });
         // flash加载不成功
         client.on('wrongflash noflash', function () {
             ZeroClipboard.destroy();
         });
-
-        // 触发事件
-        me.fireEvent('zeroclipboardready', client);
-
     }
 
     return {
@@ -14493,10 +14493,10 @@ UE.plugin.register('copy', function () {
                         initZeroClipboard();
                     } else {
                         utils.loadFile(document, {
-                            src: me.options.UEDITOR_HOME_URL + 'third-party/zeroclipboard/ZeroClipboard.js',
-                            tag: 'script',
-                            type: 'text/javascript',
-                            defer: 'defer'
+                            src: me.options.UEDITOR_HOME_URL + "third-party/zeroclipboard/ZeroClipboard.js",
+                            tag: "script",
+                            type: "text/javascript",
+                            defer: "defer"
                         }, function () {
                             initZeroClipboard();
                         });
@@ -14546,7 +14546,7 @@ UE.plugins['paste'] = function () {
         //trace:717 隐藏的span不能得到top
         //bk.start.innerHTML = '&nbsp;';
         bk.start.style.display = '';
-        pastebin.style.cssText = 'position:absolute;width:1px;height:1px;overflow:hidden;left:-1000px;white-space:nowrap;top:' +
+        pastebin.style.cssText = "position:absolute;width:1px;height:1px;overflow:hidden;left:-1000px;white-space:nowrap;top:" +
             //要在现在光标平行的位置加入，否则会出现跳动的问题
             domUtils.getXY(bk.start).y + 'px';
 
@@ -14709,7 +14709,7 @@ UE.plugins['paste'] = function () {
                 address = me.selection.getRange().createAddress(true);
                 me.execCommand('insertHtml', me.getOpt('retainOnlyLabelPasted') === true ?  getPureHtml(htmlContent) : htmlContent, true);
             }
-            me.fireEvent('afterpaste', html);
+            me.fireEvent("afterpaste", html);
         }
     }
 
@@ -16227,8 +16227,8 @@ UE.plugins['list'] = function () {
         codemirror: function (editor, holder){
 
             var codeEditor = window.CodeMirror(holder, {
-                mode: 'text/html',
-                tabMode: 'indent',
+                mode: "text/html",
+                tabMode: "indent",
                 lineNumbers: true,
                 lineWrapping:true
             });
@@ -16447,26 +16447,26 @@ UE.plugins['list'] = function () {
             return oldQueryCommandState.apply(this, arguments);
         };
 
-        if(opt.sourceEditor == 'codemirror'){
+        if(opt.sourceEditor == "codemirror"){
 
-            me.addListener('ready',function(){
+            me.addListener("ready",function(){
                 utils.loadFile(document,{
-                    src : opt.codeMirrorJsUrl || opt.UEDITOR_HOME_URL + 'third-party/codemirror/codemirror.js',
-                    tag : 'script',
-                    type : 'text/javascript',
-                    defer : 'defer'
+                    src : opt.codeMirrorJsUrl || opt.UEDITOR_HOME_URL + "third-party/codemirror/codemirror.js",
+                    tag : "script",
+                    type : "text/javascript",
+                    defer : "defer"
                 },function(){
                     if(opt.sourceEditorFirst){
                         setTimeout(function(){
-                            me.execCommand('source');
+                            me.execCommand("source");
                         },0);
                     }
                 });
                 utils.loadFile(document,{
-                    tag : 'link',
-                    rel : 'stylesheet',
-                    type : 'text/css',
-                    href : opt.codeMirrorCssUrl || opt.UEDITOR_HOME_URL + 'third-party/codemirror/codemirror.css'
+                    tag : "link",
+                    rel : "stylesheet",
+                    type : "text/css",
+                    href : opt.codeMirrorCssUrl || opt.UEDITOR_HOME_URL + "third-party/codemirror/codemirror.css"
                 });
 
             });
@@ -16813,14 +16813,6 @@ UE.plugins['keystrokes'] = function() {
                 }
             }
         }
-
-        /* 修复在编辑区域快捷键 (Mac:meta+alt+I; Win:ctrl+shift+I) 打不开 chrome 控制台的问题 */
-        browser.chrome && me.on('keydown', function(type, e){
-            var keyCode = e.keyCode || e.which;
-            if (((e.metaKey && e.altKey) || (e.ctrlKey && e.shiftKey)) && keyCode == 73) {
-                return true;
-            }
-        });
     });
     me.addListener('keyup', function(type, evt) {
         var keyCode = evt.keyCode || evt.which,
@@ -17120,10 +17112,10 @@ UE.plugins['fiximgclick'] = (function () {
                 var range = me.selection.getRange(),
                     img = range.getClosedNode();
 
-                if (img && img.tagName == 'IMG' && me.body.contentEditable!='false') {
+                if (img && img.tagName == 'IMG' && me.body.contentEditable!="false") {
 
-                    if (img.className.indexOf('edui-faked-music') != -1 ||
-                        img.getAttribute('anchorname') ||
+                    if (img.className.indexOf("edui-faked-music") != -1 ||
+                        img.getAttribute("anchorname") ||
                         domUtils.hasClass(img, 'loadingclass') ||
                         domUtils.hasClass(img, 'loaderrorclass')) { return }
 
@@ -17186,7 +17178,7 @@ UE.plugins['fiximgclick'] = (function () {
 
         if (browser.webkit) {
             me.addListener('click', function (type, e) {
-                if (e.target.tagName == 'IMG' && me.body.contentEditable!='false') {
+                if (e.target.tagName == 'IMG' && me.body.contentEditable!="false") {
                     var range = new dom.Range(me.document);
                     range.selectNode(e.target).select();
                 }
@@ -17286,8 +17278,8 @@ UE.plugin.register('autolink',function(){
                             me.undoManger && me.undoManger.save();
                             a.appendChild(range.extractContents());
                             a.href = a.innerHTML = a.innerHTML.replace(/<[^>]+>/g,'');
-                            href = a.getAttribute('href').replace(new RegExp(domUtils.fillChar,'g'),'');
-                            href = /^(?:https?:\/\/)/ig.test(href) ? href : 'http://'+ href;
+                            href = a.getAttribute("href").replace(new RegExp(domUtils.fillChar,'g'),'');
+                            href = /^(?:https?:\/\/)/ig.test(href) ? href : "http://"+ href;
                             a.setAttribute('_src',utils.html(href));
                             a.href = utils.html(href);
 
@@ -17555,7 +17547,7 @@ UE.plugins['autofloat'] = function() {
             }
             if(toolbarBox.style.position != 'fixed'){
                 toolbarBox.style.position = 'fixed';
-                toolbarBox.style.top = topOffset +'px';
+                toolbarBox.style.top = topOffset +"px";
                 ((origalFloat == 'absolute' || origalFloat == 'relative') && parseFloat(origalLeft)) && (toolbarBox.style.left = toobarBoxPos.x + 'px');
             }
         }
@@ -17619,7 +17611,7 @@ UE.plugins['autofloat'] = function() {
                     updateFloating();
                 },0);
             });
-            me.addListener('clearDoc',function(){
+            me.addListener("clearDoc",function(){
                 setTimeout(function(){
                     updateFloating();
                 },0);
@@ -17650,11 +17642,19 @@ UE.plugins['video'] = function (){
      * @param addParagraph  是否需要添加P 标签
      */
     function creatInsertStr(url,width,height,id,align,classname,type){
+
+        url = utils.unhtmlForUrl(url);
+        align = utils.unhtml(align);
+        classname = utils.unhtml(classname);
+
+        width = parseInt(width, 10) || 0;
+        height = parseInt(height, 10) || 0;
+
         var str;
         switch (type){
             case 'image':
                 str = '<img ' + (id ? 'id="' + id+'"' : '') + ' width="'+ width +'" height="' + height + '" _url="'+url+'" class="' + classname.replace(/\bvideo-js\b/, '') + '"'  +
-                    ' src=' + me.options.UEDITOR_HOME_URL+'"themes/default/images/spacer.gif" style="background:url('+me.options.UEDITOR_HOME_URL+'themes/default/images/videologo.gif) no-repeat center center; border:1px solid gray;'+(align ? 'float:' + align + ';': '')+'" />'
+                    ' src="' + me.options.UEDITOR_HOME_URL+'themes/default/images/spacer.gif" style="background:url('+me.options.UEDITOR_HOME_URL+'themes/default/images/videologo.gif) no-repeat center center; border:1px solid gray;'+(align ? 'float:' + align + ';': '')+'" />'
                 break;
             case 'embed':
                 str = '<embed type="application/x-shockwave-flash" class="' + classname + '" pluginspage="http://www.macromedia.com/go/getflashplayer"' +
@@ -17759,21 +17759,16 @@ UE.plugins['video'] = function (){
      * editor.queryCommandState( 'insertvideo' );
      * ```
      */
-    me.commands['insertvideo'] = {
+    me.commands["insertvideo"] = {
         execCommand: function (cmd, videoObjs, type){
             videoObjs = utils.isArray(videoObjs)?videoObjs:[videoObjs];
-
-            if(me.fireEvent('beforeinsertvideo', videoObjs) === true){
-                return;
-            }
-
             var html = [],id = 'tmpVedio', cl;
             for(var i=0,vi,len = videoObjs.length;i<len;i++){
                 vi = videoObjs[i];
                 cl = (type == 'upload' ? 'edui-upload-video video-js vjs-default-skin':'edui-faked-video');
                 html.push(creatInsertStr( vi.url, vi.width || 420,  vi.height || 280, id + i, null, cl, 'image'));
             }
-            me.execCommand('inserthtml',html.join(''),true);
+            me.execCommand("inserthtml",html.join(""),true);
             var rng = this.selection.getRange();
             for(var i= 0,len=videoObjs.length;i<len;i++){
                 var img = this.document.getElementById('tmpVedio'+i);
@@ -17781,16 +17776,15 @@ UE.plugins['video'] = function (){
                 rng.selectNode(img).select();
                 me.execCommand('imagefloat',videoObjs[i].align)
             }
-
-            me.fireEvent('afterinsertvideo', videoObjs);
         },
         queryCommandState : function(){
             var img = me.selection.getRange().getClosedNode(),
-                flag = img && (img.className == 'edui-faked-video' || img.className.indexOf('edui-upload-video')!=-1);
+                flag = img && (img.className == "edui-faked-video" || img.className.indexOf("edui-upload-video")!=-1);
             return flag ? 1 : 0;
         }
     };
 };
+
 
 // plugins/table.core.js
 /**
@@ -17817,12 +17811,12 @@ UE.plugins['video'] = function (){
     //===以下为静态工具方法===
     UETable.removeSelectedClass = function (cells) {
         utils.each(cells, function (cell) {
-            domUtils.removeClasses(cell, 'selectTdClass');
+            domUtils.removeClasses(cell, "selectTdClass");
         })
     };
     UETable.addSelectedClass = function (cells) {
         utils.each(cells, function (cell) {
-            domUtils.addClass(cell, 'selectTdClass');
+            domUtils.addClass(cell, "selectTdClass");
         })
     };
     UETable.isEmptyBlock = function (node) {
@@ -17839,7 +17833,7 @@ UE.plugins['video'] = function (){
     };
     UETable.getWidth = function (cell) {
         if (!cell)return 0;
-        return parseInt(domUtils.getComputedStyle(cell, 'width'), 10);
+        return parseInt(domUtils.getComputedStyle(cell, "width"), 10);
     };
 
     /**
@@ -17893,10 +17887,10 @@ UE.plugins['video'] = function (){
         }
 
         //在table或者td边缘有可能存在选中tr的情况
-        var cell = start && domUtils.findParentByTagName(start, ['td', 'th'], true),
+        var cell = start && domUtils.findParentByTagName(start, ["td", "th"], true),
             tr = cell && cell.parentNode,
-            table = tr && domUtils.findParentByTagName(tr, ['table']),
-            caption = table && table.getElementsByTagName('caption')[0];
+            caption = start && domUtils.findParentByTagName(start, 'caption', true),
+            table = caption ? caption.parentNode : tr && tr.parentNode.parentNode;
 
         return {
             cell:cell,
@@ -17958,7 +17952,7 @@ UE.plugins['video'] = function (){
      */
     UETable.getUETable = function (tdOrTable) {
         var tag = tdOrTable.tagName.toLowerCase();
-        tdOrTable = (tag == 'td' || tag == 'th' || tag == 'caption') ? domUtils.findParentByTagName(tdOrTable, 'table', true) : tdOrTable;
+        tdOrTable = (tag == "td" || tag == "th" || tag == 'caption') ? domUtils.findParentByTagName(tdOrTable, "table", true) : tdOrTable;
         if (!tdOrTable.ueTable) {
             tdOrTable.ueTable = new UETable(tdOrTable);
         }
@@ -17969,8 +17963,8 @@ UE.plugins['video'] = function (){
         if (!cell || utils.isString(cell)) {
             return this.table.ownerDocument.createElement(cell || 'td');
         }
-        var flag = domUtils.hasClass(cell, 'selectTdClass');
-        flag && domUtils.removeClasses(cell, 'selectTdClass');
+        var flag = domUtils.hasClass(cell, "selectTdClass");
+        flag && domUtils.removeClasses(cell, "selectTdClass");
         var tmpCell = cell.cloneNode(true);
         if (ignoreMerge) {
             tmpCell.rowSpan = tmpCell.colSpan = 1;
@@ -17979,13 +17973,13 @@ UE.plugins['video'] = function (){
         !keepPro && domUtils.removeAttributes(tmpCell,'width height');
         !keepPro && domUtils.removeAttributes(tmpCell,'style');
 
-        tmpCell.style.borderLeftStyle = '';
-        tmpCell.style.borderTopStyle = '';
+        tmpCell.style.borderLeftStyle = "";
+        tmpCell.style.borderTopStyle = "";
         tmpCell.style.borderLeftColor = cell.style.borderRightColor;
         tmpCell.style.borderLeftWidth = cell.style.borderRightWidth;
         tmpCell.style.borderTopColor = cell.style.borderBottomColor;
         tmpCell.style.borderTopWidth = cell.style.borderBottomWidth;
-        flag && domUtils.addClass(cell, 'selectTdClass');
+        flag && domUtils.addClass(cell, "selectTdClass");
         return tmpCell;
     }
 
@@ -18096,20 +18090,20 @@ UE.plugins['video'] = function (){
          */
         getSameEndPosCells:function (cell, xOrY) {
             try {
-                var flag = (xOrY.toLowerCase() === 'x'),
-                    end = domUtils.getXY(cell)[flag ? 'x' : 'y'] + cell['offset' + (flag ? 'Width' : 'Height')],
+                var flag = (xOrY.toLowerCase() === "x"),
+                    end = domUtils.getXY(cell)[flag ? 'x' : 'y'] + cell["offset" + (flag ? 'Width' : 'Height')],
                     rows = this.table.rows,
                     cells = null, returns = [];
                 for (var i = 0; i < this.rowsNum; i++) {
                     cells = rows[i].cells;
                     for (var j = 0, tmpCell; tmpCell = cells[j++];) {
-                        var tmpEnd = domUtils.getXY(tmpCell)[flag ? 'x' : 'y'] + tmpCell['offset' + (flag ? 'Width' : 'Height')];
+                        var tmpEnd = domUtils.getXY(tmpCell)[flag ? 'x' : 'y'] + tmpCell["offset" + (flag ? 'Width' : 'Height')];
                         //对应行的td已经被上面行rowSpan了
                         if (tmpEnd > end && flag) break;
                         if (cell == tmpCell || end == tmpEnd) {
                             //只获取单一的单元格
                             //todo 仅获取单一单元格在特定情况下会造成returns为空，从而影响后续的拖拽实现，修正这个。需考虑性能
-                            if (tmpCell[flag ? 'colSpan' : 'rowSpan'] == 1) {
+                            if (tmpCell[flag ? "colSpan" : "rowSpan"] == 1) {
                                 returns.push(tmpCell);
                             }
                             if (flag) break;
@@ -18122,7 +18116,7 @@ UE.plugins['video'] = function (){
             }
         },
         setCellContent:function (cell, content) {
-            cell.innerHTML = content || (browser.ie ? domUtils.fillChar : '<br />');
+            cell.innerHTML = content || (browser.ie ? domUtils.fillChar : "<br />");
         },
         cloneCell:UETable.cloneCell,
         /**
@@ -18199,7 +18193,7 @@ UE.plugins['video'] = function (){
                     if (this.indexTable[j][k] === undefined) {
                         row = rows[j];
                         cell = row.cells[row.cells.length - 1];
-                        cell = cell ? cell.cloneNode(true) : this.table.ownerDocument.createElement('td');
+                        cell = cell ? cell.cloneNode(true) : this.table.ownerDocument.createElement("td");
                         this.setCellContent(cell);
                         if (cell.colSpan !== 1)cell.colSpan = 1;
                         if (cell.rowSpan !== 1)cell.rowSpan = 1;
@@ -18215,10 +18209,10 @@ UE.plugins['video'] = function (){
                 }
             }
             //当框选后删除行或者列后撤销，需要重建选区。
-            var tds = domUtils.getElementsByTagName(this.table, 'td'),
+            var tds = domUtils.getElementsByTagName(this.table, "td"),
                 selectTds = [];
             utils.each(tds, function (td) {
-                if (domUtils.hasClass(td, 'selectTdClass')) {
+                if (domUtils.hasClass(td, "selectTdClass")) {
                     selectTds.push(td);
                 }
             });
@@ -18236,10 +18230,10 @@ UE.plugins['video'] = function (){
                 };
             }
             //给第一行设置firstRow的样式名称,在排序图标的样式上使用到
-            if(!domUtils.hasClass(this.table.rows[0], 'firstRow')) {
-                domUtils.addClass(this.table.rows[0], 'firstRow');
+            if(!domUtils.hasClass(this.table.rows[0], "firstRow")) {
+                domUtils.addClass(this.table.rows[0], "firstRow");
                 for(var i = 1; i< this.table.rows.length; i++) {
-                    domUtils.removeClasses(this.table.rows[i], 'firstRow');
+                    domUtils.removeClasses(this.table.rows[i], "firstRow");
                 }
             }
         },
@@ -18412,7 +18406,7 @@ UE.plugins['video'] = function (){
         isFullCol:function () {
             var range = this.cellsRange,
                 table = this.table,
-                ths = table.getElementsByTagName('th'),
+                ths = table.getElementsByTagName("th"),
                 rows = range.endRowIndex - range.beginRowIndex + 1;
             return  !ths.length ? rows == this.rowsNum : rows == this.rowsNum || (rows == this.rowsNum - 1);
 
@@ -18485,7 +18479,7 @@ UE.plugins['video'] = function (){
             //合并
             cell.colSpan = cellInfo.colSpan + rightCellInfo.colSpan;
             //被合并的单元格不应存在宽度属性
-            cell.removeAttribute('width');
+            cell.removeAttribute("width");
             //移动内容
             this.moveContent(cell, rightCell);
             //删掉被合并的Cell
@@ -18501,7 +18495,7 @@ UE.plugins['video'] = function (){
                 downCellInfo = this.indexTable[downRowIndex][cellInfo.colIndex],
                 downCell = this.getCell(downCellInfo.rowIndex, downCellInfo.cellIndex);
             cell.rowSpan = cellInfo.rowSpan + downCellInfo.rowSpan;
-            cell.removeAttribute('height');
+            cell.removeAttribute("height");
             this.moveContent(cell, downCell);
             this.deleteCell(downCell, downCellInfo.rowIndex);
             this.update();
@@ -18514,7 +18508,7 @@ UE.plugins['video'] = function (){
             var range = this.cellsRange,
                 leftTopCell = this.getCell(range.beginRowIndex, this.indexTable[range.beginRowIndex][range.beginColIndex].cellIndex);
 
-            if (leftTopCell.tagName == 'TH' && range.endRowIndex !== range.beginRowIndex) {
+            if (leftTopCell.tagName == "TH" && range.endRowIndex !== range.beginRowIndex) {
                 var index = this.indexTable,
                     info = this.getCellInfo(leftTopCell);
                 leftTopCell = this.getCell(1, index[1][info.colIndex].cellIndex);
@@ -18531,9 +18525,9 @@ UE.plugins['video'] = function (){
             }
             // 修改左上角Cell的rowSpan和colSpan，并调整宽度属性设置
             leftTopCell.rowSpan = range.endRowIndex - range.beginRowIndex + 1;
-            leftTopCell.rowSpan > 1 && leftTopCell.removeAttribute('height');
+            leftTopCell.rowSpan > 1 && leftTopCell.removeAttribute("height");
             leftTopCell.colSpan = range.endColIndex - range.beginColIndex + 1;
-            leftTopCell.colSpan > 1 && leftTopCell.removeAttribute('width');
+            leftTopCell.colSpan > 1 && leftTopCell.removeAttribute("width");
             if (leftTopCell.rowSpan == this.rowsNum && leftTopCell.colSpan != 1) {
                 leftTopCell.colSpan = 1;
             }
@@ -18562,7 +18556,6 @@ UE.plugins['video'] = function (){
             var numCols = this.colsNum,
                 table = this.table,
                 row = table.insertRow(rowIndex), cell,
-                thead = null,
                 isInsertTitle = typeof sourceCell == 'string' && sourceCell.toUpperCase() == 'TH';
 
             function replaceTdToTh(colIndex, cell, tableRow) {
@@ -18570,14 +18563,14 @@ UE.plugins['video'] = function (){
                     var tr = tableRow.nextSibling || tableRow.previousSibling,
                         th = tr.cells[colIndex];
                     if (th.tagName == 'TH') {
-                        th = cell.ownerDocument.createElement('th');
+                        th = cell.ownerDocument.createElement("th");
                         th.appendChild(cell.firstChild);
                         tableRow.insertBefore(th, cell);
                         domUtils.remove(cell)
                     }
                 }else{
                     if (cell.tagName == 'TH') {
-                        var td = cell.ownerDocument.createElement('td');
+                        var td = cell.ownerDocument.createElement("td");
                         td.appendChild(cell.firstChild);
                         tableRow.insertBefore(td, cell);
                         domUtils.remove(cell)
@@ -18593,11 +18586,6 @@ UE.plugins['video'] = function (){
                     cell.getAttribute('vAlign') && cell.setAttribute('vAlign', cell.getAttribute('vAlign'));
                     row.appendChild(cell);
                     if(!isInsertTitle) replaceTdToTh(colIndex, cell, row);
-                }
-
-                if(isInsertTitle) {
-                    thead = table.createTHead();
-                    thead.insertBefore(row, thead.firstChild);
                 }
             } else {
                 var infoRow = this.indexTable[rowIndex],
@@ -18636,7 +18624,7 @@ UE.plugins['video'] = function (){
                     if (cellInfo.rowIndex == rowIndex) {
                         var clone = cell.cloneNode(true);
                         clone.rowSpan = cell.rowSpan - 1;
-                        clone.innerHTML = '';
+                        clone.innerHTML = "";
                         cell.rowSpan = 1;
                         var nextRowIndex = rowIndex + 1,
                             nextRow = this.table.rows[nextRowIndex],
@@ -18659,7 +18647,7 @@ UE.plugins['video'] = function (){
             for (colIndex = 0; colIndex < colsNum; colIndex++) {
                 var tmpRowIndex = infoRow[colIndex].rowIndex,
                     tmpCellIndex = infoRow[colIndex].cellIndex,
-                    key = tmpRowIndex + '_' + tmpCellIndex;
+                    key = tmpRowIndex + "_" + tmpCellIndex;
                 if (cacheMap[key])continue;
                 cacheMap[key] = 1;
                 cell = this.getCell(tmpRowIndex, tmpCellIndex);
@@ -18692,14 +18680,14 @@ UE.plugins['video'] = function (){
                 if (rowIndex == 0) {
                     var th = cell.nextSibling || cell.previousSibling;
                     if (th.tagName == 'TH') {
-                        th = cell.ownerDocument.createElement('th');
+                        th = cell.ownerDocument.createElement("th");
                         th.appendChild(cell.firstChild);
                         tableRow.insertBefore(th, cell);
                         domUtils.remove(cell)
                     }
                 }else{
                     if (cell.tagName == 'TH') {
-                        var td = cell.ownerDocument.createElement('td');
+                        var td = cell.ownerDocument.createElement("td");
                         td.appendChild(cell.firstChild);
                         tableRow.insertBefore(td, cell);
                         domUtils.remove(cell)
@@ -18751,18 +18739,18 @@ UE.plugins['video'] = function (){
             var table = this.table,
                 tmpWidth = UETable.getWidth(table) - defaultValue.tdPadding * 2 - defaultValue.tdBorder + width;
             if (tmpWidth < table.ownerDocument.body.offsetWidth) {
-                table.setAttribute('width', tmpWidth);
+                table.setAttribute("width", tmpWidth);
                 return;
             }
-            var tds = domUtils.getElementsByTagName(this.table, 'td th');
+            var tds = domUtils.getElementsByTagName(this.table, "td th");
             utils.each(tds, function (td) {
-                td.setAttribute('width', width);
+                td.setAttribute("width", width);
             })
         },
         deleteCol:function (colIndex) {
             var indexTable = this.indexTable,
                 tableRows = this.table.rows,
-                backTableWidth = this.table.getAttribute('width'),
+                backTableWidth = this.table.getAttribute("width"),
                 backTdWidth = 0,
                 rowsNum = this.rowsNum,
                 cacheMap = {};
@@ -18783,7 +18771,7 @@ UE.plugins['video'] = function (){
                 }
                 rowIndex += cellInfo.rowSpan || 1;
             }
-            this.table.setAttribute('width', backTableWidth - backTdWidth);
+            this.table.setAttribute("width", backTableWidth - backTdWidth);
             this.update();
         },
         splitToCells:function (cell) {
@@ -18838,7 +18826,7 @@ UE.plugins['video'] = function (){
                 results = [];
             // 修改Cell的rowSpan
             cell.colSpan = 1;
-            cell.setAttribute('width', backWidth);
+            cell.setAttribute("width", backWidth);
             results.push(cell);
             // 补齐单元格
             for (var j = colIndex, endCol = colIndex + cellInfo.colSpan; j < endCol; j++) {
@@ -18875,7 +18863,7 @@ UE.plugins['video'] = function (){
                 ((cellInfo.colIndex + cellInfo.colSpan) == colsNum);
         },
         getLastCell:function (cells) {
-            cells = cells || this.table.getElementsByTagName('td');
+            cells = cells || this.table.getElementsByTagName("td");
             var firstInfo = this.getCellInfo(cells[0]);
             var me = this, last = cells[0],
                 tr = last.parentNode,
@@ -18902,25 +18890,25 @@ UE.plugins['video'] = function (){
             this.setSelected(range);
         },
         selectTable:function () {
-            var tds = this.table.getElementsByTagName('td'),
+            var tds = this.table.getElementsByTagName("td"),
                 range = this.getCellsRange(tds[0], tds[tds.length - 1]);
             this.setSelected(range);
         },
         setBackground:function (cells, value) {
-            if (typeof value === 'string') {
+            if (typeof value === "string") {
                 utils.each(cells, function (cell) {
                     cell.style.backgroundColor = value;
                 })
-            } else if (typeof value === 'object') {
+            } else if (typeof value === "object") {
                 value = utils.extend({
                     repeat:true,
-                    colorList:['#ddd', '#fff']
+                    colorList:["#ddd", "#fff"]
                 }, value);
                 var rowIndex = this.getCellInfo(cells[0]).rowIndex,
                     count = 0,
                     colors = value.colorList,
                     getColor = function (list, index, repeat) {
-                        return list[index] ? list[index] : repeat ? list[index % list.length] : '';
+                        return list[index] ? list[index] : repeat ? list[index % list.length] : "";
                     };
                 for (var i = 0, cell; cell = cells[i++];) {
                     var cellInfo = this.getCellInfo(cell);
@@ -18930,7 +18918,7 @@ UE.plugins['video'] = function (){
         },
         removeBackground:function (cells) {
             utils.each(cells, function (cell) {
-                cell.style.backgroundColor = '';
+                cell.style.backgroundColor = "";
             })
         }
 
@@ -18939,7 +18927,6 @@ UE.plugins['video'] = function (){
     function showError(e) {
     }
 })();
-
 
 // plugins/table.cmds.js
 /**
@@ -19006,7 +18993,7 @@ UE.plugins['video'] = function (){
 
             //todo其他属性
             !opt.tdvalign && (opt.tdvalign = me.options.tdvalign);
-            me.execCommand('inserthtml', createTable(opt, tdWidth));
+            me.execCommand("inserthtml", createTable(opt, tdWidth));
         }
     };
 
@@ -19017,7 +19004,7 @@ UE.plugins['video'] = function (){
         execCommand: function () {
             var table = getTableItemsByRange(this).table;
             if (table) {
-                var p = this.document.createElement('p');
+                var p = this.document.createElement("p");
                 p.innerHTML = browser.ie ? '&nbsp;' : '<br />';
                 table.parentNode.insertBefore(p, table);
                 this.selection.getRange().setStart(p, 0).setCursor();
@@ -19049,7 +19036,7 @@ UE.plugins['video'] = function (){
                     rng.setStart(next, 0)
                 }
                 rng.setCursor(false, true)
-                this.fireEvent('tablehasdeleted')
+                this.fireEvent("tablehasdeleted")
 
             }
 
@@ -19198,7 +19185,7 @@ UE.plugins['video'] = function (){
         }
     };
 
-    UE.commands['mergeright'] = {
+    UE.commands["mergeright"] = {
         queryCommandState: function (cmd) {
             var tableItems = getTableItemsByRange(this),
                 table = tableItems.table,
@@ -19228,7 +19215,7 @@ UE.plugins['video'] = function (){
             rng.moveToBookmark(bk).select();
         }
     };
-    UE.commands['mergedown'] = {
+    UE.commands["mergedown"] = {
         queryCommandState: function (cmd) {
             var tableItems = getTableItemsByRange(this),
                 table = tableItems.table,
@@ -19258,7 +19245,7 @@ UE.plugins['video'] = function (){
             rng.moveToBookmark(bk).select();
         }
     };
-    UE.commands['mergecells'] = {
+    UE.commands["mergecells"] = {
         queryCommandState: function () {
             return getUETableBySelected(this) ? 0 : -1;
         },
@@ -19279,11 +19266,11 @@ UE.plugins['video'] = function (){
 
         }
     };
-    UE.commands['insertrow'] = {
+    UE.commands["insertrow"] = {
         queryCommandState: function () {
             var tableItems = getTableItemsByRange(this),
                 cell = tableItems.cell;
-            return cell && (cell.tagName == 'TD' || (cell.tagName == 'TH' && tableItems.tr !== tableItems.table.rows[0])) &&
+            return cell && (cell.tagName == "TD" || (cell.tagName == 'TH' && tableItems.tr !== tableItems.table.rows[0])) &&
                 getUETable(tableItems.table).rowsNum < this.options.maxRowNum ? 0 : -1;
         },
         execCommand: function () {
@@ -19304,15 +19291,15 @@ UE.plugins['video'] = function (){
                 }
             }
             rng.moveToBookmark(bk).select();
-            if (table.getAttribute('interlaced') === 'enabled')this.fireEvent('interlacetable', table);
+            if (table.getAttribute("interlaced") === "enabled")this.fireEvent("interlacetable", table);
         }
     };
     //后插入行
-    UE.commands['insertrownext'] = {
+    UE.commands["insertrownext"] = {
         queryCommandState: function () {
             var tableItems = getTableItemsByRange(this),
                 cell = tableItems.cell;
-            return cell && (cell.tagName == 'TD') && getUETable(tableItems.table).rowsNum < this.options.maxRowNum ? 0 : -1;
+            return cell && (cell.tagName == "TD") && getUETable(tableItems.table).rowsNum < this.options.maxRowNum ? 0 : -1;
         },
         execCommand: function () {
             var rng = this.selection.getRange(),
@@ -19332,10 +19319,10 @@ UE.plugins['video'] = function (){
                 }
             }
             rng.moveToBookmark(bk).select();
-            if (table.getAttribute('interlaced') === 'enabled')this.fireEvent('interlacetable', table);
+            if (table.getAttribute("interlaced") === "enabled")this.fireEvent("interlacetable", table);
         }
     };
-    UE.commands['deleterow'] = {
+    UE.commands["deleterow"] = {
         queryCommandState: function () {
             var tableItems = getTableItemsByRange(this);
             return tableItems.cell ? 0 : -1;
@@ -19370,14 +19357,14 @@ UE.plugins['video'] = function (){
                     if (newCell) rng.selectNodeContents(newCell).setCursor(false, true);
                 }
             }
-            if (table.getAttribute('interlaced') === 'enabled')this.fireEvent('interlacetable', table);
+            if (table.getAttribute("interlaced") === "enabled")this.fireEvent("interlacetable", table);
         }
     };
-    UE.commands['insertcol'] = {
+    UE.commands["insertcol"] = {
         queryCommandState: function (cmd) {
             var tableItems = getTableItemsByRange(this),
                 cell = tableItems.cell;
-            return cell && (cell.tagName == 'TD' || (cell.tagName == 'TH' && cell !== tableItems.tr.cells[0])) &&
+            return cell && (cell.tagName == "TD" || (cell.tagName == 'TH' && cell !== tableItems.tr.cells[0])) &&
                 getUETable(tableItems.table).colsNum < this.options.maxColNum ? 0 : -1;
         },
         execCommand: function (cmd) {
@@ -19400,7 +19387,7 @@ UE.plugins['video'] = function (){
             rng.moveToBookmark(bk).select(true);
         }
     };
-    UE.commands['insertcolnext'] = {
+    UE.commands["insertcolnext"] = {
         queryCommandState: function () {
             var tableItems = getTableItemsByRange(this),
                 cell = tableItems.cell;
@@ -19425,7 +19412,7 @@ UE.plugins['video'] = function (){
         }
     };
 
-    UE.commands['deletecol'] = {
+    UE.commands["deletecol"] = {
         queryCommandState: function () {
             var tableItems = getTableItemsByRange(this);
             return tableItems.cell ? 0 : -1;
@@ -19468,7 +19455,7 @@ UE.plugins['video'] = function (){
             }
         }
     };
-    UE.commands['splittocells'] = {
+    UE.commands["splittocells"] = {
         queryCommandState: function () {
             var tableItems = getTableItemsByRange(this),
                 cell = tableItems.cell;
@@ -19486,7 +19473,7 @@ UE.plugins['video'] = function (){
             rng.moveToBookmark(bk).select();
         }
     };
-    UE.commands['splittorows'] = {
+    UE.commands["splittorows"] = {
         queryCommandState: function () {
             var tableItems = getTableItemsByRange(this),
                 cell = tableItems.cell;
@@ -19504,7 +19491,7 @@ UE.plugins['video'] = function (){
             rng.moveToBookmark(bk).select();
         }
     };
-    UE.commands['splittocols'] = {
+    UE.commands["splittocols"] = {
         queryCommandState: function () {
             var tableItems = getTableItemsByRange(this),
                 cell = tableItems.cell;
@@ -19524,8 +19511,8 @@ UE.plugins['video'] = function (){
         }
     };
 
-    UE.commands['adaptbytext'] =
-        UE.commands['adaptbywindow'] = {
+    UE.commands["adaptbytext"] =
+        UE.commands["adaptbywindow"] = {
             queryCommandState: function () {
                 return getTableItemsByRange(this).table ? 0 : -1
             },
@@ -19536,11 +19523,11 @@ UE.plugins['video'] = function (){
                     if (cmd == 'adaptbywindow') {
                         resetTdWidth(table, this);
                     } else {
-                        var cells = domUtils.getElementsByTagName(table, 'td th');
+                        var cells = domUtils.getElementsByTagName(table, "td th");
                         utils.each(cells, function (cell) {
-                            cell.removeAttribute('width');
+                            cell.removeAttribute("width");
                         });
-                        table.removeAttribute('width');
+                        table.removeAttribute("width");
                     }
                 }
             }
@@ -19581,14 +19568,14 @@ UE.plugins['video'] = function (){
             }
 
             function setAverageWidth(averageWidth) {
-                utils.each(domUtils.getElementsByTagName(ut.table, 'th'), function (node) {
-                    node.setAttribute('width', '');
+                utils.each(domUtils.getElementsByTagName(ut.table, "th"), function (node) {
+                    node.setAttribute("width", "");
                 });
-                var cells = ut.isFullRow() ? domUtils.getElementsByTagName(ut.table, 'td') : ut.selectedTds;
+                var cells = ut.isFullRow() ? domUtils.getElementsByTagName(ut.table, "td") : ut.selectedTds;
 
                 utils.each(cells, function (node) {
                     if (node.colSpan == 1) {
-                        node.setAttribute('width', averageWidth);
+                        node.setAttribute("width", averageWidth);
                     }
                 });
             }
@@ -19614,11 +19601,11 @@ UE.plugins['video'] = function (){
                 var averageHeight, rowNum, sumHeight = 0,
                     tb = ut.table,
                     tbAttr = getDefaultValue(me, tb),
-                    tdpadding = parseInt(domUtils.getComputedStyle(tb.getElementsByTagName('td')[0], 'padding-top'));
+                    tdpadding = parseInt(domUtils.getComputedStyle(tb.getElementsByTagName('td')[0], "padding-top"));
 
                 if (ut.isFullCol()) {
-                    var captionArr = domUtils.getElementsByTagName(tb, 'caption'),
-                        thArr = domUtils.getElementsByTagName(tb, 'th'),
+                    var captionArr = domUtils.getElementsByTagName(tb, "caption"),
+                        thArr = domUtils.getElementsByTagName(tb, "th"),
                         captionHeight, thHeight;
 
                     if (captionArr.length > 0) {
@@ -19634,7 +19621,7 @@ UE.plugins['video'] = function (){
                     var begin = ut.cellsRange.beginRowIndex,
                         end = ut.cellsRange.endRowIndex,
                         count = 0,
-                        trs = domUtils.getElementsByTagName(tb, 'tr');
+                        trs = domUtils.getElementsByTagName(tb, "tr");
                     for (var i = begin; i <= end; i++) {
                         sumHeight += trs[i].offsetHeight;
                         count += 1;
@@ -19651,10 +19638,10 @@ UE.plugins['video'] = function (){
             }
 
             function setAverageHeight(averageHeight) {
-                var cells = ut.isFullCol() ? domUtils.getElementsByTagName(ut.table, 'td') : ut.selectedTds;
+                var cells = ut.isFullCol() ? domUtils.getElementsByTagName(ut.table, "td") : ut.selectedTds;
                 utils.each(cells, function (node) {
                     if (node.rowSpan == 1) {
-                        node.setAttribute('height', averageHeight);
+                        node.setAttribute("height", averageHeight);
                     }
                 });
             }
@@ -19676,7 +19663,7 @@ UE.plugins['video'] = function (){
 
             if (!ut) {
                 var start = me.selection.getStart(),
-                    cell = start && domUtils.findParentByTagName(start, ['td', 'th', 'caption'], true);
+                    cell = start && domUtils.findParentByTagName(start, ["td", "th", "caption"], true);
                 if (!/caption/ig.test(cell.tagName)) {
                     domUtils.setAttributes(cell, data);
                 } else {
@@ -19730,10 +19717,10 @@ UE.plugins['video'] = function (){
         execCommand: function (cmd, value) {
             var me = this,
                 start = me.selection.getStart(),
-                table = start && domUtils.findParentByTagName(start, ['table'], true);
+                table = start && domUtils.findParentByTagName(start, ["table"], true);
 
             if (table) {
-                table.setAttribute('align',value);
+                table.setAttribute("align",value);
             }
         }
     };
@@ -19747,9 +19734,9 @@ UE.plugins['video'] = function (){
             var rng = this.selection.getRange(),
                 table = domUtils.findParentByTagName(rng.startContainer, 'table');
             if (table) {
-                var arr = domUtils.getElementsByTagName(table, 'td').concat(
-                    domUtils.getElementsByTagName(table, 'th'),
-                    domUtils.getElementsByTagName(table, 'caption')
+                var arr = domUtils.getElementsByTagName(table, "td").concat(
+                    domUtils.getElementsByTagName(table, "th"),
+                    domUtils.getElementsByTagName(table, "caption")
                 );
                 utils.each(arr, function (node) {
                     node.style.borderColor = color;
@@ -19768,7 +19755,7 @@ UE.plugins['video'] = function (){
 
             if (!ut) {
                 var start = me.selection.getStart(),
-                    cell = start && domUtils.findParentByTagName(start, ['td', 'th', 'caption'], true);
+                    cell = start && domUtils.findParentByTagName(start, ["td", "th", "caption"], true);
                 if (cell) {
                     cell.style.backgroundColor = bkColor;
                 }
@@ -19780,7 +19767,7 @@ UE.plugins['video'] = function (){
         }
     };
 
-    UE.commands['settablebackground'] = {
+    UE.commands["settablebackground"] = {
         queryCommandState: function () {
             return getSelectedArr(this).length > 1 ? 0 : -1;
         },
@@ -19792,12 +19779,12 @@ UE.plugins['video'] = function (){
         }
     };
 
-    UE.commands['cleartablebackground'] = {
+    UE.commands["cleartablebackground"] = {
         queryCommandState: function () {
             var cells = getSelectedArr(this);
             if (!cells.length)return -1;
             for (var i = 0, cell; cell = cells[i++];) {
-                if (cell.style.backgroundColor !== '') return 0;
+                if (cell.style.backgroundColor !== "") return 0;
             }
             return -1;
         },
@@ -19808,31 +19795,31 @@ UE.plugins['video'] = function (){
         }
     };
 
-    UE.commands['interlacetable'] = UE.commands['uninterlacetable'] = {
+    UE.commands["interlacetable"] = UE.commands["uninterlacetable"] = {
         queryCommandState: function (cmd) {
             var table = getTableItemsByRange(this).table;
             if (!table) return -1;
-            var interlaced = table.getAttribute('interlaced');
-            if (cmd == 'interlacetable') {
+            var interlaced = table.getAttribute("interlaced");
+            if (cmd == "interlacetable") {
                 //TODO 待定
                 //是否需要待定，如果设置，则命令只能单次执行成功，但反射具备toggle效果；否则可以覆盖前次命令，但反射将不存在toggle效果
-                return (interlaced === 'enabled') ? -1 : 0;
+                return (interlaced === "enabled") ? -1 : 0;
             } else {
-                return (!interlaced || interlaced === 'disabled') ? -1 : 0;
+                return (!interlaced || interlaced === "disabled") ? -1 : 0;
             }
         },
         execCommand: function (cmd, classList) {
             var table = getTableItemsByRange(this).table;
-            if (cmd == 'interlacetable') {
-                table.setAttribute('interlaced', 'enabled');
-                this.fireEvent('interlacetable', table, classList);
+            if (cmd == "interlacetable") {
+                table.setAttribute("interlaced", "enabled");
+                this.fireEvent("interlacetable", table, classList);
             } else {
-                table.setAttribute('interlaced', 'disabled');
-                this.fireEvent('uninterlacetable', table);
+                table.setAttribute("interlaced", "disabled");
+                this.fireEvent("uninterlacetable", table);
             }
         }
     };
-    UE.commands['setbordervisible'] = {
+    UE.commands["setbordervisible"] = {
         queryCommandState: function (cmd) {
             var table = getTableItemsByRange(this).table;
             if (!table) return -1;
@@ -19849,7 +19836,7 @@ UE.plugins['video'] = function (){
     function resetTdWidth(table, editor) {
         var tds = domUtils.getElementsByTagName(table,'td th');
         utils.each(tds, function (td) {
-            td.removeAttribute('width');
+            td.removeAttribute("width");
         });
         table.setAttribute('width', getTableWidth(editor, true, getDefaultValue(editor, table)));
         var tdsWidths = [];
@@ -19858,7 +19845,7 @@ UE.plugins['video'] = function (){
                 (td.colSpan == 1) && tdsWidths.push(td.offsetWidth)
             })
             utils.each(tds, function (td,i) {
-                (td.colSpan == 1) && td.setAttribute('width', tdsWidths[i] + '');
+                (td.colSpan == 1) && td.setAttribute("width", tdsWidths[i] + "");
             })
         }, 0);
     }
@@ -19878,6 +19865,7 @@ UE.plugins['video'] = function (){
         }
     }
 })();
+
 
 // plugins/table.action.js
 /**
@@ -19944,7 +19932,7 @@ UE.plugins['table'] = function () {
     //处理拖动及框选相关方法
     var startTd = null, //鼠标按下时的锚点td
         currentTd = null, //当前鼠标经过时的td
-        onDrag = '', //指示当前拖动状态，其值可为"","h","v" ,分别表示未拖动状态，横向拖动状态，纵向拖动状态，用于鼠标移动过程中的判断
+        onDrag = "", //指示当前拖动状态，其值可为"","h","v" ,分别表示未拖动状态，横向拖动状态，纵向拖动状态，用于鼠标移动过程中的判断
         onBorder = false, //检测鼠标按下时是否处在单元格边缘位置
         dragButton = null,
         dragOver = false,
@@ -19961,9 +19949,9 @@ UE.plugins['table'] = function () {
         'defaultCols':5,
         'defaultRows':5,
         'tdvalign':'top',
-        'cursorpath':me.options.UEDITOR_HOME_URL + 'themes/default/images/cursor_',
+        'cursorpath':me.options.UEDITOR_HOME_URL + "themes/default/images/cursor_",
         'tableDragable':false,
-        'classList':['ue-table-interlace-color-single','ue-table-interlace-color-double']
+        'classList':["ue-table-interlace-color-single","ue-table-interlace-color-double"]
     });
     me.getUETable = getUETable;
     var commands = {
@@ -19974,25 +19962,25 @@ UE.plugins['table'] = function () {
         'deletecaption':1,
         'inserttitle':1,
         'deletetitle':1,
-        'mergeright':1,
-        'mergedown':1,
-        'mergecells':1,
-        'insertrow':1,
-        'insertrownext':1,
-        'deleterow':1,
-        'insertcol':1,
-        'insertcolnext':1,
-        'deletecol':1,
-        'splittocells':1,
-        'splittorows':1,
-        'splittocols':1,
-        'adaptbytext':1,
-        'adaptbywindow':1,
-        'adaptbycustomer':1,
-        'insertparagraph':1,
-        'insertparagraphbeforetable':1,
-        'averagedistributecol':1,
-        'averagedistributerow':1
+        "mergeright":1,
+        "mergedown":1,
+        "mergecells":1,
+        "insertrow":1,
+        "insertrownext":1,
+        "deleterow":1,
+        "insertcol":1,
+        "insertcolnext":1,
+        "deletecol":1,
+        "splittocells":1,
+        "splittorows":1,
+        "splittocols":1,
+        "adaptbytext":1,
+        "adaptbywindow":1,
+        "adaptbycustomer":1,
+        "insertparagraph":1,
+        "insertparagraphbeforetable":1,
+        "averagedistributecol":1,
+        "averagedistributerow":1
     };
     me.ready(function () {
         utils.cssRule('table',
@@ -20114,8 +20102,8 @@ UE.plugins['table'] = function () {
                 }
             }
         });
-        me.addListener('tablehasdeleted',function(){
-            toggleDraggableState(this, false, '', null);
+        me.addListener("tablehasdeleted",function(){
+            toggleDraggableState(this, false, "", null);
             if (dragButton)domUtils.remove(dragButton);
         });
 
@@ -20123,7 +20111,7 @@ UE.plugins['table'] = function () {
             var me = this;
             var rng = me.selection.getRange();
             if (domUtils.findParentByTagName(rng.startContainer, 'caption', true)) {
-                var div = me.document.createElement('div');
+                var div = me.document.createElement("div");
                 div.innerHTML = html.html;
                 //trace:3729
                 html.html = div[browser.ie9below ? 'innerText' : 'textContent'];
@@ -20142,7 +20130,7 @@ UE.plugins['table'] = function () {
                             rowIndex++;
                         }
                         for (var i = 0, ci; ci = tableCopyList[i++];) {
-                            var tr = ut.insertRow(rowIndex++, 'td');
+                            var tr = ut.insertRow(rowIndex++, "td");
                             for (var j = 0, cj; cj = ci[j]; j++) {
                                 var cell = tr.cells[j];
                                 if (!cell) {
@@ -20231,16 +20219,16 @@ UE.plugins['table'] = function () {
                             (needIEHack ? parseInt(domUtils.getComputedStyle(me.body, 'margin-left'), 10) * 2 : 0) - defaultValue.tableBorder * 2 - (me.options.offsetWidth || 0);
                     me.execCommand('insertHTML', '<table  ' +
                         ( isFullCol && isFullRow ? 'width="' + width + '"' : '') +
-                        '>' + table.innerHTML.replace(/>\s*</g, '><').replace(/\bth\b/gi, 'td') + '</table>')
+                        '>' + table.innerHTML.replace(/>\s*</g, '><').replace(/\bth\b/gi, "td") + '</table>')
                 }
                 me.fireEvent('contentchange');
                 me.fireEvent('saveScene');
                 html.html = '';
                 return true;
             } else {
-                var div = me.document.createElement('div'), tables;
+                var div = me.document.createElement("div"), tables;
                 div.innerHTML = html.html;
-                tables = div.getElementsByTagName('table');
+                tables = div.getElementsByTagName("table");
                 if (domUtils.findParentByTagName(me.selection.getStart(), 'table')) {
                     utils.each(tables, function (t) {
                         domUtils.remove(t)
@@ -20252,7 +20240,7 @@ UE.plugins['table'] = function () {
                     utils.each(tables, function (table) {
                         removeStyleSize(table, true);
                         domUtils.removeAttributes(table, ['style', 'border']);
-                        utils.each(domUtils.getElementsByTagName(table, 'td'), function (td) {
+                        utils.each(domUtils.getElementsByTagName(table, "td"), function (td) {
                             if (isEmptyBlock(td)) {
                                 domUtils.fillNode(me.document, td);
                             }
@@ -20266,7 +20254,7 @@ UE.plugins['table'] = function () {
         });
 
         me.addListener('afterpaste', function () {
-            utils.each(domUtils.getElementsByTagName(me.body, 'table'), function (table) {
+            utils.each(domUtils.getElementsByTagName(me.body, "table"), function (table) {
                 if (table.offsetWidth > me.body.offsetWidth) {
                     var defaultValue = getDefaultValue(me, table);
                     table.style.width = me.body.offsetWidth - (needIEHack ? parseInt(domUtils.getComputedStyle(me.body, 'margin-left'), 10) * 2 : 0) - defaultValue.tableBorder * 2 - (me.options.offsetWidth || 0) + 'px'
@@ -20284,21 +20272,21 @@ UE.plugins['table'] = function () {
                     cell = domUtils.findParentByTagName(rng.startContainer, ['th', 'td'], true);
                 if (cell) {
                     var table = cell.parentNode.parentNode.parentNode;
-                    if (table.offsetWidth > table.getAttribute('width')) {
-                        cell.style.wordBreak = 'break-all';
+                    if (table.offsetWidth > table.getAttribute("width")) {
+                        cell.style.wordBreak = "break-all";
                     }
                 }
 
             }, 100);
         });
-        me.addListener('selectionchange', function () {
-            toggleDraggableState(me, false, '', null);
+        me.addListener("selectionchange", function () {
+            toggleDraggableState(me, false, "", null);
         });
 
 
         //内容变化时触发索引更新
         //todo 可否考虑标记检测，如果不涉及表格的变化就不进行索引重建和更新
-        me.addListener('contentchange', function () {
+        me.addListener("contentchange", function () {
             var me = this;
             //尽可能排除一些不需要更新的状况
             hideDragLine(me);
@@ -20307,7 +20295,7 @@ UE.plugins['table'] = function () {
             var start = rng.startContainer;
             start = domUtils.findParentByTagName(start, ['td', 'th'], true);
             utils.each(domUtils.getElementsByTagName(me.document, 'table'), function (table) {
-                if (me.fireEvent('excludetable', table) === true) return;
+                if (me.fireEvent("excludetable", table) === true) return;
                 table.ueTable = new UT(table);
                 //trace:3742
 //                utils.each(domUtils.getElementsByTagName(me.document, 'td'), function (td) {
@@ -20339,7 +20327,7 @@ UE.plugins['table'] = function () {
                 };
                 table.onmouseout = function () {
                     me.fireEvent('tablemouseout', table);
-                    toggleDraggableState(me, false, '', null);
+                    toggleDraggableState(me, false, "", null);
                     hideDragLine(me);
                 };
                 table.onclick = function (evt) {
@@ -20403,30 +20391,30 @@ UE.plugins['table'] = function () {
             switchBorderColor(me, true);
         });
 
-        domUtils.on(me.document, 'mousemove', mouseMoveEvent);
+        domUtils.on(me.document, "mousemove", mouseMoveEvent);
 
-        domUtils.on(me.document, 'mouseout', function (evt) {
+        domUtils.on(me.document, "mouseout", function (evt) {
             var target = evt.target || evt.srcElement;
-            if (target.tagName == 'TABLE') {
-                toggleDraggableState(me, false, '', null);
+            if (target.tagName == "TABLE") {
+                toggleDraggableState(me, false, "", null);
             }
         });
         /**
          * 表格隔行变色
          */
-        me.addListener('interlacetable',function(type,table,classList){
+        me.addListener("interlacetable",function(type,table,classList){
             if(!table) return;
             var me = this,
                 rows = table.rows,
                 len = rows.length,
                 getClass = function(list,index,repeat){
-                    return list[index] ? list[index] : repeat ? list[index % list.length]: '';
+                    return list[index] ? list[index] : repeat ? list[index % list.length]: "";
                 };
             for(var i = 0;i<len;i++){
                 rows[i].className = getClass( classList|| me.options.classList,i,true);
             }
         });
-        me.addListener('uninterlacetable',function(type,table){
+        me.addListener("uninterlacetable",function(type,table){
             if(!table) return;
             var me = this,
                 rows = table.rows,
@@ -20437,8 +20425,8 @@ UE.plugins['table'] = function () {
             }
         });
 
-        me.addListener('mousedown', mouseDownEvent);
-        me.addListener('mouseup', mouseUpEvent);
+        me.addListener("mousedown", mouseDownEvent);
+        me.addListener("mouseup", mouseUpEvent);
         //拖动的时候触发mouseup
         domUtils.on( me.body, 'dragstart', function( evt ){
             mouseUpEvent.call( me, 'dragstart', evt );
@@ -20452,7 +20440,7 @@ UE.plugins['table'] = function () {
         });
 
         var currentRowIndex = 0;
-        me.addListener('mousedown', function () {
+        me.addListener("mousedown", function () {
             currentRowIndex = 0;
         });
         me.addListener('tabkeydown', function () {
@@ -20491,9 +20479,9 @@ UE.plugins['table'] = function () {
 
         });
         browser.ie && me.addListener('selectionchange', function () {
-            toggleDraggableState(this, false, '', null);
+            toggleDraggableState(this, false, "", null);
         });
-        me.addListener('keydown', function (type, evt) {
+        me.addListener("keydown", function (type, evt) {
             var me = this;
             //处理在表格的最后一个输入tab产生新的表格
             var keyCode = evt.keyCode || evt.which;
@@ -20501,13 +20489,13 @@ UE.plugins['table'] = function () {
                 return;
             }
             var notCtrlKey = !evt.ctrlKey && !evt.metaKey && !evt.shiftKey && !evt.altKey;
-            notCtrlKey && removeSelectedClass(domUtils.getElementsByTagName(me.body, 'td'));
+            notCtrlKey && removeSelectedClass(domUtils.getElementsByTagName(me.body, "td"));
             var ut = getUETableBySelected(me);
             if (!ut) return;
             notCtrlKey && ut.clearSelected();
         });
 
-        me.addListener('beforegetcontent', function () {
+        me.addListener("beforegetcontent", function () {
             switchBorderColor(this, false);
             browser.ie && utils.each(this.document.getElementsByTagName('caption'), function (ci) {
                 if (domUtils.isEmptyNode(ci)) {
@@ -20515,28 +20503,28 @@ UE.plugins['table'] = function () {
                 }
             });
         });
-        me.addListener('aftergetcontent', function () {
+        me.addListener("aftergetcontent", function () {
             switchBorderColor(this, true);
         });
-        me.addListener('getAllHtml', function () {
-            removeSelectedClass(me.document.getElementsByTagName('td'));
+        me.addListener("getAllHtml", function () {
+            removeSelectedClass(me.document.getElementsByTagName("td"));
         });
         //修正全屏状态下插入的表格宽度在非全屏状态下撑开编辑器的情况
-        me.addListener('fullscreenchanged', function (type, fullscreen) {
+        me.addListener("fullscreenchanged", function (type, fullscreen) {
             if (!fullscreen) {
                 var ratio = this.body.offsetWidth / document.body.offsetWidth,
-                    tables = domUtils.getElementsByTagName(this.body, 'table');
+                    tables = domUtils.getElementsByTagName(this.body, "table");
                 utils.each(tables, function (table) {
                     if (table.offsetWidth < me.body.offsetWidth) return false;
-                    var tds = domUtils.getElementsByTagName(table, 'td'),
+                    var tds = domUtils.getElementsByTagName(table, "td"),
                         backWidths = [];
                     utils.each(tds, function (td) {
                         backWidths.push(td.offsetWidth);
                     });
                     for (var i = 0, td; td = tds[i]; i++) {
-                        td.setAttribute('width', Math.floor(backWidths[i] * ratio));
+                        td.setAttribute("width", Math.floor(backWidths[i] * ratio));
                     }
-                    table.setAttribute('width', Math.floor(getTableWidth(me, needIEHack, getDefaultValue(me))))
+                    table.setAttribute("width", Math.floor(getTableWidth(me, needIEHack, getDefaultValue(me))))
                 });
             }
         });
@@ -20556,7 +20544,7 @@ UE.plugins['table'] = function () {
             if (!cmdFun) return;
             if (ut && !commands[cmd] && !cmdFun.notNeedUndo && !me.__hasEnterExecCommand) {
                 me.__hasEnterExecCommand = true;
-                me.fireEvent('beforeexeccommand', cmd);
+                me.fireEvent("beforeexeccommand", cmd);
                 tds = ut.selectedTds;
                 var lastState = -2, lastValue = -2, value, state;
                 for (var i = 0, td; td = tds[i]; i++) {
@@ -20583,7 +20571,7 @@ UE.plugins['table'] = function () {
                 }
                 range.setStart(tds[0], 0).shrinkBoundary(true).setCursor(false, true);
                 me.fireEvent('contentchange');
-                me.fireEvent('afterexeccommand', cmd);
+                me.fireEvent("afterexeccommand", cmd);
                 me.__hasEnterExecCommand = false;
                 me._selectionChange();
             } else {
@@ -20600,21 +20588,21 @@ UE.plugins['table'] = function () {
      * @param replaceToProperty
      */
     function removeStyleSize(obj, replaceToProperty) {
-        removeStyle(obj, 'width', true);
-        removeStyle(obj, 'height', true);
+        removeStyle(obj, "width", true);
+        removeStyle(obj, "height", true);
     }
 
     function removeStyle(obj, styleName, replaceToProperty) {
         if (obj.style[styleName]) {
             replaceToProperty && obj.setAttribute(styleName, parseInt(obj.style[styleName], 10));
-            obj.style[styleName] = '';
+            obj.style[styleName] = "";
         }
     }
 
     function getParentTdOrTh(ele) {
-        if (ele.tagName == 'TD' || ele.tagName == 'TH') return ele;
+        if (ele.tagName == "TD" || ele.tagName == "TH") return ele;
         var td;
-        if (td = domUtils.findParentByTagName(ele, 'td', true) || domUtils.findParentByTagName(ele, 'th', true)) return td;
+        if (td = domUtils.findParentByTagName(ele, "td", true) || domUtils.findParentByTagName(ele, "th", true)) return td;
         return null;
     }
 
@@ -20675,10 +20663,10 @@ UE.plugins['table'] = function () {
                 me.selection.getNative()[browser.ie9below ? 'empty' : 'removeAllRanges']();
                 pos = mouseCoords(evt);
                 toggleDraggableState(me, true, onDrag, pos, target);
-                if (onDrag == 'h') {
-                    dragLine.style.left = getPermissionX(dragTd, evt) + 'px';
-                } else if (onDrag == 'v') {
-                    dragLine.style.top = getPermissionY(dragTd, evt) + 'px';
+                if (onDrag == "h") {
+                    dragLine.style.left = getPermissionX(dragTd, evt) + "px";
+                } else if (onDrag == "v") {
+                    dragLine.style.top = getPermissionY(dragTd, evt) + "px";
                 }
                 return;
             }
@@ -20689,20 +20677,20 @@ UE.plugins['table'] = function () {
                     return;
                 pos = mouseCoords(evt);
                 var state = getRelation(target, pos),
-                    table = domUtils.findParentByTagName(target, 'table', true);
+                    table = domUtils.findParentByTagName(target, "table", true);
 
                 if (inTableSide(table, target, evt, true)) {
-                    if (me.fireEvent('excludetable', table) === true) return;
-                    me.body.style.cursor = 'url(' + me.options.cursorpath + 'h.png),pointer';
+                    if (me.fireEvent("excludetable", table) === true) return;
+                    me.body.style.cursor = "url(" + me.options.cursorpath + "h.png),pointer";
                 } else if (inTableSide(table, target, evt)) {
-                    if (me.fireEvent('excludetable', table) === true) return;
-                    me.body.style.cursor = 'url(' + me.options.cursorpath + 'v.png),pointer';
+                    if (me.fireEvent("excludetable", table) === true) return;
+                    me.body.style.cursor = "url(" + me.options.cursorpath + "v.png),pointer";
                 } else {
-                    me.body.style.cursor = 'text';
+                    me.body.style.cursor = "text";
                     var curCell = target;
                     if (/\d/.test(state)) {
                         state = state.replace(/\d/, '');
-                        target = getUETable(target).getPreviewCell(target, state == 'v');
+                        target = getUETable(target).getPreviewCell(target, state == "v");
                     }
                     //位于第一行的顶部或者第一列的左边时不可拖动
                     toggleDraggableState(me, target ? !!state : false, target ? state : '', pos, target);
@@ -20734,10 +20722,10 @@ UE.plugins['table'] = function () {
         var pos = domUtils.getXY(table),
             doc = table.ownerDocument;
         if (dragButton && dragButton.parentNode)return dragButton;
-        dragButton = doc.createElement('div');
+        dragButton = doc.createElement("div");
         dragButton.contentEditable = false;
-        dragButton.innerHTML = '';
-        dragButton.style.cssText = 'width:15px;height:15px;background-image:url(' + editor.options.UEDITOR_HOME_URL + 'dialogs/table/dragicon.png);position: absolute;cursor:move;top:' + (pos.y - 15) + 'px;left:' + (pos.x) + 'px;';
+        dragButton.innerHTML = "";
+        dragButton.style.cssText = "width:15px;height:15px;background-image:url(" + editor.options.UEDITOR_HOME_URL + "dialogs/table/dragicon.png);position: absolute;cursor:move;top:" + (pos.y - 15) + "px;left:" + (pos.x) + "px;";
         domUtils.unSelectable(dragButton);
         dragButton.onmouseover = function (evt) {
             dragOver = true;
@@ -20760,7 +20748,7 @@ UE.plugins['table'] = function () {
             // 部分浏览器下需要清理
             clearTimeout(timer);
             timer = setTimeout(function () {
-                editor.fireEvent('tableClicked', table, button);
+                editor.fireEvent("tableClicked", table, button);
             }, 300);
         }
 
@@ -20794,11 +20782,11 @@ UE.plugins['table'] = function () {
             state = getRelation(cell, pos);
 
         if (top) {
-            var caption = table.getElementsByTagName('caption')[0],
+            var caption = table.getElementsByTagName("caption")[0],
                 capHeight = caption ? caption.offsetHeight : 0;
-            return (state == 'v1') && ((pos.y - domUtils.getXY(table).y - capHeight) < 8);
+            return (state == "v1") && ((pos.y - domUtils.getXY(table).y - capHeight) < 8);
         } else {
-            return (state == 'h1') && ((pos.x - domUtils.getXY(table).x) < 8);
+            return (state == "h1") && ((pos.x - domUtils.getXY(table).x) < 8);
         }
     }
 
@@ -20810,11 +20798,11 @@ UE.plugins['table'] = function () {
     function getPermissionX(dragTd, evt) {
         var ut = getUETable(dragTd);
         if (ut) {
-            var preTd = ut.getSameEndPosCells(dragTd, 'x')[0],
+            var preTd = ut.getSameEndPosCells(dragTd, "x")[0],
                 nextTd = ut.getSameStartPosXCells(dragTd)[0],
                 mouseX = mouseCoords(evt).x,
                 left = (preTd ? domUtils.getXY(preTd).x : domUtils.getXY(ut.table).x) + 20 ,
-                right = nextTd ? domUtils.getXY(nextTd).x + nextTd.offsetWidth - 20 : (me.body.offsetWidth + 5 || parseInt(domUtils.getComputedStyle(me.body, 'width'), 10));
+                right = nextTd ? domUtils.getXY(nextTd).x + nextTd.offsetWidth - 20 : (me.body.offsetWidth + 5 || parseInt(domUtils.getComputedStyle(me.body, "width"), 10));
 
             left += cellMinWidth;
             right -= cellMinWidth;
@@ -20841,7 +20829,7 @@ UE.plugins['table'] = function () {
      */
     function toggleDraggableState(editor, draggable, dir, mousePos, cell) {
         try {
-            editor.body.style.cursor = dir == 'h' ? 'col-resize' : dir == 'v' ? 'row-resize' : 'text';
+            editor.body.style.cursor = dir == "h" ? "col-resize" : dir == "v" ? "row-resize" : "text";
             if (browser.ie) {
                 if (dir && !mousedown && !getUETableBySelected(editor)) {
                     getDragLine(editor, editor.document);
@@ -20866,10 +20854,10 @@ UE.plugins['table'] = function () {
             line = this.document.getElementById( lineId );
 
         if( !line ) {
-            line = this.document.createElement('div');
+            line = this.document.createElement("div");
             line.id = lineId;
             line.contnetEditable = false;
-            line.setAttribute('unselectable', 'on');
+            line.setAttribute("unselectable", "on");
 
             var styles = {
                 width: 2*cellBorderWidth + 1 + 'px',
@@ -20937,13 +20925,13 @@ UE.plugins['table'] = function () {
         }
 
         if (elePos.x + ele.offsetWidth - mousePos.x < cellBorderWidth) {
-            return 'h';
+            return "h";
         }
         if (mousePos.x - elePos.x < cellBorderWidth) {
             return 'h1'
         }
         if (elePos.y + ele.offsetHeight - mousePos.y < cellBorderWidth) {
-            return 'v';
+            return "v";
         }
         if (mousePos.y - elePos.y < cellBorderWidth) {
             return 'v1'
@@ -20975,7 +20963,7 @@ UE.plugins['table'] = function () {
                     }
                 });
                 if (!flag) {
-                    removeSelectedClass(domUtils.getElementsByTagName(me.body, 'th td'));
+                    removeSelectedClass(domUtils.getElementsByTagName(me.body, "th td"));
                     ut.clearSelected()
                 } else {
                     td = ut.selectedTds[0];
@@ -21010,7 +20998,7 @@ UE.plugins['table'] = function () {
 
                 if (h == 'h1') {
                     h = 'h';
-                    if (inTableSide(domUtils.findParentByTagName(target, 'table'), target, evt)) {
+                    if (inTableSide(domUtils.findParentByTagName(target, "table"), target, evt)) {
                         me.execCommand('adaptbywindow');
                     } else {
                         target = getUETable(target).getPreviewCell(target);
@@ -21040,7 +21028,7 @@ UE.plugins['table'] = function () {
 
                     utils.each( cells, function( cell ){
 
-                        cell.removeAttribute('width');
+                        cell.removeAttribute("width");
 
                     } );
 
@@ -21088,7 +21076,7 @@ UE.plugins['table'] = function () {
 
     function tableClickHander( evt ) {
 
-        removeSelectedClass(domUtils.getElementsByTagName(me.body, 'td th'));
+        removeSelectedClass(domUtils.getElementsByTagName(me.body, "td th"));
         //trace:3113
         //选中单元格，点击table外部，不会清掉table上挂的ueTable,会引起getUETableBySelected方法返回值
         utils.each(me.document.getElementsByTagName('table'), function (t) {
@@ -21096,7 +21084,7 @@ UE.plugins['table'] = function () {
         });
         startTd = getTargetTd(me, evt);
         if( !startTd ) return;
-        var table = domUtils.findParentByTagName(startTd, 'table', true);
+        var table = domUtils.findParentByTagName(startTd, "table", true);
         ut = getUETable(table);
         ut && ut.clearSelected();
 
@@ -21261,15 +21249,15 @@ UE.plugins['table'] = function () {
                     dragLinePos = domUtils.getXY(dragLine);
 
                 switch (onDrag) {
-                    case 'h':
+                    case "h":
                         changeColWidth(dragTd, dragLinePos.x - dragTdPos.x);
                         break;
-                    case 'v':
+                    case "v":
                         changeRowHeight(dragTd, dragLinePos.y - dragTdPos.y - dragTd.offsetHeight);
                         break;
                     default:
                 }
-                onDrag = '';
+                onDrag = "";
                 dragTd = null;
 
                 hideDragLine(me);
@@ -21279,10 +21267,10 @@ UE.plugins['table'] = function () {
         }
         //正常状态下的mouseup
         if (!startTd) {
-            var target = domUtils.findParentByTagName(evt.target || evt.srcElement, 'td', true);
-            if (!target) target = domUtils.findParentByTagName(evt.target || evt.srcElement, 'th', true);
-            if (target && (target.tagName == 'TD' || target.tagName == 'TH')) {
-                if (me.fireEvent('excludetable', target) === true) return;
+            var target = domUtils.findParentByTagName(evt.target || evt.srcElement, "td", true);
+            if (!target) target = domUtils.findParentByTagName(evt.target || evt.srcElement, "th", true);
+            if (target && (target.tagName == "TD" || target.tagName == "TH")) {
+                if (me.fireEvent("excludetable", target) === true) return;
                 range = new dom.Range(me.document);
                 range.setStart(target, 0).setCursor(false, true);
             }
@@ -21321,10 +21309,10 @@ UE.plugins['table'] = function () {
 
         var me = this,
             tar = evt.target || evt.srcElement;
-        currentTd = domUtils.findParentByTagName(tar, 'td', true) || domUtils.findParentByTagName(tar, 'th', true);
+        currentTd = domUtils.findParentByTagName(tar, "td", true) || domUtils.findParentByTagName(tar, "th", true);
         //需要判断两个TD是否位于同一个表格内
         if (startTd && currentTd &&
-            ((startTd.tagName == 'TD' && currentTd.tagName == 'TD') || (startTd.tagName == 'TH' && currentTd.tagName == 'TH')) &&
+            ((startTd.tagName == "TD" && currentTd.tagName == "TD") || (startTd.tagName == "TH" && currentTd.tagName == "TH")) &&
             domUtils.findParentByTagName(startTd, 'table') == domUtils.findParentByTagName(currentTd, 'table')) {
             var ut = getUETable(currentTd);
             if (startTd != currentTd) {
@@ -21342,16 +21330,16 @@ UE.plugins['table'] = function () {
     }
 
     function setCellHeight(cell, height, backHeight) {
-        var lineHight = parseInt(domUtils.getComputedStyle(cell, 'line-height'), 10),
+        var lineHight = parseInt(domUtils.getComputedStyle(cell, "line-height"), 10),
             tmpHeight = backHeight + height;
         height = tmpHeight < lineHight ? lineHight : tmpHeight;
-        if (cell.style.height) cell.style.height = '';
-        cell.rowSpan == 1 ? cell.setAttribute('height', height) : (cell.removeAttribute && cell.removeAttribute('height'));
+        if (cell.style.height) cell.style.height = "";
+        cell.rowSpan == 1 ? cell.setAttribute("height", height) : (cell.removeAttribute && cell.removeAttribute("height"));
     }
 
     function getWidth(cell) {
         if (!cell)return 0;
-        return parseInt(domUtils.getComputedStyle(cell, 'width'), 10);
+        return parseInt(domUtils.getComputedStyle(cell, "width"), 10);
     }
 
     function changeColWidth(cell, changeValue) {
@@ -21363,8 +21351,8 @@ UE.plugins['table'] = function () {
             var table = ut.table,
                 cells = getCellsByMoveBorder( cell, table );
 
-            table.style.width = '';
-            table.removeAttribute('width');
+            table.style.width = "";
+            table.removeAttribute("width");
 
             //修正改变量
             changeValue = correctChangeValue( changeValue, cell, cells );
@@ -21392,14 +21380,14 @@ UE.plugins['table'] = function () {
     }
 
     function isEditorDisabled() {
-        return me.body.contentEditable === 'false';
+        return me.body.contentEditable === "false";
     }
 
     function changeRowHeight(td, changeValue) {
         if (Math.abs(changeValue) < 10) return;
         var ut = getUETable(td);
         if (ut) {
-            var cells = ut.getSameEndPosCells(td, 'y'),
+            var cells = ut.getSameEndPosCells(td, "y"),
             //备份需要连带变化的td的原始高度，否则后期无法获取正确的值
                 backHeight = cells[0] ? cells[0].offsetHeight : 0;
             for (var i = 0, cell; cell = cells[i++];) {
@@ -21565,7 +21553,7 @@ UE.plugins['table'] = function () {
      */
     function getTableCellOffset( cell ) {
 
-        tab = domUtils.findParentByTagName( cell, 'table', false);
+        tab = domUtils.findParentByTagName( cell, "table", false);
 
         if( tab.offsetVal === undefined ) {
 
@@ -21591,10 +21579,10 @@ UE.plugins['table'] = function () {
         if( UT.tabcellSpace === undefined ) {
 
             var cell = null,
-                tab = me.document.createElement('table'),
-                tbody = me.document.createElement('tbody'),
-                trow = me.document.createElement('tr'),
-                tabcell = me.document.createElement('td'),
+                tab = me.document.createElement("table"),
+                tbody = me.document.createElement("tbody"),
+                trow = me.document.createElement("tr"),
+                tabcell = me.document.createElement("td"),
                 mirror = null;
 
             tabcell.style.cssText = 'border: 0;';
@@ -21607,7 +21595,7 @@ UE.plugins['table'] = function () {
 
             tab.appendChild( tbody );
 
-            tab.style.cssText = 'visibility: hidden;';
+            tab.style.cssText = "visibility: hidden;";
 
             me.body.appendChild( tab );
 
@@ -21634,15 +21622,15 @@ UE.plugins['table'] = function () {
 
     function getDragLine(editor, doc) {
         if (mousedown)return;
-        dragLine = editor.document.createElement('div');
+        dragLine = editor.document.createElement("div");
         domUtils.setAttributes(dragLine, {
-            id:'ue_tableDragLine',
+            id:"ue_tableDragLine",
             unselectable:'on',
             contenteditable:false,
             'onresizestart':'return false',
             'ondragstart':'return false',
             'onselectstart':'return false',
-            style:'background-color:blue;position:absolute;padding:0;margin:0;background-image:none;border:0px none;opacity:0;filter:alpha(opacity=0)'
+            style:"background-color:blue;position:absolute;padding:0;margin:0;background-image:none;border:0px none;opacity:0;filter:alpha(opacity=0)"
         });
         editor.body.appendChild(dragLine);
     }
@@ -21662,18 +21650,18 @@ UE.plugins['table'] = function () {
      */
     function showDragLineAt(state, cell) {
         if (!cell) return;
-        var table = domUtils.findParentByTagName(cell, 'table'),
+        var table = domUtils.findParentByTagName(cell, "table"),
             caption = table.getElementsByTagName('caption'),
             width = table.offsetWidth,
             height = table.offsetHeight - (caption.length > 0 ? caption[0].offsetHeight : 0),
             tablePos = domUtils.getXY(table),
             cellPos = domUtils.getXY(cell), css;
         switch (state) {
-            case 'h':
+            case "h":
                 css = 'height:' + height + 'px;top:' + (tablePos.y + (caption.length > 0 ? caption[0].offsetHeight : 0)) + 'px;left:' + (cellPos.x + cell.offsetWidth);
                 dragLine.style.cssText = css + 'px;position: absolute;display:block;background-color:blue;width:1px;border:0; color:blue;opacity:.3;filter:alpha(opacity=30)';
                 break;
-            case 'v':
+            case "v":
                 css = 'width:' + width + 'px;left:' + tablePos.x + 'px;top:' + (cellPos.y + cell.offsetHeight );
                 //必须加上border:0和color:blue，否则低版ie不支持背景色显示
                 dragLine.style.cssText = css + 'px;overflow:hidden;position: absolute;display:block;background-color:blue;height:1px;border:0;color:blue;opacity:.2;filter:alpha(opacity=20)';
@@ -21688,16 +21676,16 @@ UE.plugins['table'] = function () {
      * @param flag
      */
     function switchBorderColor(editor, flag) {
-        var tableArr = domUtils.getElementsByTagName(editor.body, 'table'), color;
+        var tableArr = domUtils.getElementsByTagName(editor.body, "table"), color;
         for (var i = 0, node; node = tableArr[i++];) {
-            var td = domUtils.getElementsByTagName(node, 'td');
+            var td = domUtils.getElementsByTagName(node, "td");
             if (td[0]) {
                 if (flag) {
-                    color = (td[0].style.borderColor).replace(/\s/g, '');
+                    color = (td[0].style.borderColor).replace(/\s/g, "");
                     if (/(#ffffff)|(rgb\(255,255,255\))/ig.test(color))
-                        domUtils.addClass(node, 'noBorderTable')
+                        domUtils.addClass(node, "noBorderTable")
                 } else {
-                    domUtils.removeClasses(node, 'noBorderTable')
+                    domUtils.removeClasses(node, "noBorderTable")
                 }
             }
 
@@ -21714,7 +21702,7 @@ UE.plugins['table'] = function () {
      */
     function getTargetTd(editor, evt) {
 
-        var target = domUtils.findParentByTagName(evt.target || evt.srcElement, ['td', 'th'], true),
+        var target = domUtils.findParentByTagName(evt.target || evt.srcElement, ["td", "th"], true),
             dir = null;
 
         if( !target ) {
@@ -21751,7 +21739,7 @@ UE.plugins['table'] = function () {
 
 
         //排除了非td内部以及用于代码高亮部分的td
-        return target && !(editor.fireEvent('excludetable', target) === true) ? target : null;
+        return target && !(editor.fireEvent("excludetable", target) === true) ? target : null;
     }
 
 };
@@ -21770,7 +21758,7 @@ UE.UETable.prototype.sortTable = function (sortByCellIndex, compareFn) {
     var table = this.table,
         rows = table.rows,
         trArray = [],
-        flag = rows[0].cells[0].tagName === 'TH',
+        flag = rows[0].cells[0].tagName === "TH",
         lastRowIndex = 0;
     if(this.selectedTds.length){
         var range = this.cellsRange,
@@ -21817,17 +21805,17 @@ UE.UETable.prototype.sortTable = function (sortByCellIndex, compareFn) {
     };
 
     //对表格设置排序的标记data-sort-type
-    table.setAttribute('data-sort-type', compareFn && typeof compareFn === 'string' && Fn[compareFn] ? compareFn:'');
+    table.setAttribute('data-sort-type', compareFn && typeof compareFn === "string" && Fn[compareFn] ? compareFn:'');
 
     //th不参与排序
     flag && trArray.splice(0, 1);
     trArray = utils.sort(trArray,function (tr1, tr2) {
         var result;
-        if (compareFn && typeof compareFn === 'function') {
+        if (compareFn && typeof compareFn === "function") {
             result = compareFn.call(this, tr1.cells[sortByCellIndex], tr2.cells[sortByCellIndex]);
-        } else if (compareFn && typeof compareFn === 'number') {
+        } else if (compareFn && typeof compareFn === "number") {
             result = 1;
-        } else if (compareFn && typeof compareFn === 'string' && Fn[compareFn]) {
+        } else if (compareFn && typeof compareFn === "string" && Fn[compareFn]) {
             result = Fn[compareFn].call(this, tr1.cells[sortByCellIndex], tr2.cells[sortByCellIndex]);
         } else {
             result = Fn['orderbyasc'].call(this, tr1.cells[sortByCellIndex], tr2.cells[sortByCellIndex]);
@@ -21838,7 +21826,7 @@ UE.UETable.prototype.sortTable = function (sortByCellIndex, compareFn) {
     for (var j = 0, len = trArray.length; j < len; j++) {
         fragment.appendChild(trArray[j]);
     }
-    var tbody = table.getElementsByTagName('tbody')[0];
+    var tbody = table.getElementsByTagName("tbody")[0];
     if(!lastRowIndex){
         tbody.appendChild(fragment);
     }else{
@@ -21865,7 +21853,7 @@ UE.plugins['tablesort'] = function () {
             me.document);
 
         //做单元格合并操作时,清除可排序标识
-        me.addListener('afterexeccommand', function (type, cmd) {
+        me.addListener("afterexeccommand", function (type, cmd) {
             if( cmd == 'mergeright' || cmd == 'mergedown' || cmd == 'mergecells') {
                 this.execCommand('disablesort');
             }
@@ -21881,7 +21869,7 @@ UE.plugins['tablesort'] = function () {
                 tableItems = getTableItemsByRange(me);
             if (!tableItems.cell) return -1;
             var table = tableItems.table,
-                cells = table.getElementsByTagName('td');
+                cells = table.getElementsByTagName("td");
             for (var i = 0, cell; cell = cells[i++];) {
                 if (cell.rowSpan != 1 || cell.colSpan != 1) return -1;
             }
@@ -21904,7 +21892,7 @@ UE.plugins['tablesort'] = function () {
     };
 
     //设置表格可排序,清除表格可排序
-    UE.commands['enablesort'] = UE.commands['disablesort'] = {
+    UE.commands["enablesort"] = UE.commands["disablesort"] = {
         queryCommandState: function (cmd) {
             var table = getTableItemsByRange(this).table;
             if(table && cmd=='enablesort') {
@@ -21918,8 +21906,8 @@ UE.plugins['tablesort'] = function () {
         },
         execCommand: function (cmd) {
             var table = getTableItemsByRange(this).table;
-            table.setAttribute('data-sort', cmd == 'enablesort' ? 'sortEnabled' : 'sortDisabled');
-            cmd == 'enablesort' ? domUtils.addClass(table,'sortEnabled'):domUtils.removeClasses(table,'sortEnabled');
+            table.setAttribute("data-sort", cmd == "enablesort" ? "sortEnabled" : "sortDisabled");
+            cmd == "enablesort" ? domUtils.addClass(table,"sortEnabled"):domUtils.removeClasses(table,"sortEnabled");
         }
     };
 };
@@ -21939,13 +21927,11 @@ UE.plugins['tablesort'] = function () {
 
 UE.plugins['contextmenu'] = function () {
     var me = this;
-
-    me.setOpt('enableContextMenu', me.getOpt('enableContextMenu') || true);
-
+    me.setOpt('enableContextMenu',true);
     if(me.getOpt('enableContextMenu') === false){
         return;
     }
-    var lang = me.getLang( 'contextMenu' ),
+    var lang = me.getLang( "contextMenu" ),
             menu,
             items = me.options.contextMenu || [
                 {label:lang['selectall'], cmdName:'selectall'},
@@ -22161,44 +22147,44 @@ UE.plugins['contextmenu'] = function () {
                     subMenu:[
                         {
                             label:lang.setcolor,
-                            cmdName:'interlacetable',
+                            cmdName:"interlacetable",
                             exec:function(){
-                                this.execCommand('interlacetable');
+                                this.execCommand("interlacetable");
                             }
                         },
                         {
                             label:lang.unsetcolor,
-                            cmdName:'uninterlacetable',
+                            cmdName:"uninterlacetable",
                             exec:function(){
-                                this.execCommand('uninterlacetable');
+                                this.execCommand("uninterlacetable");
                             }
                         },
                         {
                             label:lang.setbackground,
-                            cmdName:'settablebackground',
+                            cmdName:"settablebackground",
                             exec:function(){
-                                this.execCommand('settablebackground',{repeat:true,colorList:['#bbb','#ccc']});
+                                this.execCommand("settablebackground",{repeat:true,colorList:["#bbb","#ccc"]});
                             }
                         },
                         {
                             label:lang.unsetbackground,
-                            cmdName:'cleartablebackground',
+                            cmdName:"cleartablebackground",
                             exec:function(){
-                                this.execCommand('cleartablebackground');
+                                this.execCommand("cleartablebackground");
                             }
                         },
                         {
                             label:lang.redandblue,
-                            cmdName:'settablebackground',
+                            cmdName:"settablebackground",
                             exec:function(){
-                                this.execCommand('settablebackground',{repeat:true,colorList:['red','blue']});
+                                this.execCommand("settablebackground",{repeat:true,colorList:["red","blue"]});
                             }
                         },
                         {
                             label:lang.threecolorgradient,
-                            cmdName:'settablebackground',
+                            cmdName:"settablebackground",
                             exec:function(){
-                                this.execCommand('settablebackground',{repeat:true,colorList:['#aaa','#bbb','#ccc']});
+                                this.execCommand("settablebackground",{repeat:true,colorList:["#aaa","#bbb","#ccc"]});
                             }
                         }
                     ]
@@ -22253,19 +22239,19 @@ UE.plugins['contextmenu'] = function () {
                             cmdName:'tablealignment',
                             className: 'left',
                             label:lang.tableleft,
-                            value:'left'
+                            value:"left"
                         },
                         {
                             cmdName:'tablealignment',
                             className: 'center',
                             label:lang.tablecenter,
-                            value:'center'
+                            value:"center"
                         },
                         {
                             cmdName:'tablealignment',
                             className: 'right',
                             label:lang.tableright,
-                            value:'right'
+                            value:"right"
                         }
                     ]
                 },
@@ -22307,7 +22293,7 @@ UE.plugins['contextmenu'] = function () {
                     if ( (last = contextItems[contextItems.length - 1 ] ) && last !== '-' ) {
                         contextItems.push( '-' );
                     }
-                } else if ( item.hasOwnProperty( 'group' ) ) {
+                } else if ( item.hasOwnProperty( "group" ) ) {
                     for ( var j = 0, cj, subMenu = []; cj = item.subMenu[j]; j++ ) {
                         (function ( subItem ) {
                             if ( subItem == '-' ) {
@@ -22320,7 +22306,7 @@ UE.plugins['contextmenu'] = function () {
                                 if ( (me.commands[subItem.cmdName] || UE.commands[subItem.cmdName] || subItem.query) &&
                                         (subItem.query ? subItem.query() : me.queryCommandState( subItem.cmdName )) > -1 ) {
                                     subMenu.push( {
-                                        'label':subItem.label || me.getLang( 'contextMenu.' + subItem.cmdName + (subItem.value || '') )||'',
+                                        'label':subItem.label || me.getLang( "contextMenu." + subItem.cmdName + (subItem.value || '') )||"",
                                         'className':'edui-for-' +subItem.cmdName + ( subItem.className ? ( ' edui-for-' + subItem.cmdName + '-' + subItem.className ) : '' ),
                                         onclick:subItem.exec ? function () {
                                                 subItem.exec.call( me );
@@ -22335,17 +22321,17 @@ UE.plugins['contextmenu'] = function () {
                     if ( subMenu.length ) {
                         function getLabel(){
                             switch (item.icon){
-                                case 'table':
-                                    return me.getLang( 'contextMenu.table' );
-                                case 'justifyjustify':
-                                    return me.getLang( 'contextMenu.paragraph' );
-                                case 'aligntd':
-                                    return me.getLang('contextMenu.aligntd');
-                                case 'aligntable':
-                                    return me.getLang('contextMenu.aligntable');
-                                case 'tablesort':
+                                case "table":
+                                    return me.getLang( "contextMenu.table" );
+                                case "justifyjustify":
+                                    return me.getLang( "contextMenu.paragraph" );
+                                case "aligntd":
+                                    return me.getLang("contextMenu.aligntd");
+                                case "aligntable":
+                                    return me.getLang("contextMenu.aligntable");
+                                case "tablesort":
                                     return lang.tablesort;
-                                case 'borderBack':
+                                case "borderBack":
                                     return lang.borderbk;
                                 default :
                                     return '';
@@ -22368,7 +22354,7 @@ UE.plugins['contextmenu'] = function () {
                             (item.query ? item.query.call(me) : me.queryCommandState( item.cmdName )) > -1 ) {
 
                         contextItems.push( {
-                            'label':item.label || me.getLang( 'contextMenu.' + item.cmdName ),
+                            'label':item.label || me.getLang( "contextMenu." + item.cmdName ),
                             className:'edui-for-' + (item.icon ? item.icon : item.cmdName + (item.value || '')),
                             onclick:item.exec ? function () {
                                 item.exec.call( me );
@@ -22388,13 +22374,13 @@ UE.plugins['contextmenu'] = function () {
 
         menu = new UE.ui.Menu( {
             items:contextItems,
-            className:'edui-contextmenu',
+            className:"edui-contextmenu",
             editor:me
         } );
         menu.render();
         menu.showAt( offset );
 
-        me.fireEvent('aftershowcontextmenu',menu);
+        me.fireEvent("aftershowcontextmenu",menu);
 
         domUtils.preventDefault( evt );
         if ( browser.ie ) {
@@ -22460,7 +22446,7 @@ UE.plugins['shortcutmenu'] = function () {
 
         setTimeout (function () {
             var rng = me.selection.getRange ();
-            if (rng.collapsed === false || type == 'contextmenu') {
+            if (rng.collapsed === false || type == "contextmenu") {
 
                 if (!menu) {
                     menu = new baidu.editor.ui.ShortCutMenu ({
@@ -22471,7 +22457,7 @@ UE.plugins['shortcutmenu'] = function () {
                     });
 
                     menu.render ();
-                    me.fireEvent ('afterrendershortcutmenu' , menu);
+                    me.fireEvent ("afterrendershortcutmenu" , menu);
                 }
 
                 menu.show (customEvt , !!UE.plugins['contextmenu']);
@@ -22497,7 +22483,7 @@ UE.plugins['shortcutmenu'] = function () {
     });
 
     me.addListener ('keydown' , function (type) {
-        if (type == 'keydown') {
+        if (type == "keydown") {
             menu && !menu.isHidden && menu.hide ();
         }
 
@@ -22601,9 +22587,9 @@ UE.plugins['basestyle'] = function(){
         me = this;
     //添加快捷键
     me.addshortcutkey({
-        'Bold' : 'ctrl+66',//^B
-        'Italic' : 'ctrl+73', //^I
-        'Underline' : 'ctrl+85'//^U
+        "Bold" : "ctrl+66",//^B
+        "Italic" : "ctrl+73", //^I
+        "Underline" : "ctrl+85"//^U
     });
     me.addInputRule(function(root){
         utils.each(root.getNodesByTagName('b i'),function(node){
@@ -22737,7 +22723,7 @@ UE.plugins['formatmatch'] = function(){
      });
 
     function addList(type,evt){
-
+        
         if(browser.webkit){
             var target = evt.target.tagName == 'IMG' ? evt.target : null;
         }
@@ -22803,7 +22789,7 @@ UE.plugins['formatmatch'] = function(){
 
     me.commands['formatmatch'] = {
         execCommand : function( cmdName ) {
-
+          
             if(flag){
                 flag = 0;
                 list = [];
@@ -22812,7 +22798,7 @@ UE.plugins['formatmatch'] = function(){
             }
 
 
-
+              
             var range = me.selection.getRange();
             img = range.getClosedNode();
             if(!img || img.tagName != 'IMG'){
@@ -22861,37 +22847,21 @@ UE.plugin.register('searchreplace',function(){
 
     var _blockElm = {'table':1,'tbody':1,'tr':1,'ol':1,'ul':1};
 
-    var lastRng = null;
-
-    function getText(node){
-        var text = node.nodeType == 3 ? node.nodeValue : node[browser.ie ? 'innerText' : 'textContent'];
-        return text.replace(domUtils.fillChar,'')
-    }
-
     function findTextInString(textContent,opt,currentIndex){
         var str = opt.searchStr;
-
-        var reg = new RegExp(str,'g' + (opt.casesensitive ? '' : 'i')),
-            match;
-
         if(opt.dir == -1){
-
-            textContent = textContent.substr(0,currentIndex);
             textContent = textContent.split('').reverse().join('');
             str = str.split('').reverse().join('');
-            match = reg.exec(textContent);
-            if(match){
-                return currentIndex - match.index - str.length;
-            }
+            currentIndex = textContent.length - currentIndex;
 
-        }else{
-            textContent = textContent.substr(currentIndex);
-            match = reg.exec(textContent);
-            if(match){
-                return match.index + currentIndex;
+        }
+        var reg = new RegExp(str,'g' + (opt.casesensitive ? '' : 'i')),match;
+
+        while(match = reg.exec(textContent)){
+            if(match.index >= currentIndex){
+                return opt.dir == -1 ? textContent.length - match.index - opt.searchStr.length : match.index;
             }
         }
-
         return  -1
     }
     function findTextBlockElm(node,currentIndex,opt){
@@ -22901,7 +22871,7 @@ UE.plugin.register('searchreplace',function(){
         }
         var first = 1;
         while(node){
-            textContent = getText(node);
+            textContent = node.nodeType == 3 ? node.nodeValue : node[browser.ie ? 'innerText' : 'textContent'];
             index = findTextInString(textContent,opt,currentIndex );
             first = 0;
             if(index!=-1){
@@ -22915,7 +22885,7 @@ UE.plugin.register('searchreplace',function(){
                 node = domUtils[methodName](node,true);
             }
             if(node){
-                currentIndex = opt.dir == -1 ? getText(node).length : 0;
+                currentIndex = opt.dir == -1 ? (node.nodeType == 3 ? node.nodeValue : node[browser.ie ? 'innerText' : 'textContent']).length : 0;
             }
 
         }
@@ -22927,7 +22897,7 @@ UE.plugin.register('searchreplace',function(){
             result;
         while(currentNode){
             if(currentNode.nodeType == 3){
-                currentNodeLength = getText(currentNode).replace(/(^[\t\r\n]+)|([\t\r\n]+$)/,'').length;
+                currentNodeLength = currentNode.nodeValue.replace(/(^[\t\r\n]+)|([\t\r\n]+$)/,'').length;
                 currentIndex += currentNodeLength;
                 if(currentIndex >= index){
                     return {
@@ -22936,7 +22906,7 @@ UE.plugin.register('searchreplace',function(){
                     }
                 }
             }else if(!dtd.$empty[currentNode.tagName]){
-                currentNodeLength = getText(currentNode).replace(/(^[\t\r\n]+)|([\t\r\n]+$)/,'').length;
+                currentNodeLength = currentNode[browser.ie ? 'innerText' : 'textContent'].replace(/(^[\t\r\n]+)|([\t\r\n]+$)/,'').length
                 currentIndex += currentNodeLength;
                 if(currentIndex >= index){
                     result = findNTextInBlockElm(currentNode,currentNodeLength - (currentIndex - index),str);
@@ -22952,7 +22922,7 @@ UE.plugin.register('searchreplace',function(){
 
     function searchReplace(me,opt){
 
-        var rng = lastRng || me.selection.getRange(),
+        var rng = me.selection.getRange(),
             startBlockNode,
             searchStr = opt.searchStr,
             span = me.document.createElement('span');
@@ -22980,7 +22950,7 @@ UE.plugin.register('searchreplace',function(){
         rng.insertNode(span);
         rng.enlargeToBlockElm(true);
         startBlockNode = rng.startContainer;
-        var currentIndex = getText(startBlockNode).indexOf('$$ueditor_searchreplace_key$$');
+        var currentIndex = startBlockNode[browser.ie ? 'innerText' : 'textContent'].indexOf('$$ueditor_searchreplace_key$$');
         rng.setStartBefore(span);
         domUtils.remove(span);
         var result = findTextBlockElm(startBlockNode,currentIndex,opt);
@@ -23016,7 +22986,7 @@ UE.plugin.register('searchreplace',function(){
                     },true);
                     var num = 0;
                     if(opt.all){
-                        lastRng = null;
+
                         var rng = me.selection.getRange(),
                             first = me.body.firstChild;
                         if(first && first.nodeType == 1){
@@ -23031,8 +23001,6 @@ UE.plugin.register('searchreplace',function(){
                         }
                         while(searchReplace(this,opt)){
                             num++;
-                            lastRng = me.selection.getRange();
-                            lastRng.collapse(opt.dir == -1)
                         }
                         if(num){
                             me.fireEvent('saveScene');
@@ -23042,9 +23010,7 @@ UE.plugin.register('searchreplace',function(){
                             me.fireEvent('saveScene');
                         }
                         if(searchReplace(this,opt)){
-                            num++;
-                            lastRng = me.selection.getRange();
-                            lastRng.collapse(opt.dir == -1)
+                            num++
                         }
                         if(num){
                             me.fireEvent('saveScene');
@@ -23055,11 +23021,6 @@ UE.plugin.register('searchreplace',function(){
                     return num;
                 },
                 notNeedUndo:1
-            }
-        },
-        bindEvents:{
-            clearlastSearchResult:function(){
-                lastRng = null;
             }
         }
     }
@@ -23231,11 +23192,11 @@ UE.plugins['catchremoteimage'] = function () {
         catchRemoteImageEnable: false
     });
 
-    me.addListener('afterpaste', function () {
-        me.fireEvent('catchRemoteImage');
+    me.addListener("afterpaste", function () {
+        me.fireEvent("catchRemoteImage");
     });
 
-    me.addListener('catchRemoteImage', function () {
+    me.addListener("catchRemoteImage", function () {
 
         var catcherLocalDomain = me.getOpt('catcherLocalDomain'),
             catcherActionUrl = me.getActionUrl(me.getOpt('catcherActionName')),
@@ -23243,7 +23204,7 @@ UE.plugins['catchremoteimage'] = function () {
             catcherFieldName = me.getOpt('catcherFieldName');
 
         var remoteImages = [],
-            imgs = domUtils.getElementsByTagName(me.document, 'img'),
+            imgs = domUtils.getElementsByTagName(me.document, "img"),
             test = function (src, urls) {
                 if (src.indexOf(location.host) != -1 || /(^\.)|(^\/)/.test(src)) {
                     return true;
@@ -23259,10 +23220,10 @@ UE.plugins['catchremoteimage'] = function () {
             };
 
         for (var i = 0, ci; ci = imgs[i++];) {
-            if (ci.getAttribute('word_img')) {
+            if (ci.getAttribute("word_img")) {
                 continue;
             }
-            var src = ci.getAttribute('_src') || ci.src || '';
+            var src = ci.getAttribute("_src") || ci.src || "";
             if (/^(https?|ftp):/i.test(src) && !test(src, catcherLocalDomain)) {
                 remoteImages.push(src);
             }
@@ -23273,7 +23234,7 @@ UE.plugins['catchremoteimage'] = function () {
                 //成功抓取
                 success: function (r) {
                     try {
-                        var info = r.state !== undefined ? r:eval('(' + r.responseText + ')');
+                        var info = r.state !== undefined ? r:eval("(" + r.responseText + ")");
                     } catch (e) {
                         return;
                     }
@@ -23282,13 +23243,13 @@ UE.plugins['catchremoteimage'] = function () {
                     var i, j, ci, cj, oldSrc, newSrc, list = info.list;
 
                     for (i = 0; ci = imgs[i++];) {
-                        oldSrc = ci.getAttribute('_src') || ci.src || '';
+                        oldSrc = ci.getAttribute("_src") || ci.src || "";
                         for (j = 0; cj = list[j++];) {
-                            if (oldSrc == cj.source && cj.state == 'SUCCESS') {  //抓取失败时不做替换处理
+                            if (oldSrc == cj.source && cj.state == "SUCCESS") {  //抓取失败时不做替换处理
                                 newSrc = catcherUrlPrefix + cj.url;
                                 domUtils.setAttributes(ci, {
-                                    'src': newSrc,
-                                    '_src': newSrc
+                                    "src": newSrc,
+                                    "_src": newSrc
                                 });
                                 break;
                             }
@@ -23298,7 +23259,7 @@ UE.plugins['catchremoteimage'] = function () {
                 },
                 //回调失败，本次请求超时
                 error: function () {
-                    me.fireEvent('catchremoteerror');
+                    me.fireEvent("catchremoteerror");
                 }
             });
         }
@@ -23311,8 +23272,8 @@ UE.plugins['catchremoteimage'] = function () {
                     'method': 'POST',
                     'dataType': isJsonp ? 'jsonp':'',
                     'timeout': 60000, //单位：毫秒，回调请求超时设置。目标用户如果网速不是很快的话此处建议设置一个较大的数值
-                    'onsuccess': callbacks['success'],
-                    'onerror': callbacks['error']
+                    'onsuccess': callbacks["success"],
+                    'onerror': callbacks["error"]
                 };
             opt[catcherFieldName] = imgs;
             ajax.request(url, opt);
@@ -23370,24 +23331,24 @@ UE.plugin.register('snapscreen', function (){
             'snapscreen':{
                 execCommand:function (cmd) {
                     var url, local, res;
-                    var lang = me.getLang('snapScreen_plugin');
+                    var lang = me.getLang("snapScreen_plugin");
 
                     if(!snapplugin){
                         var container = me.container;
                         var doc = me.container.ownerDocument || me.container.document;
-                        snapplugin = doc.createElement('object');
-                        try{snapplugin.type = 'application/x-pluginbaidusnap';}catch(e){
+                        snapplugin = doc.createElement("object");
+                        try{snapplugin.type = "application/x-pluginbaidusnap";}catch(e){
                             return;
                         }
-                        snapplugin.style.cssText = 'position:absolute;left:-9999px;width:0;height:0;';
-                        snapplugin.setAttribute('width','0');
-                        snapplugin.setAttribute('height','0');
+                        snapplugin.style.cssText = "position:absolute;left:-9999px;width:0;height:0;";
+                        snapplugin.setAttribute("width","0");
+                        snapplugin.setAttribute("height","0");
                         container.appendChild(snapplugin);
                     }
 
                     function onSuccess(rs){
                         try{
-                            rs = eval('('+ rs +')');
+                            rs = eval("("+ rs +")");
                             if(rs.state == 'SUCCESS'){
                                 var opt = me.options;
                                 me.execCommand('insertimage', {
@@ -23417,7 +23378,7 @@ UE.plugin.register('snapscreen', function (){
                     }, 50);
                 },
                 queryCommandState: function(){
-                    return (navigator.userAgent.indexOf('Windows',0) != -1) ? 0:-1;
+                    return (navigator.userAgent.indexOf("Windows",0) != -1) ? 0:-1;
                 }
             }
         }
@@ -23551,7 +23512,7 @@ UE.plugin.register('webapp', function (){
     function createInsertStr(obj,toEmbed){
         return  !toEmbed ?
             '<img title="'+obj.title+'" width="' + obj.width + '" height="' + obj.height + '"' +
-                ' src=' + me.options.UEDITOR_HOME_URL + '"themes/default/images/spacer.gif" _logo_url="'+obj.logo+'" style="background:url(' + obj.logo
+                ' src="' + me.options.UEDITOR_HOME_URL + 'themes/default/images/spacer.gif" _logo_url="'+obj.logo+'" style="background:url(' + obj.logo
                 +') no-repeat center center; border:1px solid gray;" class="edui-faked-webapp" _url="' + obj.url + '" ' +
                 (obj.align && !obj.cssfloat? 'align="' + obj.align + '"' : '') +
                 (obj.cssfloat ? 'style="float:' + obj.cssfloat + '"' : '') +
@@ -23574,7 +23535,7 @@ UE.plugin.register('webapp', function (){
                         'height':node.getAttr('height'),
                         'align':node.getAttr('align'),
                         'cssfloat':node.getStyle('float'),
-                        'url':node.getAttr('_url'),
+                        'url':node.getAttr("_url"),
                         'logo':node.getAttr('_logo_url')
                     },true);
                     var embed = UE.uNode.createElement(html);
@@ -23591,7 +23552,7 @@ UE.plugin.register('webapp', function (){
                         'height':node.getAttr('height'),
                         'align':node.getAttr('align'),
                         'cssfloat':node.getStyle('float'),
-                        'url':node.getAttr('src'),
+                        'url':node.getAttr("src"),
                         'logo':node.getAttr('logo_url')
                     }));
                     node.parentNode.replaceChild(img,node);
@@ -23628,12 +23589,12 @@ UE.plugin.register('webapp', function (){
                         str = createInsertStr(utils.extend(obj,{
                             align:'none'
                         }), false);
-                    me.execCommand('inserthtml',str);
+                    me.execCommand("inserthtml",str);
                 },
                 queryCommandState:function () {
                     var me = this,
                         img = me.selection.getRange().getClosedNode(),
-                        flag = img && (img.className == 'edui-faked-webapp');
+                        flag = img && (img.className == "edui-faked-webapp");
                     return flag ? 1 : 0;
                 }
             }
@@ -23652,30 +23613,30 @@ UE.plugin.register('webapp', function (){
 UE.plugins['template'] = function () {
     UE.commands['template'] = {
         execCommand:function (cmd, obj) {
-            obj.html && this.execCommand('inserthtml', obj.html);
+            obj.html && this.execCommand("inserthtml", obj.html);
         }
     };
-    this.addListener('click', function (type, evt) {
+    this.addListener("click", function (type, evt) {
         var el = evt.target || evt.srcElement,
             range = this.selection.getRange();
         var tnode = domUtils.findParent(el, function (node) {
-            if (node.className && domUtils.hasClass(node, 'ue_t')) {
+            if (node.className && domUtils.hasClass(node, "ue_t")) {
                 return node;
             }
         }, true);
         tnode && range.selectNode(tnode).shrinkBoundary().select();
     });
-    this.addListener('keydown', function (type, evt) {
+    this.addListener("keydown", function (type, evt) {
         var range = this.selection.getRange();
         if (!range.collapsed) {
             if (!evt.ctrlKey && !evt.metaKey && !evt.shiftKey && !evt.altKey) {
                 var tnode = domUtils.findParent(range.startContainer, function (node) {
-                    if (node.className && domUtils.hasClass(node, 'ue_t')) {
+                    if (node.className && domUtils.hasClass(node, "ue_t")) {
                         return node;
                     }
                 }, true);
                 if (tnode) {
-                    domUtils.removeClasses(tnode, ['ue_t']);
+                    domUtils.removeClasses(tnode, ["ue_t"]);
                 }
             }
         }
@@ -23710,7 +23671,7 @@ UE.plugin.register('music', function (){
                 if(node.getAttr('class') == 'edui-faked-music'){
                     var cssfloat = node.getStyle('float');
                     var align = node.getAttr('align');
-                    html =  creatInsertStr(node.getAttr('_url'), node.getAttr('width'), node.getAttr('height'), align, cssfloat, true);
+                    html =  creatInsertStr(node.getAttr("_url"), node.getAttr('width'), node.getAttr('height'), align, cssfloat, true);
                     var embed = UE.uNode.createElement(html);
                     node.parentNode.replaceChild(embed,node);
                 }
@@ -23721,7 +23682,7 @@ UE.plugin.register('music', function (){
                 if(node.getAttr('class') == 'edui-faked-music'){
                     var cssfloat = node.getStyle('float');
                     var align = node.getAttr('align');
-                    html =  creatInsertStr(node.getAttr('src'), node.getAttr('width'), node.getAttr('height'), align, cssfloat,false);
+                    html =  creatInsertStr(node.getAttr("src"), node.getAttr('width'), node.getAttr('height'), align, cssfloat,false);
                     var img = UE.uNode.createElement(html);
                     node.parentNode.replaceChild(img,node);
                 }
@@ -23750,13 +23711,13 @@ UE.plugin.register('music', function (){
             'music':{
                 execCommand:function (cmd, musicObj) {
                     var me = this,
-                        str = creatInsertStr(musicObj.url, musicObj.width || 400, musicObj.height || 95, 'none', false);
-                    me.execCommand('inserthtml',str);
+                        str = creatInsertStr(musicObj.url, musicObj.width || 400, musicObj.height || 95, "none", false);
+                    me.execCommand("inserthtml",str);
                 },
                 queryCommandState:function () {
                     var me = this,
                         img = me.selection.getRange().getClosedNode(),
-                        flag = img && (img.className == 'edui-faked-music');
+                        flag = img && (img.className == "edui-faked-music");
                     return flag ? 1 : 0;
                 }
             }
@@ -23800,26 +23761,27 @@ UE.plugin.register('autoupload', function (){
 
         if (filetype == 'image') {
             loadingHtml = '<img class="loadingclass" id="' + loadingId + '" src="' +
-                me.options.themePath + me.options.theme + '/images/spacer.gif">';
+                me.options.themePath + me.options.theme +
+                '/images/spacer.gif" title="' + (me.getLang('autoupload.loading') || '') + '" >';
             successHandler = function(data) {
                 var link = urlPrefix + data.url,
                     loader = me.document.getElementById(loadingId);
                 if (loader) {
-                    domUtils.removeClasses(loader, 'loadingclass');
                     loader.setAttribute('src', link);
                     loader.setAttribute('_src', link);
+                    loader.setAttribute('title', data.title || '');
                     loader.setAttribute('alt', data.original || '');
                     loader.removeAttribute('id');
-                    me.trigger('contentchange',loader);
+                    domUtils.removeClasses(loader, 'loadingclass');
                 }
             };
         } else {
             loadingHtml = '<p>' +
                 '<img class="loadingclass" id="' + loadingId + '" src="' +
-                me.options.themePath + me.options.theme + '/images/spacer.gif">' +
+                me.options.themePath + me.options.theme +
+                '/images/spacer.gif" title="' + (me.getLang('autoupload.loading') || '') + '" >' +
                 '</p>';
             successHandler = function(data) {
-
                 var link = urlPrefix + data.url,
                     loader = me.document.getElementById(loadingId);
 
@@ -23833,6 +23795,7 @@ UE.plugin.register('autoupload', function (){
 
         /* 插入loading的占位符 */
         me.execCommand('inserthtml', loadingHtml);
+
         /* 判断后端配置是否没有加载成功 */
         if (!me.getOpt(filetype + 'ActionName')) {
             errorHandler(me.getLang('autoupload.errorLoadConfig'));
@@ -23858,11 +23821,11 @@ UE.plugin.register('autoupload', function (){
 
         fd.append(fieldName, file, file.name || ('blob.' + file.type.substr('image/'.length)));
         fd.append('type', 'ajax');
-        xhr.open('post', url, true);
-        xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
+        xhr.open("post", url, true);
+        xhr.setRequestHeader("X-Requested-With", "XMLHttpRequest");
         xhr.addEventListener('load', function (e) {
             try{
-                var json = (new Function('return ' + utils.trim(e.target.response)))();
+                var json = (new Function("return " + utils.trim(e.target.response)))();
                 if (json.state == 'SUCCESS' && json.url) {
                     successHandler(json);
                 } else {
@@ -23896,16 +23859,11 @@ UE.plugin.register('autoupload', function (){
             });
         },
         bindEvents:{
-            defaultOptions: {
-                //默认间隔时间
-                enableDragUpload: true,
-                enablePasteUpload: true
-            },
             //插入粘贴板的图片，拖放插入图片
             'ready':function(e){
                 var me = this;
                 if(window.FormData && window.FileReader) {
-                    var handler = function(e){
+                    domUtils.on(me.body, 'paste drop', function(e){
                         var hasImg = false,
                             items;
                         //获取粘贴板文件列表或者拖放文件列表
@@ -23924,28 +23882,13 @@ UE.plugin.register('autoupload', function (){
                             hasImg && e.preventDefault();
                         }
 
-                    };
-
-                    if (me.getOpt('enablePasteUpload') !== false) {
-                        domUtils.on(me.body, 'paste ', handler);
-                    }
-                    if (me.getOpt('enableDragUpload') !== false) {
-                        domUtils.on(me.body, 'drop', handler);
-                        //取消拖放图片时出现的文字光标位置提示
-                        domUtils.on(me.body, 'dragover', function (e) {
-                            if(e.dataTransfer.types[0] == 'Files') {
-                                e.preventDefault();
-                            }
-                        });
-                    } else {
-                        if (browser.gecko) {
-                            domUtils.on(me.body, 'drop', function(e){
-                                if (getDropImage(e)) {
-                                    e.preventDefault();
-                                }
-                            });
+                    });
+                    //取消拖放图片时出现的文字光标位置提示
+                    domUtils.on(me.body, 'dragover', function (e) {
+                        if(e.dataTransfer.types[0] == 'Files') {
+                            e.preventDefault();
                         }
-                    }
+                    });
 
                     //设置loading的样式
                     utils.cssRule('loading',
@@ -23994,7 +23937,7 @@ UE.plugin.register('autosave', function (){
 
         saveData = me.body.innerHTML;
 
-        if ( editor.fireEvent( 'beforeautosave', {
+        if ( editor.fireEvent( "beforeautosave", {
             content: saveData
         } ) === false ) {
             return;
@@ -24002,7 +23945,7 @@ UE.plugin.register('autosave', function (){
 
         me.setPreferences( saveKey, saveData );
 
-        editor.fireEvent( 'afterautosave', {
+        editor.fireEvent( "afterautosave", {
             content: saveData
         } );
 
@@ -24011,13 +23954,12 @@ UE.plugin.register('autosave', function (){
     return {
         defaultOptions: {
             //默认间隔时间
-            saveInterval: 500,
-            enableAutoSave: true
+            saveInterval: 500
         },
         bindEvents:{
             'ready':function(){
 
-                var _suffix = '-drafts-data',
+                var _suffix = "-drafts-data",
                     key = null;
 
                 if ( me.key ) {
@@ -24032,10 +23974,6 @@ UE.plugin.register('autosave', function (){
             },
 
             'contentchange': function () {
-
-                if (!me.getOpt('enableAutoSave')) {
-                    return;
-                }
 
                 if ( !saveKey ) {
                     return;
@@ -24122,7 +24060,7 @@ UE.plugin.register('charts', function (){
                     }
 
                     if ( !validData( tableNode ) ) {
-                        me.fireEvent( 'chartserror' );
+                        me.fireEvent( "chartserror" );
                         return false;
                     }
 
@@ -24143,12 +24081,12 @@ UE.plugin.register('charts', function (){
                             continue;
                         }
 
-                        flagText.push( key+':'+config[ key ] );
+                        flagText.push( key+":"+config[ key ] );
 
                     }
 
-                    tableNode.setAttribute( 'data-chart', flagText.join( ';' ) );
-                    domUtils.addClass( tableNode, 'edui-charts-table' );
+                    tableNode.setAttribute( "data-chart", flagText.join( ";" ) );
+                    domUtils.addClass( tableNode, "edui-charts-table" );
 
 
 
@@ -24164,8 +24102,8 @@ UE.plugin.register('charts', function (){
         inputRule:function(root){
             utils.each(root.getNodesByTagName('table'),function( tableNode ){
 
-                if ( tableNode.getAttr('data-chart') !== undefined ) {
-                    tableNode.setAttr('style');
+                if ( tableNode.getAttr("data-chart") !== undefined ) {
+                    tableNode.setAttr("style");
                 }
 
             })
@@ -24174,8 +24112,8 @@ UE.plugin.register('charts', function (){
         outputRule:function(root){
             utils.each(root.getNodesByTagName('table'),function( tableNode ){
 
-                if ( tableNode.getAttr('data-chart') !== undefined ) {
-                    tableNode.setAttr('style', 'display: none;');
+                if ( tableNode.getAttr("data-chart") !== undefined ) {
+                    tableNode.setAttr("style", "display: none;");
                 }
 
             })
@@ -24575,23 +24513,23 @@ UE.plugin.register('simpleupload', function (){
                 var allowFiles = me.getOpt('imageAllowFiles');
 
                 me.focus();
-                me.execCommand('inserthtml', '<img class="loadingclass" id="' + loadingId + '" src="' + me.options.themePath + me.options.theme +'/images/spacer.gif">');
+                me.execCommand('inserthtml', '<img class="loadingclass" id="' + loadingId + '" src="' + me.options.themePath + me.options.theme +'/images/spacer.gif" title="' + (me.getLang('simpleupload.loading') || '') + '" >');
 
                 function callback(){
                     try{
                         var link, json, loader,
                             body = (iframe.contentDocument || iframe.contentWindow.document).body,
                             result = body.innerText || body.textContent || '';
-                        json = (new Function('return ' + result))();
+                        json = (new Function("return " + result))();
                         link = me.options.imageUrlPrefix + json.url;
                         if(json.state == 'SUCCESS' && json.url) {
                             loader = me.document.getElementById(loadingId);
-                            domUtils.removeClasses(loader, 'loadingclass');
                             loader.setAttribute('src', link);
                             loader.setAttribute('_src', link);
+                            loader.setAttribute('title', json.title || '');
                             loader.setAttribute('alt', json.original || '');
                             loader.removeAttribute('id');
-                            me.fireEvent('contentchange');
+                            domUtils.removeClasses(loader, 'loadingclass');
                         } else {
                             showErrorLoader && showErrorLoader(json.state);
                         }
@@ -24785,9 +24723,9 @@ UE.plugin.register('serverparam', function (){
                             serverParam[key] = value;
                         }
                     } else if (utils.isObject(key)) { //传入对象,覆盖列表项
-                        utils.extend(serverParam, key, false);
+                        utils.extend(serverParam, key, true);
                     } else if (utils.isFunction(key)){ //传入函数,添加列表项
-                        utils.extend(serverParam, key(), false);
+                        utils.extend(serverParam, key(), true);
                     }
                 },
                 queryCommandValue: function(){
@@ -24810,34 +24748,34 @@ UE.plugin.register('insertfile', function (){
     function getFileIcon(url){
         var ext = url.substr(url.lastIndexOf('.') + 1).toLowerCase(),
             maps = {
-                'rar':'icon_rar.gif',
-                'zip':'icon_rar.gif',
-                'tar':'icon_rar.gif',
-                'gz':'icon_rar.gif',
-                'bz2':'icon_rar.gif',
-                'doc':'icon_doc.gif',
-                'docx':'icon_doc.gif',
-                'pdf':'icon_pdf.gif',
-                'mp3':'icon_mp3.gif',
-                'xls':'icon_xls.gif',
-                'chm':'icon_chm.gif',
-                'ppt':'icon_ppt.gif',
-                'pptx':'icon_ppt.gif',
-                'avi':'icon_mv.gif',
-                'rmvb':'icon_mv.gif',
-                'wmv':'icon_mv.gif',
-                'flv':'icon_mv.gif',
-                'swf':'icon_mv.gif',
-                'rm':'icon_mv.gif',
-                'exe':'icon_exe.gif',
-                'psd':'icon_psd.gif',
-                'txt':'icon_txt.gif',
-                'jpg':'icon_jpg.gif',
-                'png':'icon_jpg.gif',
-                'jpeg':'icon_jpg.gif',
-                'gif':'icon_jpg.gif',
-                'ico':'icon_jpg.gif',
-                'bmp':'icon_jpg.gif'
+                "rar":"icon_rar.gif",
+                "zip":"icon_rar.gif",
+                "tar":"icon_rar.gif",
+                "gz":"icon_rar.gif",
+                "bz2":"icon_rar.gif",
+                "doc":"icon_doc.gif",
+                "docx":"icon_doc.gif",
+                "pdf":"icon_pdf.gif",
+                "mp3":"icon_mp3.gif",
+                "xls":"icon_xls.gif",
+                "chm":"icon_chm.gif",
+                "ppt":"icon_ppt.gif",
+                "pptx":"icon_ppt.gif",
+                "avi":"icon_mv.gif",
+                "rmvb":"icon_mv.gif",
+                "wmv":"icon_mv.gif",
+                "flv":"icon_mv.gif",
+                "swf":"icon_mv.gif",
+                "rm":"icon_mv.gif",
+                "exe":"icon_exe.gif",
+                "psd":"icon_psd.gif",
+                "txt":"icon_txt.gif",
+                "jpg":"icon_jpg.gif",
+                "png":"icon_jpg.gif",
+                "jpeg":"icon_jpg.gif",
+                "gif":"icon_jpg.gif",
+                "ico":"icon_jpg.gif",
+                "bmp":"icon_jpg.gif"
             };
         return maps[ext] ? maps[ext]:maps['txt'];
     }
@@ -24847,10 +24785,6 @@ UE.plugin.register('insertfile', function (){
             'insertfile': {
                 execCommand: function (command, filelist){
                     filelist = utils.isArray(filelist) ? filelist : [filelist];
-
-                    if(me.fireEvent('beforeinsertfile',filelist) === true){
-                        return;
-                    }
 
                     var i, item, icon, title,
                         html = '',
@@ -24866,8 +24800,6 @@ UE.plugin.register('insertfile', function (){
                             '</p>';
                     }
                     me.execCommand('insertHtml', html);
-
-                    me.fireEvent('afterinsertfile',filelist);
                 }
             }
         }
@@ -24875,6 +24807,88 @@ UE.plugin.register('insertfile', function (){
 });
 
 
+
+
+// plugins/xssFilter.js
+/**
+ * @file xssFilter.js
+ * @desc xss过滤器
+ * @author robbenmu
+ */
+
+UE.plugins.xssFilter = function() {
+
+	var config = UEDITOR_CONFIG;
+	var whitList = config.whitList;
+
+	function filter(node) {
+
+		var tagName = node.tagName;
+		var attrs = node.attrs;
+
+		if (!whitList.hasOwnProperty(tagName)) {
+			node.parentNode.removeChild(node);
+			return false;
+		}
+
+		UE.utils.each(attrs, function (val, key) {
+
+			if (whitList[tagName].indexOf(key) === -1) {
+				node.setAttr(key);
+			}
+		});
+	}
+
+	// 添加inserthtml\paste等操作用的过滤规则
+	if (whitList && config.xssFilterRules) {
+		this.options.filterRules = function () {
+
+			var result = {};
+
+			UE.utils.each(whitList, function(val, key) {
+				result[key] = function (node) {
+					return filter(node);
+				};
+			});
+
+			return result;
+		}();
+	}
+
+	var tagList = [];
+
+	UE.utils.each(whitList, function (val, key) {
+		tagList.push(key);
+	});
+
+	// 添加input过滤规则
+	//
+	if (whitList && config.inputXssFilter) {
+		this.addInputRule(function (root) {
+
+			root.traversal(function(node) {
+				if (node.type !== 'element') {
+					return false;
+				}
+				filter(node);
+			});
+		});
+	}
+	// 添加output过滤规则
+	//
+	if (whitList && config.outputXssFilter) {
+		this.addOutputRule(function (root) {
+
+			root.traversal(function(node) {
+				if (node.type !== 'element') {
+					return false;
+				}
+				filter(node);
+			});
+		});
+	}
+
+};
 
 
 // ui/ui.js
@@ -25168,15 +25182,15 @@ UE.ui = baidu.editor.ui = {};
             var el = uiUtils.createElementByHtml(html);
 
             //by xuheng 给每个node添加class
-            var list = domUtils.getElementsByTagName(el, '*');
-            var theme = 'edui-' + (this.theme || this.editor.options.theme);
+            var list = domUtils.getElementsByTagName(el, "*");
+            var theme = "edui-" + (this.theme || this.editor.options.theme);
             var layer = document.getElementById('edui_fixedlayer');
             for (var i = 0, node; node = list[i++];) {
                 domUtils.addClass(node, theme);
             }
             domUtils.addClass(el, theme);
             if(layer){
-                layer.className='';
+                layer.className="";
                 domUtils.addClass(layer,theme);
             }
 
@@ -25258,7 +25272,7 @@ UE.ui = baidu.editor.ui = {};
         domUtils = baidu.editor.dom.domUtils,
         UIBase = baidu.editor.ui.UIBase,
         uiUtils = baidu.editor.ui.uiUtils;
-
+    
     var Mask = baidu.editor.ui.Mask = function (options){
         this.initOptions(options);
         this.initUIBase();
@@ -25325,14 +25339,14 @@ UE.ui = baidu.editor.ui = {};
             var pop = allPopups[i];
             if (!pop.isHidden()) {
                 if (pop.queryAutoHide(el) !== false) {
-                    if(evt&&/scroll/ig.test(evt.type)&&pop.className=='edui-wordpastepop')   return;
+                    if(evt&&/scroll/ig.test(evt.type)&&pop.className=="edui-wordpastepop")   return;
                     pop.hide();
                 }
             }
         }
 
         if(allPopups.length)
-            pop.editor.fireEvent('afterhidepop');
+            pop.editor.fireEvent("afterhidepop");
     }
 
     Popup.postHide = closeAllPopup;
@@ -25554,7 +25568,7 @@ UE.ui = baidu.editor.ui = {};
         }
     };
     utils.inherits(Popup, UIBase);
-
+    
     domUtils.on( document, 'mousedown', function ( evt ) {
         var el = evt.target || evt.srcElement;
         closeAllPopup( evt,el );
@@ -25574,7 +25588,7 @@ UE.ui = baidu.editor.ui = {};
         UIBase = baidu.editor.ui.UIBase,
         ColorPicker = baidu.editor.ui.ColorPicker = function (options){
             this.initOptions(options);
-            this.noColorText = this.noColorText || this.editor.getLang('clearColor');
+            this.noColorText = this.noColorText || this.editor.getLang("clearColor");
             this.initUIBase();
         };
 
@@ -25621,11 +25635,11 @@ UE.ui = baidu.editor.ui = {};
             '<div unselectable="on" class="edui-colorpicker-nocolor" onclick="$$._onPickNoColor(event, this);">'+ noColorText +'</div>' +
             '</div>' +
             '<table  class="edui-box" style="border-collapse: collapse;" onmouseover="$$._onTableOver(event, this);" onmouseout="$$._onTableOut(event, this);" onclick="return $$._onTableClick(event, this);" cellspacing="0" cellpadding="0">' +
-            '<tr style="border-bottom: 1px solid #ddd;font-size: 13px;line-height: 25px;color:#39C;padding-top: 2px"><td colspan="10">'+editor.getLang('themeColor')+'</td> </tr>'+
+            '<tr style="border-bottom: 1px solid #ddd;font-size: 13px;line-height: 25px;color:#39C;padding-top: 2px"><td colspan="10">'+editor.getLang("themeColor")+'</td> </tr>'+
             '<tr class="edui-colorpicker-tablefirstrow" >';
         for (var i=0; i<COLORS.length; i++) {
             if (i && i%10 === 0) {
-                html += '</tr>'+(i==60?'<tr style="border-bottom: 1px solid #ddd;font-size: 13px;line-height: 25px;color:#39C;"><td colspan="10">'+editor.getLang('standardColor')+'</td></tr>':'')+'<tr'+(i==60?' class="edui-colorpicker-tablefirstrow"':'')+'>';
+                html += '</tr>'+(i==60?'<tr style="border-bottom: 1px solid #ddd;font-size: 13px;line-height: 25px;color:#39C;"><td colspan="10">'+editor.getLang("standardColor")+'</td></tr>':'')+'<tr'+(i==60?' class="edui-colorpicker-tablefirstrow"':'')+'>';
             }
             html += i<70 ? '<td style="padding: 0 2px;"><a hidefocus title="'+COLORS[i]+'" onclick="return false;" href="javascript:" unselectable="on" class="edui-box edui-colorpicker-colorcell"' +
                 ' data-color="#'+ COLORS[i] +'"'+
@@ -25650,7 +25664,7 @@ UE.ui = baidu.editor.ui = {};
     var utils = baidu.editor.utils,
         uiUtils = baidu.editor.ui.uiUtils,
         UIBase = baidu.editor.ui.UIBase;
-
+    
     var TablePicker = baidu.editor.ui.TablePicker = function (options){
         this.initOptions(options);
         this.initTablePicker();
@@ -25687,7 +25701,7 @@ UE.ui = baidu.editor.ui = {};
         _UIBase_render: UIBase.prototype.render,
         render: function (holder){
             this._UIBase_render(holder);
-            this.getDom('label').innerHTML = '0'+this.editor.getLang('t_row')+' x 0'+this.editor.getLang('t_col');
+            this.getDom('label').innerHTML = '0'+this.editor.getLang("t_row")+' x 0'+this.editor.getLang("t_col");
         },
         _track: function (numCols, numRows){
             var style = this.getDom('overlay').style;
@@ -25695,21 +25709,21 @@ UE.ui = baidu.editor.ui = {};
             style.width = numCols * sideLen + 'px';
             style.height = numRows * sideLen + 'px';
             var label = this.getDom('label');
-            label.innerHTML = numCols +this.editor.getLang('t_col')+' x ' + numRows + this.editor.getLang('t_row');
+            label.innerHTML = numCols +this.editor.getLang("t_col")+' x ' + numRows + this.editor.getLang("t_row");
             this.numCols = numCols;
             this.numRows = numRows;
         },
         _onMouseOver: function (evt, el){
             var rel = evt.relatedTarget || evt.fromElement;
             if (!uiUtils.contains(el, rel) && el !== rel) {
-                this.getDom('label').innerHTML = '0'+this.editor.getLang('t_col')+' x 0'+this.editor.getLang('t_row');
+                this.getDom('label').innerHTML = '0'+this.editor.getLang("t_col")+' x 0'+this.editor.getLang("t_row");
                 this.getDom('overlay').style.visibility = '';
             }
         },
         _onMouseOut: function (evt, el){
             var rel = evt.relatedTarget || evt.toElement;
             if (!uiUtils.contains(el, rel) && el !== rel) {
-                this.getDom('label').innerHTML = '0'+this.editor.getLang('t_col')+' x 0'+this.editor.getLang('t_row');
+                this.getDom('label').innerHTML = '0'+this.editor.getLang("t_col")+' x 0'+this.editor.getLang("t_row");
                 this.getDom('overlay').style.visibility = 'hidden';
             }
         },
@@ -25734,7 +25748,7 @@ UE.ui = baidu.editor.ui = {};
     var browser = baidu.editor.browser,
         domUtils = baidu.editor.dom.domUtils,
         uiUtils = baidu.editor.ui.uiUtils;
-
+    
     var TPL_STATEFUL = 'onmousedown="$$.Stateful_onMouseDown(event, this);"' +
         ' onmouseup="$$.Stateful_onMouseUp(event, this);"' +
         ( browser.ie ? (
@@ -25743,7 +25757,7 @@ UE.ui = baidu.editor.ui = {};
         : (
         ' onmouseover="$$.Stateful_onMouseOver(event, this);"' +
         ' onmouseout="$$.Stateful_onMouseOut(event, this);"' ));
-
+    
     baidu.editor.ui.Stateful = {
         alwalysHoverable: false,
         target:null,//目标元素和this指向dom不一样
@@ -25855,7 +25869,7 @@ UE.ui = baidu.editor.ui = {};
                 if(!options.className){
                     options.className =  'edui-for-' + btnName;
                 }
-                options.cssRules = '.edui-' + (options.theme || 'default') + ' .edui-toolbar .edui-button.edui-for-'+ btnName +' .edui-icon {'+ cssRules +'}'
+                options.cssRules = '.edui-default  .edui-for-'+ btnName +' .edui-icon {'+ cssRules +'}'
             }
             this.initOptions(options);
             this.initButton();
@@ -26023,7 +26037,7 @@ UE.ui = baidu.editor.ui = {};
             var me = this;
             this.popup = new Popup({
                 content: new ColorPicker({
-                    noColorText: me.editor.getLang('clearColor'),
+                    noColorText: me.editor.getLang("clearColor"),
                     editor:me.editor,
                     onpickcolor: function (t, color){
                         me._onPickColor(color);
@@ -26123,7 +26137,7 @@ UE.ui = baidu.editor.ui = {};
         getHtmlTpl:function () {
             var me = this.editor,
                 opt = me.options.autotypeset,
-                lang = me.getLang('autoTypeSet');
+                lang = me.getLang("autoTypeSet");
 
             var textAlignInputName = 'textAlignValue' + me.uid,
                 imageBlockInputName = 'imageBlockLineValue' + me.uid,
@@ -26132,33 +26146,33 @@ UE.ui = baidu.editor.ui = {};
             return '<div id="##" class="edui-autotypesetpicker %%">' +
                 '<div class="edui-autotypesetpicker-body">' +
                 '<table >' +
-                '<tr><td nowrap><input type="checkbox" name="mergeEmptyline" ' + (opt['mergeEmptyline'] ? 'checked' : '' ) + '>' + lang.mergeLine + '</td><td colspan="2"><input type="checkbox" name="removeEmptyline" ' + (opt['removeEmptyline'] ? 'checked' : '' ) + '>' + lang.delLine + '</td></tr>' +
-                '<tr><td nowrap><input type="checkbox" name="removeClass" ' + (opt['removeClass'] ? 'checked' : '' ) + '>' + lang.removeFormat + '</td><td colspan="2"><input type="checkbox" name="indent" ' + (opt['indent'] ? 'checked' : '' ) + '>' + lang.indent + '</td></tr>' +
+                '<tr><td nowrap><input type="checkbox" name="mergeEmptyline" ' + (opt["mergeEmptyline"] ? "checked" : "" ) + '>' + lang.mergeLine + '</td><td colspan="2"><input type="checkbox" name="removeEmptyline" ' + (opt["removeEmptyline"] ? "checked" : "" ) + '>' + lang.delLine + '</td></tr>' +
+                '<tr><td nowrap><input type="checkbox" name="removeClass" ' + (opt["removeClass"] ? "checked" : "" ) + '>' + lang.removeFormat + '</td><td colspan="2"><input type="checkbox" name="indent" ' + (opt["indent"] ? "checked" : "" ) + '>' + lang.indent + '</td></tr>' +
                 '<tr>' +
-                '<td nowrap><input type="checkbox" name="textAlign" ' + (opt['textAlign'] ? 'checked' : '' ) + '>' + lang.alignment + '</td>' +
+                '<td nowrap><input type="checkbox" name="textAlign" ' + (opt["textAlign"] ? "checked" : "" ) + '>' + lang.alignment + '</td>' +
                 '<td colspan="2" id="' + textAlignInputName + '">' +
-                '<input type="radio" name="'+ textAlignInputName +'" value="left" ' + ((opt['textAlign'] && opt['textAlign'] == 'left') ? 'checked' : '') + '>' + me.getLang('justifyleft') +
-                '<input type="radio" name="'+ textAlignInputName +'" value="center" ' + ((opt['textAlign'] && opt['textAlign'] == 'center') ? 'checked' : '') + '>' + me.getLang('justifycenter') +
-                '<input type="radio" name="'+ textAlignInputName +'" value="right" ' + ((opt['textAlign'] && opt['textAlign'] == 'right') ? 'checked' : '') + '>' + me.getLang('justifyright') +
+                '<input type="radio" name="'+ textAlignInputName +'" value="left" ' + ((opt["textAlign"] && opt["textAlign"] == "left") ? "checked" : "") + '>' + me.getLang("justifyleft") +
+                '<input type="radio" name="'+ textAlignInputName +'" value="center" ' + ((opt["textAlign"] && opt["textAlign"] == "center") ? "checked" : "") + '>' + me.getLang("justifycenter") +
+                '<input type="radio" name="'+ textAlignInputName +'" value="right" ' + ((opt["textAlign"] && opt["textAlign"] == "right") ? "checked" : "") + '>' + me.getLang("justifyright") +
                 '</td>' +
                 '</tr>' +
                 '<tr>' +
-                '<td nowrap><input type="checkbox" name="imageBlockLine" ' + (opt['imageBlockLine'] ? 'checked' : '' ) + '>' + lang.imageFloat + '</td>' +
+                '<td nowrap><input type="checkbox" name="imageBlockLine" ' + (opt["imageBlockLine"] ? "checked" : "" ) + '>' + lang.imageFloat + '</td>' +
                 '<td nowrap id="'+ imageBlockInputName +'">' +
-                '<input type="radio" name="'+ imageBlockInputName +'" value="none" ' + ((opt['imageBlockLine'] && opt['imageBlockLine'] == 'none') ? 'checked' : '') + '>' + me.getLang('default') +
-                '<input type="radio" name="'+ imageBlockInputName +'" value="left" ' + ((opt['imageBlockLine'] && opt['imageBlockLine'] == 'left') ? 'checked' : '') + '>' + me.getLang('justifyleft') +
-                '<input type="radio" name="'+ imageBlockInputName +'" value="center" ' + ((opt['imageBlockLine'] && opt['imageBlockLine'] == 'center') ? 'checked' : '') + '>' + me.getLang('justifycenter') +
-                '<input type="radio" name="'+ imageBlockInputName +'" value="right" ' + ((opt['imageBlockLine'] && opt['imageBlockLine'] == 'right') ? 'checked' : '') + '>' + me.getLang('justifyright') +
+                '<input type="radio" name="'+ imageBlockInputName +'" value="none" ' + ((opt["imageBlockLine"] && opt["imageBlockLine"] == "none") ? "checked" : "") + '>' + me.getLang("default") +
+                '<input type="radio" name="'+ imageBlockInputName +'" value="left" ' + ((opt["imageBlockLine"] && opt["imageBlockLine"] == "left") ? "checked" : "") + '>' + me.getLang("justifyleft") +
+                '<input type="radio" name="'+ imageBlockInputName +'" value="center" ' + ((opt["imageBlockLine"] && opt["imageBlockLine"] == "center") ? "checked" : "") + '>' + me.getLang("justifycenter") +
+                '<input type="radio" name="'+ imageBlockInputName +'" value="right" ' + ((opt["imageBlockLine"] && opt["imageBlockLine"] == "right") ? "checked" : "") + '>' + me.getLang("justifyright") +
                 '</td>' +
                 '</tr>' +
-                '<tr><td nowrap><input type="checkbox" name="clearFontSize" ' + (opt['clearFontSize'] ? 'checked' : '' ) + '>' + lang.removeFontsize + '</td><td colspan="2"><input type="checkbox" name="clearFontFamily" ' + (opt['clearFontFamily'] ? 'checked' : '' ) + '>' + lang.removeFontFamily + '</td></tr>' +
-                '<tr><td nowrap colspan="3"><input type="checkbox" name="removeEmptyNode" ' + (opt['removeEmptyNode'] ? 'checked' : '' ) + '>' + lang.removeHtml + '</td></tr>' +
-                '<tr><td nowrap colspan="3"><input type="checkbox" name="pasteFilter" ' + (opt['pasteFilter'] ? 'checked' : '' ) + '>' + lang.pasteFilter + '</td></tr>' +
+                '<tr><td nowrap><input type="checkbox" name="clearFontSize" ' + (opt["clearFontSize"] ? "checked" : "" ) + '>' + lang.removeFontsize + '</td><td colspan="2"><input type="checkbox" name="clearFontFamily" ' + (opt["clearFontFamily"] ? "checked" : "" ) + '>' + lang.removeFontFamily + '</td></tr>' +
+                '<tr><td nowrap colspan="3"><input type="checkbox" name="removeEmptyNode" ' + (opt["removeEmptyNode"] ? "checked" : "" ) + '>' + lang.removeHtml + '</td></tr>' +
+                '<tr><td nowrap colspan="3"><input type="checkbox" name="pasteFilter" ' + (opt["pasteFilter"] ? "checked" : "" ) + '>' + lang.pasteFilter + '</td></tr>' +
                 '<tr>' +
-                '<td nowrap><input type="checkbox" name="symbolConver" ' + (opt['bdc2sb'] || opt['tobdc'] ? 'checked' : '' ) + '>' + lang.symbol + '</td>' +
+                '<td nowrap><input type="checkbox" name="symbolConver" ' + (opt["bdc2sb"] || opt["tobdc"] ? "checked" : "" ) + '>' + lang.symbol + '</td>' +
                 '<td id="' + symbolConverInputName + '">' +
-                '<input type="radio" name="bdc" value="bdc2sb" ' + (opt['bdc2sb'] ? 'checked' : '' ) + '>' + lang.bdc2sb +
-                '<input type="radio" name="bdc" value="tobdc" ' + (opt['tobdc'] ? 'checked' : '' ) + '>' + lang.tobdc + '' +
+                '<input type="radio" name="bdc" value="bdc2sb" ' + (opt["bdc2sb"] ? "checked" : "" ) + '>' + lang.bdc2sb +
+                '<input type="radio" name="bdc" value="tobdc" ' + (opt["tobdc"] ? "checked" : "" ) + '>' + lang.tobdc + '' +
                 '</td>' +
                 '<td nowrap align="right"><button >' + lang.run + '</button></td>' +
                 '</tr>' +
@@ -26196,19 +26210,19 @@ UE.ui = baidu.editor.ui = {};
             editorId = me.editor.uid,
             inputType = null,
             attrName = null,
-            ipts = domUtils.getElementsByTagName(cont,'input');
+            ipts = domUtils.getElementsByTagName(cont,"input");
         for(var i=ipts.length-1,ipt;ipt=ipts[i--];){
-            inputType = ipt.getAttribute('type');
-            if(inputType=='checkbox'){
-                attrName = ipt.getAttribute('name');
+            inputType = ipt.getAttribute("type");
+            if(inputType=="checkbox"){
+                attrName = ipt.getAttribute("name");
                 opt[attrName] && delete opt[attrName];
                 if(ipt.checked){
-                    var attrValue = document.getElementById( attrName + 'Value' + editorId );
+                    var attrValue = document.getElementById( attrName + "Value" + editorId );
                     if(attrValue){
                         if(/input/ig.test(attrValue.tagName)){
                             opt[attrName] = attrValue.value;
                         } else {
-                            var iptChilds = attrValue.getElementsByTagName('input');
+                            var iptChilds = attrValue.getElementsByTagName("input");
                             for(var j=iptChilds.length-1,iptchild;iptchild=iptChilds[j--];){
                                 if(iptchild.checked){
                                     opt[attrName] = iptchild.value;
@@ -26223,12 +26237,12 @@ UE.ui = baidu.editor.ui = {};
                     opt[attrName] = false;
                 }
             } else {
-                opt[ipt.getAttribute('value')] = ipt.checked;
+                opt[ipt.getAttribute("value")] = ipt.checked;
             }
 
         }
 
-        var selects = domUtils.getElementsByTagName(cont,'select');
+        var selects = domUtils.getElementsByTagName(cont,"select");
         for(var i=0,si;si=selects[i++];){
             var attr = si.getAttribute('name');
             opt[attr] = opt[attr] ? si.value : '';
@@ -26400,7 +26414,7 @@ UE.ui = baidu.editor.ui = {};
         _onClick: function (evt){
             var target= evt.target || evt.srcElement;
             if(/icon/.test(target.className)){
-                this.items[target.parentNode.getAttribute('index')].onclick();
+                this.items[target.parentNode.getAttribute("index")].onclick();
                 Popup.postHide(evt);
             }
         },
@@ -26435,13 +26449,13 @@ UE.ui = baidu.editor.ui = {};
         getHtmlTpl:function () {
             return '<div class="edui-pasteicon" onclick="$$._onClick(this)"></div>' +
                 '<div class="edui-pastecontainer">' +
-                '<div class="edui-title">' + this.editor.getLang('pasteOpt') + '</div>' +
+                '<div class="edui-title">' + this.editor.getLang("pasteOpt") + '</div>' +
                 '<div class="edui-button">' +
-                '<div title="' + this.editor.getLang('pasteSourceFormat') + '" onclick="$$.format(false)" stateful>' +
+                '<div title="' + this.editor.getLang("pasteSourceFormat") + '" onclick="$$.format(false)" stateful>' +
                 '<div class="edui-richtxticon"></div></div>' +
-                '<div title="' + this.editor.getLang('tagFormat') + '" onclick="$$.format(2)" stateful>' +
+                '<div title="' + this.editor.getLang("tagFormat") + '" onclick="$$.format(2)" stateful>' +
                 '<div class="edui-tagicon"></div></div>' +
-                '<div title="' + this.editor.getLang('pasteTextFormat') + '" onclick="$$.format(true)" stateful>' +
+                '<div title="' + this.editor.getLang("pasteTextFormat") + '" onclick="$$.format(true)" stateful>' +
                 '<div class="edui-plaintxticon"></div></div>' +
                 '</div>' +
                 '</div>' +
@@ -26460,16 +26474,16 @@ UE.ui = baidu.editor.ui = {};
                 subPop = uiUtils.getClientRect(node);
 
             if ((subPop.top + subPop.height) > screenHt)
-                node.style.top = (-subPop.height - cur.offsetHeight) + 'px';
+                node.style.top = (-subPop.height - cur.offsetHeight) + "px";
             else
-                node.style.top = '';
+                node.style.top = "";
 
-            if (/hidden/ig.test(domUtils.getComputedStyle(node, 'visibility'))) {
-                node.style.visibility = 'visible';
-                domUtils.addClass(cur, 'edui-state-opened');
+            if (/hidden/ig.test(domUtils.getComputedStyle(node, "visibility"))) {
+                node.style.visibility = "visible";
+                domUtils.addClass(cur, "edui-state-opened");
             } else {
-                node.style.visibility = 'hidden';
-                domUtils.removeClasses(cur, 'edui-state-opened')
+                node.style.visibility = "hidden";
+                domUtils.removeClasses(cur, "edui-state-opened")
             }
         },
         _UIBase_render:UIBase.prototype.render
@@ -26667,7 +26681,7 @@ UE.ui = baidu.editor.ui = {};
         this.initUIBase();
         this.Stateful_init();
         if (this.subMenu && !(this.subMenu instanceof Menu)) {
-            if (options.className && options.className.indexOf('aligntd') != -1) {
+            if (options.className && options.className.indexOf("aligntd") != -1) {
                 var me = this;
 
                 //获取单元格对齐初始状态
@@ -26683,8 +26697,8 @@ UE.ui = baidu.editor.ui = {};
                         }
                     }
                 });
-                this.subMenu.addListener('postRenderAfter', function () {
-                    domUtils.on(this.getDom(), 'mouseover', function () {
+                this.subMenu.addListener("postRenderAfter", function () {
+                    domUtils.on(this.getDom(), "mouseover", function () {
                         me.addState('opened');
                     });
                 });
@@ -26933,7 +26947,7 @@ UE.ui = baidu.editor.ui = {};
                     options.className =  'edui-for-' + name;
                 }
                 if(cssRules){
-                    options.cssRules = '.edui-for-'+ name +' .edui-dialog-content  {'+ cssRules +'}'
+                    options.cssRules = '.edui-default .edui-for-'+ name +' .edui-dialog-content  {'+ cssRules +'}'
                 }
             }
             this.initOptions(utils.extend({
@@ -26959,7 +26973,6 @@ UE.ui = baidu.editor.ui = {};
             var me = this,
                 theme=this.editor.options.theme;
             if(this.cssRules){
-                this.cssRules = '.edui-' + theme + ' ' + this.cssRules;
                 utils.cssRule('edui-customize-'+this.name+'-style',this.cssRules);
             }
             this.initUIBase();
@@ -26999,7 +27012,7 @@ UE.ui = baidu.editor.ui = {};
 
             var me = this;
 
-            domUtils.on( window, 'resize', function () {
+            domUtils.on( window, "resize", function () {
 
                 if ( me._hidden || me._hidden === undefined ) {
                     return;
@@ -27019,13 +27032,13 @@ UE.ui = baidu.editor.ui = {};
                         contentRect = UE.ui.uiUtils.getClientRect( contentNode ),
                         vpRect = uiUtils.getViewportRect();
 
-                    contentNode.style.width = ( vpRect.width - wrapRect.width + contentRect.width ) + 'px';
-                    contentNode.style.height = ( vpRect.height - wrapRect.height + contentRect.height ) + 'px';
+                    contentNode.style.width = ( vpRect.width - wrapRect.width + contentRect.width ) + "px";
+                    contentNode.style.height = ( vpRect.height - wrapRect.height + contentRect.height ) + "px";
 
-                    dialogWrapNode.style.width = vpRect.width + 'px';
-                    dialogWrapNode.style.height = vpRect.height + 'px';
+                    dialogWrapNode.style.width = vpRect.width + "px";
+                    dialogWrapNode.style.height = vpRect.height + "px";
 
-                    me.fireEvent( 'resize' );
+                    me.fireEvent( "resize" );
 
                 }, 100 );
 
@@ -27081,17 +27094,17 @@ UE.ui = baidu.editor.ui = {};
                 var dialogWrapNode = this.getDom(),
                     contentNode = this.getDom('content');
 
-                dialogWrapNode.style.display = 'block';
+                dialogWrapNode.style.display = "block";
 
                 var wrapRect = UE.ui.uiUtils.getClientRect( dialogWrapNode ),
                     contentRect = UE.ui.uiUtils.getClientRect( contentNode );
-                dialogWrapNode.style.left = '-100000px';
+                dialogWrapNode.style.left = "-100000px";
 
-                contentNode.style.width = ( vpRect.width - wrapRect.width + contentRect.width ) + 'px';
-                contentNode.style.height = ( vpRect.height - wrapRect.height + contentRect.height ) + 'px';
+                contentNode.style.width = ( vpRect.width - wrapRect.width + contentRect.width ) + "px";
+                contentNode.style.height = ( vpRect.height - wrapRect.height + contentRect.height ) + "px";
 
-                dialogWrapNode.style.width = vpRect.width + 'px';
-                dialogWrapNode.style.height = vpRect.height + 'px';
+                dialogWrapNode.style.width = vpRect.width + "px";
+                dialogWrapNode.style.height = vpRect.height + "px";
                 dialogWrapNode.style.left = 0;
 
                 //保存环境的overflow值
@@ -27348,7 +27361,7 @@ UE.ui = baidu.editor.ui = {};
     MenuButton.prototype = {
         initMenuButton: function (){
             var me = this;
-            this.uiName = 'menubutton';
+            this.uiName = "menubutton";
             this.popup = new Menu({
                 items: me.items,
                 className: me.className,
@@ -27369,7 +27382,7 @@ UE.ui = baidu.editor.ui = {};
         setValue : function(value){
             this._value = value;
         }
-
+        
     };
     utils.inherits(MenuButton, SplitButton);
 })();
@@ -27449,10 +27462,10 @@ UE.ui = baidu.editor.ui = {};
             var me = this,
                 doc = me.editor.document;
 
-            domUtils.on (doc , 'mousemove' , function (e) {
+            domUtils.on (doc , "mousemove" , function (e) {
                 if (me.isHidden === false) {
                     //有pop显示就不隐藏快捷菜单
-                    if (me.getSubMenuMark () || me.eventType == 'contextmenu')   return;
+                    if (me.getSubMenuMark () || me.eventType == "contextmenu")   return;
 
 
                     var flag = true,
@@ -27467,18 +27480,18 @@ UE.ui = baidu.editor.ui = {};
                     clearTimeout (timeID);
                     timeID = setTimeout (function () {
                         if (y > 0 && y < distanceY) {
-                            me.setOpacity (el , '1');
+                            me.setOpacity (el , "1");
                         } else if (y > distanceY && y < distanceY + 70) {
-                            me.setOpacity (el , '0.5');
+                            me.setOpacity (el , "0.5");
                             flag = false;
                         } else if (y > distanceY + 70 && y < distanceY + 140) {
                             me.hide ();
                         }
 
                         if (flag && x > 0 && x < distanceX) {
-                            me.setOpacity (el , '1')
+                            me.setOpacity (el , "1")
                         } else if (x > distanceX && x < distanceX + 70) {
-                            me.setOpacity (el , '0.5')
+                            me.setOpacity (el , "0.5")
                         } else if (x > distanceX + 70 && x < distanceX + 140) {
                             me.hide ();
                         }
@@ -27488,16 +27501,16 @@ UE.ui = baidu.editor.ui = {};
 
             //ie\ff下 mouseout不准
             if (browser.chrome) {
-                domUtils.on (doc , 'mouseout' , function (e) {
+                domUtils.on (doc , "mouseout" , function (e) {
                     var relatedTgt = e.relatedTarget || e.toElement;
 
-                    if (relatedTgt == null || relatedTgt.tagName == 'HTML') {
+                    if (relatedTgt == null || relatedTgt.tagName == "HTML") {
                         me.hide ();
                     }
                 });
             }
 
-            me.editor.addListener ('afterhidepop' , function () {
+            me.editor.addListener ("afterhidepop" , function () {
                 if (!me.isHidden) {
                     isSubMenuShow = true;
                 }
@@ -27511,14 +27524,14 @@ UE.ui = baidu.editor.ui = {};
 
                     if (UI[item]) {
                         this.items[i] = new UI[item] (this.editor);
-                        this.items[i].className += ' edui-shortcutsubmenu ';
+                        this.items[i].className += " edui-shortcutsubmenu ";
                     }
                 }
             }
         } ,
         setOpacity : function (el , value) {
             if (browser.ie && browser.version < 9) {
-                el.style.filter = 'alpha(opacity = ' + parseFloat (value) * 100 + ');'
+                el.style.filter = "alpha(opacity = " + parseFloat (value) * 100 + ");"
             } else {
                 el.style.opacity = value;
             }
@@ -27526,12 +27539,12 @@ UE.ui = baidu.editor.ui = {};
         getSubMenuMark : function () {
             isSubMenuShow = false;
             var layerEle = uiUtils.getFixedLayer ();
-            var list = domUtils.getElementsByTagName (layerEle , 'div' , function (node) {
-                return domUtils.hasClass (node , 'edui-shortcutsubmenu edui-popup')
+            var list = domUtils.getElementsByTagName (layerEle , "div" , function (node) {
+                return domUtils.hasClass (node , "edui-shortcutsubmenu edui-popup")
             });
 
             for (var i = 0, node ; node = list[i++] ;) {
-                if (node.style.display != 'none') {
+                if (node.style.display != "none") {
                     isSubMenuShow = true;
                 }
             }
@@ -27550,7 +27563,7 @@ UE.ui = baidu.editor.ui = {};
                 if (offset.top < 0) {
                     offset.top = 0;
                 }
-                el.style.cssText = 'position:absolute;left:' + offset.left + 'px;top:' + offset.top + 'px;';
+                el.style.cssText = "position:absolute;left:" + offset.left + "px;top:" + offset.top + "px;";
             }
 
             function setPosByCxtMenu (menu) {
@@ -27565,14 +27578,14 @@ UE.ui = baidu.editor.ui = {};
 
 
             me.eventType = e.type;
-            el.style.cssText = 'display:block;left:-9999px';
+            el.style.cssText = "display:block;left:-9999px";
 
-            if (e.type == 'contextmenu' && hasContextmenu) {
-                var menu = domUtils.getElementsByTagName (fixedlayer , 'div' , 'edui-contextmenu')[0];
+            if (e.type == "contextmenu" && hasContextmenu) {
+                var menu = domUtils.getElementsByTagName (fixedlayer , "div" , "edui-contextmenu")[0];
                 if (menu) {
                     setPosByCxtMenu (menu)
                 } else {
-                    me.editor.addListener ('aftershowcontextmenu' , function (type , menu) {
+                    me.editor.addListener ("aftershowcontextmenu" , function (type , menu) {
                         setPosByCxtMenu (menu);
                     });
                 }
@@ -27596,7 +27609,7 @@ UE.ui = baidu.editor.ui = {};
         } ,
         hide : function () {
             if (this.getDom ()) {
-                this.getDom ().style.display = 'none';
+                this.getDom ().style.display = "none";
             }
             this.isHidden = true;
         } ,
@@ -27614,7 +27627,7 @@ UE.ui = baidu.editor.ui = {};
                 for (var i = 0 ; i < this.items.length ; i++) {
                     buff[i] = this.items[i].renderHtml ();
                 }
-                buff = buff.join ('');
+                buff = buff.join ("");
             } else {
                 buff = this.items;
             }
@@ -27630,7 +27643,7 @@ UE.ui = baidu.editor.ui = {};
     function hideAllMenu (e) {
         var tgt = e.target || e.srcElement,
             cur = domUtils.findParent (tgt , function (node) {
-                return domUtils.hasClass (node , 'edui-shortcutmenu') || domUtils.hasClass (node , 'edui-popup');
+                return domUtils.hasClass (node , "edui-shortcutmenu") || domUtils.hasClass (node , "edui-popup");
             } , true);
 
         if (!cur) {
@@ -27828,7 +27841,7 @@ UE.ui = baidu.editor.ui = {};
             return function (editor) {
                 var ui = new editorui.Button({
                     className:'edui-for-' + cmd,
-                    title:editor.options.labelMap[cmd] || editor.getLang('labelMap.' + cmd) || '',
+                    title:editor.options.labelMap[cmd] || editor.getLang("labelMap." + cmd) || '',
                     onclick:function () {
                         editor.execCommand(cmd);
                     },
@@ -27857,15 +27870,15 @@ UE.ui = baidu.editor.ui = {};
     editorui.cleardoc = function (editor) {
         var ui = new editorui.Button({
             className:'edui-for-cleardoc',
-            title:editor.options.labelMap.cleardoc || editor.getLang('labelMap.cleardoc') || '',
+            title:editor.options.labelMap.cleardoc || editor.getLang("labelMap.cleardoc") || '',
             theme:editor.options.theme,
             onclick:function () {
-                if (confirm(editor.getLang('confirmClear'))) {
+                if (confirm(editor.getLang("confirmClear"))) {
                     editor.execCommand('cleardoc');
                 }
             }
         });
-        editorui.buttons['cleardoc'] = ui;
+        editorui.buttons["cleardoc"] = ui;
         editor.addListener('selectionchange', function () {
             ui.setDisabled(editor.queryCommandState('cleardoc') == -1);
         });
@@ -27887,7 +27900,7 @@ UE.ui = baidu.editor.ui = {};
                     editorui[cmd.replace('float', '') + cmd2] = function (editor) {
                         var ui = new editorui.Button({
                             className:'edui-for-' + cmd.replace('float', '') + cmd2,
-                            title:editor.options.labelMap[cmd.replace('float', '') + cmd2] || editor.getLang('labelMap.' + cmd.replace('float', '') + cmd2) || '',
+                            title:editor.options.labelMap[cmd.replace('float', '') + cmd2] || editor.getLang("labelMap." + cmd.replace('float', '') + cmd2) || '',
                             theme:editor.options.theme,
                             onclick:function () {
                                 editor.execCommand(cmd, cmd2);
@@ -27912,7 +27925,7 @@ UE.ui = baidu.editor.ui = {};
                 var ui = new editorui.ColorButton({
                     className:'edui-for-' + cmd,
                     color:'default',
-                    title:editor.options.labelMap[cmd] || editor.getLang('labelMap.' + cmd) || '',
+                    title:editor.options.labelMap[cmd] || editor.getLang("labelMap." + cmd) || '',
                     editor:editor,
                     onpickcolor:function (t, color) {
                         editor.execCommand(cmd, color);
@@ -27946,13 +27959,13 @@ UE.ui = baidu.editor.ui = {};
         (function (type, vals) {
             for (var i = 0, ci; ci = vals[i++];) {
                 //todo opera下存在问题
-                if (browser.opera && ci === 'searchreplace') {
+                if (browser.opera && ci === "searchreplace") {
                     continue;
                 }
                 (function (cmd) {
                     editorui[cmd] = function (editor, iframeUrl, title) {
                         iframeUrl = iframeUrl || (editor.options.iframeUrlMap || {})[cmd] || iframeUrlMap[cmd];
-                        title = editor.options.labelMap[cmd] || editor.getLang('labelMap.' + cmd) || '';
+                        title = editor.options.labelMap[cmd] || editor.getLang("labelMap." + cmd) || '';
 
                         var dialog;
                         //没有iframeUrl不创建dialog
@@ -27964,12 +27977,12 @@ UE.ui = baidu.editor.ui = {};
                                 title:title,
                                 holdScroll: cmd === 'insertimage',
                                 fullscreen: /charts|preview/.test(cmd),
-                                closeDialog:editor.getLang('closeDialog')
+                                closeDialog:editor.getLang("closeDialog")
                             }, type == 'ok' ? {
                                 buttons:[
                                     {
                                         className:'edui-okbutton',
-                                        label:editor.getLang('ok'),
+                                        label:editor.getLang("ok"),
                                         editor:editor,
                                         onclick:function () {
                                             dialog.close(true);
@@ -27977,7 +27990,7 @@ UE.ui = baidu.editor.ui = {};
                                     },
                                     {
                                         className:'edui-cancelbutton',
-                                        label:editor.getLang('cancel'),
+                                        label:editor.getLang("cancel"),
                                         editor:editor,
                                         onclick:function () {
                                             dialog.close(false);
@@ -27986,7 +27999,7 @@ UE.ui = baidu.editor.ui = {};
                                 ]
                             } : {}));
 
-                            editor.ui._dialogs[cmd + 'Dialog'] = dialog;
+                            editor.ui._dialogs[cmd + "Dialog"] = dialog;
                         }
 
                         var ui = new editorui.Button({
@@ -27995,15 +28008,15 @@ UE.ui = baidu.editor.ui = {};
                             onclick:function () {
                                 if (dialog) {
                                     switch (cmd) {
-                                        case 'wordimage':
-                                            var images = editor.execCommand('wordimage');
+                                        case "wordimage":
+                                            var images = editor.execCommand("wordimage");
                                             if (images && images.length) {
                                                 dialog.render();
                                                 dialog.open();
                                             }
                                             break;
-                                        case 'scrawl':
-                                            if (editor.queryCommandState('scrawl') != -1) {
+                                        case "scrawl":
+                                            if (editor.queryCommandState("scrawl") != -1) {
                                                 dialog.render();
                                                 dialog.open();
                                             }
@@ -28016,7 +28029,7 @@ UE.ui = baidu.editor.ui = {};
                                 }
                             },
                             theme:editor.options.theme,
-                            disabled:(cmd == 'scrawl' && editor.queryCommandState('scrawl') == -1) || ( cmd == 'charts' )
+                            disabled:(cmd == 'scrawl' && editor.queryCommandState("scrawl") == -1) || ( cmd == 'charts' )
                         });
                         editorui.buttons[cmd] = ui;
                         editor.addListener('selectionchange', function () {
@@ -28040,18 +28053,18 @@ UE.ui = baidu.editor.ui = {};
     }
 
     editorui.snapscreen = function (editor, iframeUrl, title) {
-        title = editor.options.labelMap['snapscreen'] || editor.getLang('labelMap.snapscreen') || '';
+        title = editor.options.labelMap['snapscreen'] || editor.getLang("labelMap.snapscreen") || '';
         var ui = new editorui.Button({
             className:'edui-for-snapscreen',
             title:title,
             onclick:function () {
-                editor.execCommand('snapscreen');
+                editor.execCommand("snapscreen");
             },
             theme:editor.options.theme
 
         });
         editorui.buttons['snapscreen'] = ui;
-        iframeUrl = iframeUrl || (editor.options.iframeUrlMap || {})['snapscreen'] || iframeUrlMap['snapscreen'];
+        iframeUrl = iframeUrl || (editor.options.iframeUrlMap || {})["snapscreen"] || iframeUrlMap["snapscreen"];
         if (iframeUrl) {
             var dialog = new editorui.Dialog({
                 iframeUrl:editor.ui.mapUrl(iframeUrl),
@@ -28061,7 +28074,7 @@ UE.ui = baidu.editor.ui = {};
                 buttons:[
                     {
                         className:'edui-okbutton',
-                        label:editor.getLang('ok'),
+                        label:editor.getLang("ok"),
                         editor:editor,
                         onclick:function () {
                             dialog.close(true);
@@ -28069,7 +28082,7 @@ UE.ui = baidu.editor.ui = {};
                     },
                     {
                         className:'edui-cancelbutton',
-                        label:editor.getLang('cancel'),
+                        label:editor.getLang("cancel"),
                         editor:editor,
                         onclick:function () {
                             dialog.close(false);
@@ -28079,7 +28092,7 @@ UE.ui = baidu.editor.ui = {};
 
             });
             dialog.render();
-            editor.ui._dialogs['snapscreenDialog'] = dialog;
+            editor.ui._dialogs["snapscreenDialog"] = dialog;
         }
         editor.addListener('selectionchange', function () {
             ui.setDisabled(editor.queryCommandState('snapscreen') == -1);
@@ -28089,7 +28102,7 @@ UE.ui = baidu.editor.ui = {};
 
     editorui.insertcode = function (editor, list, title) {
         list = editor.options['insertcode'] || [];
-        title = editor.options.labelMap['insertcode'] || editor.getLang('labelMap.insertcode') || '';
+        title = editor.options.labelMap['insertcode'] || editor.getLang("labelMap.insertcode") || '';
        // if (!list.length) return;
         var items = [];
         utils.each(list,function(key,val){
@@ -28152,10 +28165,10 @@ UE.ui = baidu.editor.ui = {};
     editorui.fontfamily = function (editor, list, title) {
 
         list = editor.options['fontfamily'] || [];
-        title = editor.options.labelMap['fontfamily'] || editor.getLang('labelMap.fontfamily') || '';
+        title = editor.options.labelMap['fontfamily'] || editor.getLang("labelMap.fontfamily") || '';
         if (!list.length) return;
         for (var i = 0, ci, items = []; ci = list[i]; i++) {
-            var langLabel = editor.getLang('fontfamily')[ci.name] || '';
+            var langLabel = editor.getLang('fontfamily')[ci.name] || "";
             (function (key, val) {
                 items.push({
                     label:key,
@@ -28212,7 +28225,7 @@ UE.ui = baidu.editor.ui = {};
     };
 
     editorui.fontsize = function (editor, list, title) {
-        title = editor.options.labelMap['fontsize'] || editor.getLang('labelMap.fontsize') || '';
+        title = editor.options.labelMap['fontsize'] || editor.getLang("labelMap.fontsize") || '';
         list = list || editor.options['fontsize'] || [];
         if (!list.length) return;
         var items = [];
@@ -28258,14 +28271,14 @@ UE.ui = baidu.editor.ui = {};
     };
 
     editorui.paragraph = function (editor, list, title) {
-        title = editor.options.labelMap['paragraph'] || editor.getLang('labelMap.paragraph') || '';
+        title = editor.options.labelMap['paragraph'] || editor.getLang("labelMap.paragraph") || '';
         list = editor.options['paragraph'] || [];
         if (utils.isEmptyObject(list)) return;
         var items = [];
         for (var i in list) {
             items.push({
                 value:i,
-                label:list[i] || editor.getLang('paragraph')[i],
+                label:list[i] || editor.getLang("paragraph")[i],
                 theme:editor.options.theme,
                 renderLabelHtml:function () {
                     return '<div class="edui-label %%-label"><span class="edui-for-' + this.value + '">' + (this.label || '') + '</span></div>';
@@ -28311,7 +28324,7 @@ UE.ui = baidu.editor.ui = {};
     //自定义标题
     editorui.customstyle = function (editor) {
         var list = editor.options['customstyle'] || [],
-            title = editor.options.labelMap['customstyle'] || editor.getLang('labelMap.customstyle') || '';
+            title = editor.options.labelMap['customstyle'] || editor.getLang("labelMap.customstyle") || '';
         if (!list.length)return;
         var langCs = editor.getLang('customstyle');
         for (var i = 0, items = [], t; t = list[i++];) {
@@ -28326,8 +28339,8 @@ UE.ui = baidu.editor.ui = {};
                     value:ck,
                     theme:editor.options.theme,
                     renderLabelHtml:function () {
-                        return '<div class="edui-label %%-label">' + '<' + ck.tag + ' ' + (ck.className ? ' class="' + ck.className + '"' : '')
-                            + (ck.style ? ' style="' + ck.style + '"' : '') + '>' + ck.label + '<\/' + ck.tag + '>'
+                        return '<div class="edui-label %%-label">' + '<' + ck.tag + ' ' + (ck.className ? ' class="' + ck.className + '"' : "")
+                            + (ck.style ? ' style="' + ck.style + '"' : "") + '>' + ck.label + "<\/" + ck.tag + ">"
                             + '</div>';
                     }
                 });
@@ -28377,7 +28390,7 @@ UE.ui = baidu.editor.ui = {};
         return ui;
     };
     editorui.inserttable = function (editor, iframeUrl, title) {
-        title = editor.options.labelMap['inserttable'] || editor.getLang('labelMap.inserttable') || '';
+        title = editor.options.labelMap['inserttable'] || editor.getLang("labelMap.inserttable") || '';
         var ui = new editorui.TableButton({
             editor:editor,
             title:title,
@@ -28406,18 +28419,18 @@ UE.ui = baidu.editor.ui = {};
                 value:ci,
                 theme:editor.options.theme,
                 onclick:function () {
-                    editor.execCommand('lineheight', this.value);
+                    editor.execCommand("lineheight", this.value);
                 }
             })
         }
         var ui = new editorui.MenuButton({
             editor:editor,
             className:'edui-for-lineheight',
-            title:editor.options.labelMap['lineheight'] || editor.getLang('labelMap.lineheight') || '',
+            title:editor.options.labelMap['lineheight'] || editor.getLang("labelMap.lineheight") || '',
             items:items,
             onbuttonclick:function () {
                 var value = editor.queryCommandValue('LineHeight') || this.value;
-                editor.execCommand('LineHeight', value);
+                editor.execCommand("LineHeight", value);
             }
         });
         editorui.buttons['lineheight'] = ui;
@@ -28447,18 +28460,18 @@ UE.ui = baidu.editor.ui = {};
                         value:ci,
                         theme:editor.options.theme,
                         onclick:function () {
-                            editor.execCommand('rowspacing', this.value, cmd);
+                            editor.execCommand("rowspacing", this.value, cmd);
                         }
                     })
                 }
                 var ui = new editorui.MenuButton({
                     editor:editor,
                     className:'edui-for-rowspacing' + cmd,
-                    title:editor.options.labelMap['rowspacing' + cmd] || editor.getLang('labelMap.rowspacing' + cmd) || '',
+                    title:editor.options.labelMap['rowspacing' + cmd] || editor.getLang("labelMap.rowspacing" + cmd) || '',
                     items:items,
                     onbuttonclick:function () {
                         var value = editor.queryCommandValue('rowspacing', cmd) || this.value;
-                        editor.execCommand('rowspacing', value, cmd);
+                        editor.execCommand("rowspacing", value, cmd);
                     }
                 });
                 editorui.buttons[cmd] = ui;
@@ -28488,7 +28501,7 @@ UE.ui = baidu.editor.ui = {};
                     }, items = [];
                 for (var i in vals) {
                     items.push({
-                        label:vals[i] || editor.getLang()[cmd][i] || '',
+                        label:vals[i] || editor.getLang()[cmd][i] || "",
                         value:i,
                         theme:editor.options.theme,
                         onclick:_onMenuClick
@@ -28497,7 +28510,7 @@ UE.ui = baidu.editor.ui = {};
                 var ui = new editorui.MenuButton({
                     editor:editor,
                     className:'edui-for-' + cmd,
-                    title:editor.getLang('labelMap.' + cmd) || '',
+                    title:editor.getLang("labelMap." + cmd) || '',
                     'items':items,
                     onbuttonclick:function () {
                         var value = editor.queryCommandValue(cmd) || this.value;
@@ -28522,7 +28535,7 @@ UE.ui = baidu.editor.ui = {};
     }
 
     editorui.fullscreen = function (editor, title) {
-        title = editor.options.labelMap['fullscreen'] || editor.getLang('labelMap.fullscreen') || '';
+        title = editor.options.labelMap['fullscreen'] || editor.getLang("labelMap.fullscreen") || '';
         var ui = new editorui.Button({
             className:'edui-for-fullscreen',
             title:title,
@@ -28544,10 +28557,10 @@ UE.ui = baidu.editor.ui = {};
     };
 
     // 表情
-    editorui['emotion'] = function (editor, iframeUrl) {
-        var cmd = 'emotion';
+    editorui["emotion"] = function (editor, iframeUrl) {
+        var cmd = "emotion";
         var ui = new editorui.MultiMenuPop({
-            title:editor.options.labelMap[cmd] || editor.getLang('labelMap.' + cmd + '') || '',
+            title:editor.options.labelMap[cmd] || editor.getLang("labelMap." + cmd + "") || '',
             editor:editor,
             className:'edui-for-' + cmd,
             iframeUrl:editor.ui.mapUrl(iframeUrl || (editor.options.iframeUrlMap || {})[cmd] || iframeUrlMap[cmd])
@@ -28563,7 +28576,7 @@ UE.ui = baidu.editor.ui = {};
     editorui.autotypeset = function (editor) {
         var ui = new editorui.AutoTypeSetButton({
             editor:editor,
-            title:editor.options.labelMap['autotypeset'] || editor.getLang('labelMap.autotypeset') || '',
+            title:editor.options.labelMap['autotypeset'] || editor.getLang("labelMap.autotypeset") || '',
             className:'edui-for-autotypeset',
             onbuttonclick:function () {
                 editor.execCommand('autotypeset')
@@ -28577,11 +28590,11 @@ UE.ui = baidu.editor.ui = {};
     };
 
     /* 简单上传插件 */
-    editorui['simpleupload'] = function (editor) {
+    editorui["simpleupload"] = function (editor) {
         var name = 'simpleupload',
             ui = new editorui.Button({
                 className:'edui-for-' + name,
-                title:editor.options.labelMap[name] || editor.getLang('labelMap.' + name) || '',
+                title:editor.options.labelMap[name] || editor.getLang("labelMap." + name) || '',
                 onclick:function () {},
                 theme:editor.options.theme,
                 showText:false
@@ -28640,7 +28653,7 @@ UE.ui = baidu.editor.ui = {};
             editor.addListener('ready', function () {
                 //提供getDialog方法
                 editor.getDialog = function (name) {
-                    return editor.ui._dialogs[name + 'Dialog'];
+                    return editor.ui._dialogs[name + "Dialog"];
                 };
                 domUtils.on(editor.window, 'scroll', function (evt) {
                     baidu.editor.ui.Popup.postHide(evt);
@@ -28648,19 +28661,19 @@ UE.ui = baidu.editor.ui = {};
                 //提供编辑器实时宽高(全屏时宽高不变化)
                 editor.ui._actualFrameWidth = editor.options.initialFrameWidth;
 
-                UE.browser.ie && UE.browser.version === 6 && editor.container.ownerDocument.execCommand('BackgroundImageCache', false, true);
+                UE.browser.ie && UE.browser.version === 6 && editor.container.ownerDocument.execCommand("BackgroundImageCache", false, true);
 
                 //display bottom-bar label based on config
                 if (editor.options.elementPathEnabled) {
-                    editor.ui.getDom('elementpath').innerHTML = '<div class="edui-editor-breadcrumb">' + editor.getLang('elementPathTip') + ':</div>';
+                    editor.ui.getDom('elementpath').innerHTML = '<div class="edui-editor-breadcrumb">' + editor.getLang("elementPathTip") + ':</div>';
                 }
                 if (editor.options.wordCount) {
                     function countFn() {
                         setCount(editor,me);
-                        domUtils.un(editor.document, 'click', arguments.callee);
+                        domUtils.un(editor.document, "click", arguments.callee);
                     }
-                    domUtils.on(editor.document, 'click', countFn);
-                    editor.ui.getDom('wordcount').innerHTML = editor.getLang('wordCountTip');
+                    domUtils.on(editor.document, "click", countFn);
+                    editor.ui.getDom('wordcount').innerHTML = editor.getLang("wordCountTip");
                 }
                 editor.ui._scale();
                 if (editor.options.scaleEnabled) {
@@ -28672,9 +28685,9 @@ UE.ui = baidu.editor.ui = {};
                     me.disableScale();
                 }
                 if (!editor.options.elementPathEnabled && !editor.options.wordCount && !editor.options.scaleEnabled) {
-                    editor.ui.getDom('elementpath').style.display = 'none';
-                    editor.ui.getDom('wordcount').style.display = 'none';
-                    editor.ui.getDom('scale').style.display = 'none';
+                    editor.ui.getDom('elementpath').style.display = "none";
+                    editor.ui.getDom('wordcount').style.display = "none";
+                    editor.ui.getDom('scale').style.display = "none";
                 }
 
                 if (!editor.selection.isFocus())return;
@@ -28689,7 +28702,7 @@ UE.ui = baidu.editor.ui = {};
                 baidu.editor.ui.ShortCutMenu.postHide(evt);
 
             });
-            editor.addListener('delcells', function () {
+            editor.addListener("delcells", function () {
                 if (UE.ui['edittip']) {
                     new UE.ui['edittip'](editor);
                 }
@@ -28697,7 +28710,7 @@ UE.ui = baidu.editor.ui = {};
             });
 
             var pastePop, isPaste = false, timer;
-            editor.addListener('afterpaste', function () {
+            editor.addListener("afterpaste", function () {
                 if(editor.queryCommandState('pasteplain'))
                     return;
                 if(baidu.editor.ui.PastePicker){
@@ -28711,13 +28724,13 @@ UE.ui = baidu.editor.ui = {};
                 isPaste = true;
             });
 
-            editor.addListener('afterinserthtml', function () {
+            editor.addListener("afterinserthtml", function () {
                 clearTimeout(timer);
                 timer = setTimeout(function () {
                     if (pastePop && (isPaste || editor.ui._isTransfer)) {
                         if(pastePop.isHidden()){
                             var span = domUtils.createElement(editor.document, 'span', {
-                                    'style':'line-height:0px;',
+                                    'style':"line-height:0px;",
                                     'innerHTML':'\ufeff'
                                 }),
                                 range = editor.selection.getRange();
@@ -28750,8 +28763,8 @@ UE.ui = baidu.editor.ui = {};
                 editor.setOpt({
                     wordCount:true,
                     maximumWords:10000,
-                    wordCountMsg:editor.options.wordCountMsg || editor.getLang('wordCountMsg'),
-                    wordOverFlowMsg:editor.options.wordOverFlowMsg || editor.getLang('wordOverFlowMsg')
+                    wordCountMsg:editor.options.wordCountMsg || editor.getLang("wordCountMsg"),
+                    wordOverFlowMsg:editor.options.wordOverFlowMsg || editor.getLang("wordOverFlowMsg")
                 });
                 var opt = editor.options,
                     max = opt.maximumWords,
@@ -28764,9 +28777,9 @@ UE.ui = baidu.editor.ui = {};
                 var count = editor.getContentLength(true);
                 if (count > max) {
                     countDom.innerHTML = errMsg;
-                    editor.fireEvent('wordcountoverflow');
+                    editor.fireEvent("wordcountoverflow");
                 } else {
-                    countDom.innerHTML = msg.replace('{#leave}', max - count).replace('{#count}', count);
+                    countDom.innerHTML = msg.replace("{#leave}", max - count).replace("{#count}", count);
                 }
             }
 
@@ -28794,7 +28807,7 @@ UE.ui = baidu.editor.ui = {};
                 },
                 _onImgSetFloat:function (value) {
                     this.hide();
-                    editor.execCommand('imagefloat', value);
+                    editor.execCommand("imagefloat", value);
 
                 },
                 _setIframeAlign:function (value) {
@@ -28802,13 +28815,13 @@ UE.ui = baidu.editor.ui = {};
                     var newFrame = frame.cloneNode(true);
                     switch (value) {
                         case -2:
-                            newFrame.setAttribute('align', '');
+                            newFrame.setAttribute("align", "");
                             break;
                         case -1:
-                            newFrame.setAttribute('align', 'left');
+                            newFrame.setAttribute("align", "left");
                             break;
                         case 1:
-                            newFrame.setAttribute('align', 'right');
+                            newFrame.setAttribute("align", "right");
                             break;
                     }
                     frame.parentNode.insertBefore(newFrame, frame);
@@ -28847,8 +28860,8 @@ UE.ui = baidu.editor.ui = {};
                     var el = evt.target || evt.srcElement;
                     if (editor.ui._dialogs.insertframeDialog && /iframe/ig.test(el.tagName)) {
                         var html = popup.formatHtml(
-                            '<nobr>' + editor.getLang('property') + ': <span onclick=$$._setIframeAlign(-2) class="edui-clickable">' + editor.getLang('default') + '</span>&nbsp;&nbsp;<span onclick=$$._setIframeAlign(-1) class="edui-clickable">' + editor.getLang('justifyleft') + '</span>&nbsp;&nbsp;<span onclick=$$._setIframeAlign(1) class="edui-clickable">' + editor.getLang('justifyright') + '</span>&nbsp;&nbsp;' +
-                                ' <span onclick="$$._updateIframe( this);" class="edui-clickable">' + editor.getLang('modify') + '</span></nobr>');
+                            '<nobr>' + editor.getLang("property") + ': <span onclick=$$._setIframeAlign(-2) class="edui-clickable">' + editor.getLang("default") + '</span>&nbsp;&nbsp;<span onclick=$$._setIframeAlign(-1) class="edui-clickable">' + editor.getLang("justifyleft") + '</span>&nbsp;&nbsp;<span onclick=$$._setIframeAlign(1) class="edui-clickable">' + editor.getLang("justifyright") + '</span>&nbsp;&nbsp;' +
+                                ' <span onclick="$$._updateIframe( this);" class="edui-clickable">' + editor.getLang("modify") + '</span></nobr>');
                         if (html) {
                             popup.getDom('content').innerHTML = html;
                             popup.anchorEl = el;
@@ -28860,49 +28873,49 @@ UE.ui = baidu.editor.ui = {};
                 });
                 editor.addListener('selectionchange', function (t, causeByUi) {
                     if (!causeByUi) return;
-                    var html = '', str = '',
+                    var html = '', str = "",
                         img = editor.selection.getRange().getClosedNode(),
                         dialogs = editor.ui._dialogs;
                     if (img && img.tagName == 'IMG') {
                         var dialogName = 'insertimageDialog';
-                        if (img.className.indexOf('edui-faked-video') != -1 || img.className.indexOf('edui-upload-video') != -1) {
-                            dialogName = 'insertvideoDialog'
+                        if (img.className.indexOf("edui-faked-video") != -1 || img.className.indexOf("edui-upload-video") != -1) {
+                            dialogName = "insertvideoDialog"
                         }
-                        if (img.className.indexOf('edui-faked-webapp') != -1) {
-                            dialogName = 'webappDialog'
+                        if (img.className.indexOf("edui-faked-webapp") != -1) {
+                            dialogName = "webappDialog"
                         }
-                        if (img.src.indexOf('http://api.map.baidu.com') != -1) {
-                            dialogName = 'mapDialog'
+                        if (img.src.indexOf("http://api.map.baidu.com") != -1) {
+                            dialogName = "mapDialog"
                         }
-                        if (img.className.indexOf('edui-faked-music') != -1) {
-                            dialogName = 'musicDialog'
+                        if (img.className.indexOf("edui-faked-music") != -1) {
+                            dialogName = "musicDialog"
                         }
-                        if (img.src.indexOf('http://maps.google.com/maps/api/staticmap') != -1) {
-                            dialogName = 'gmapDialog'
+                        if (img.src.indexOf("http://maps.google.com/maps/api/staticmap") != -1) {
+                            dialogName = "gmapDialog"
                         }
-                        if (img.getAttribute('anchorname')) {
-                            dialogName = 'anchorDialog';
+                        if (img.getAttribute("anchorname")) {
+                            dialogName = "anchorDialog";
                             html = popup.formatHtml(
-                                '<nobr>' + editor.getLang('property') + ': <span onclick=$$._onImgEditButtonClick("anchorDialog") class="edui-clickable">' + editor.getLang('modify') + '</span>&nbsp;&nbsp;' +
-                                    '<span onclick=$$._onRemoveButtonClick(\'anchor\') class="edui-clickable">' + editor.getLang('delete') + '</span></nobr>');
+                                '<nobr>' + editor.getLang("property") + ': <span onclick=$$._onImgEditButtonClick("anchorDialog") class="edui-clickable">' + editor.getLang("modify") + '</span>&nbsp;&nbsp;' +
+                                    '<span onclick=$$._onRemoveButtonClick(\'anchor\') class="edui-clickable">' + editor.getLang("delete") + '</span></nobr>');
                         }
-                        if (img.getAttribute('word_img')) {
+                        if (img.getAttribute("word_img")) {
                             //todo 放到dialog去做查询
-                            editor.word_img = [img.getAttribute('word_img')];
-                            dialogName = 'wordimageDialog'
+                            editor.word_img = [img.getAttribute("word_img")];
+                            dialogName = "wordimageDialog"
                         }
                         if(domUtils.hasClass(img, 'loadingclass') || domUtils.hasClass(img, 'loaderrorclass')) {
-                            dialogName = '';
+                            dialogName = "";
                         }
                         if (!dialogs[dialogName]) {
                             return;
                         }
-                        str = '<nobr>' + editor.getLang('property') + ': '+
-                            '<span onclick=$$._onImgSetFloat("none") class="edui-clickable">' + editor.getLang('default') + '</span>&nbsp;&nbsp;' +
-                            '<span onclick=$$._onImgSetFloat("left") class="edui-clickable">' + editor.getLang('justifyleft') + '</span>&nbsp;&nbsp;' +
-                            '<span onclick=$$._onImgSetFloat("right") class="edui-clickable">' + editor.getLang('justifyright') + '</span>&nbsp;&nbsp;' +
-                            '<span onclick=$$._onImgSetFloat("center") class="edui-clickable">' + editor.getLang('justifycenter') + '</span>&nbsp;&nbsp;'+
-                            '<span onclick="$$._onImgEditButtonClick(\'' + dialogName + '\');" class="edui-clickable">' + editor.getLang('modify') + '</span></nobr>';
+                        str = '<nobr>' + editor.getLang("property") + ': '+
+                            '<span onclick=$$._onImgSetFloat("none") class="edui-clickable">' + editor.getLang("default") + '</span>&nbsp;&nbsp;' +
+                            '<span onclick=$$._onImgSetFloat("left") class="edui-clickable">' + editor.getLang("justifyleft") + '</span>&nbsp;&nbsp;' +
+                            '<span onclick=$$._onImgSetFloat("right") class="edui-clickable">' + editor.getLang("justifyright") + '</span>&nbsp;&nbsp;' +
+                            '<span onclick=$$._onImgSetFloat("center") class="edui-clickable">' + editor.getLang("justifycenter") + '</span>&nbsp;&nbsp;'+
+                            '<span onclick="$$._onImgEditButtonClick(\'' + dialogName + '\');" class="edui-clickable">' + editor.getLang("modify") + '</span></nobr>';
 
                         !html && (html = popup.formatHtml(str))
 
@@ -28913,15 +28926,15 @@ UE.ui = baidu.editor.ui = {};
                         if (link && (url = (link.getAttribute('_href') || link.getAttribute('href', 2)))) {
                             var txt = url;
                             if (url.length > 30) {
-                                txt = url.substring(0, 20) + '...';
+                                txt = url.substring(0, 20) + "...";
                             }
                             if (html) {
                                 html += '<div style="height:5px;"></div>'
                             }
                             html += popup.formatHtml(
-                                '<nobr>' + editor.getLang('anthorMsg') + ': <a target="_blank" href="' + url + '" title="' + url + '" >' + txt + '</a>' +
-                                    ' <span class="edui-clickable" onclick="$$._onEditButtonClick();">' + editor.getLang('modify') + '</span>' +
-                                    ' <span class="edui-clickable" onclick="$$._onRemoveButtonClick(\'unlink\');"> ' + editor.getLang('clear') + '</span></nobr>');
+                                '<nobr>' + editor.getLang("anthorMsg") + ': <a target="_blank" href="' + url + '" title="' + url + '" >' + txt + '</a>' +
+                                    ' <span class="edui-clickable" onclick="$$._onEditButtonClick();">' + editor.getLang("modify") + '</span>' +
+                                    ' <span class="edui-clickable" onclick="$$._onRemoveButtonClick(\'unlink\');"> ' + editor.getLang("clear") + '</span></nobr>');
                             popup.showAnchor(link);
                         }
                     }
@@ -28941,7 +28954,6 @@ UE.ui = baidu.editor.ui = {};
             var editor = this.editor;
             var toolbars = this.toolbars || [];
             var toolbarUis = [];
-            var extraUIs = [];
             for (var i = 0; i < toolbars.length; i++) {
                 var toolbar = toolbars[i];
                 var toolbarUi = new baidu.editor.ui.Toolbar({theme:editor.options.theme});
@@ -28956,28 +28968,10 @@ UE.ui = baidu.editor.ui = {};
                         if(toolbarItem == '||'){
                             toolbarItem = 'Breakline';
                         }
-                        var ui = baidu.editor.ui[toolbarItem];
-                        if (ui) {
-                            if(utils.isFunction(ui)){
-                                toolbarItemUi = new baidu.editor.ui[toolbarItem](editor);
-                            }else{
-                                if(ui.id && ui.id != editor.key){
-                                    continue;
-                                }
-                                var itemUI = ui.execFn.call(editor,editor,toolbarItem);
-                                if(itemUI){
-                                    if(ui.index === undefined){
-                                        toolbarUi.add(itemUI);
-                                        continue;
-                                    }else{
-                                        extraUIs.push({
-                                            index:ui.index,
-                                            itemUI:itemUI
-                                        })
-                                    }
-                                }
-                            }
+                        if (baidu.editor.ui[toolbarItem]) {
+                            toolbarItemUi = new baidu.editor.ui[toolbarItem](editor);
                         }
+
                         //fullscreen这里单独处理一下，放到首行去
                         if (toolbarItem == 'fullscreen') {
                             if (toolbarUis && toolbarUis[0]) {
@@ -28985,7 +28979,10 @@ UE.ui = baidu.editor.ui = {};
                             } else {
                                 toolbarItemUi && toolbarUi.items.splice(0, 0, toolbarItemUi);
                             }
+
                             continue;
+
+
                         }
                     } else {
                         toolbarItemUi = toolbarItem;
@@ -29000,9 +28997,21 @@ UE.ui = baidu.editor.ui = {};
 
             //接受外部定制的UI
 
-            utils.each(extraUIs,function(obj){
-                toolbarUi.add(obj.itemUI,obj.index)
+            utils.each(UE._customizeUI,function(obj,key){
+                var itemUI,index;
+                if(obj.id && obj.id != editor.key){
+                   return false;
+                }
+                itemUI = obj.execFn.call(editor,editor,key);
+                if(itemUI){
+                    index = obj.index;
+                    if(index === undefined){
+                        index = toolbarUi.items.length;
+                    }
+                    toolbarUi.add(itemUI,index)
+                }
             });
+
             this.toolbars = toolbarUis;
         },
         getHtmlTpl:function () {
@@ -29013,7 +29022,7 @@ UE.ui = baidu.editor.ui = {};
                         this.renderToolbarBoxHtml() +
                         '</div></div>' : '') +
                 '<div id="##_toolbarmsg" class="%%-toolbarmsg" style="display:none;">' +
-                '<div id = "##_upload_dialog" class="%%-toolbarmsg-upload" onclick="$$.showWordImageDialog();">' + this.editor.getLang('clickToUpload') + '</div>' +
+                '<div id = "##_upload_dialog" class="%%-toolbarmsg-upload" onclick="$$.showWordImageDialog();">' + this.editor.getLang("clickToUpload") + '</div>' +
                 '<div class="%%-toolbarmsg-close" onclick="$$.hideToolbarMsg();">x</div>' +
                 '<div id="##_toolbarmsg_label" class="%%-toolbarmsg-label"></div>' +
                 '<div style="height:0;overflow:hidden;clear:both;"></div>' +
@@ -29052,10 +29061,10 @@ UE.ui = baidu.editor.ui = {};
                     var bk = editor.selection.getRange().createBookmark();
                 }
                 if (fullscreen) {
-                    while (container.tagName != 'BODY') {
-                        var position = baidu.editor.dom.domUtils.getComputedStyle(container, 'position');
+                    while (container.tagName != "BODY") {
+                        var position = baidu.editor.dom.domUtils.getComputedStyle(container, "position");
                         nodeStack.push(position);
-                        container.style.position = 'static';
+                        container.style.position = "static";
                         container = container.parentNode;
                     }
                     this._bakHtmlOverflow = document.documentElement.style.overflow;
@@ -29079,7 +29088,7 @@ UE.ui = baidu.editor.ui = {};
                     editor.iframe.parentNode.style.width = '';
                     this._updateFullScreen();
                 } else {
-                    while (container.tagName != 'BODY') {
+                    while (container.tagName != "BODY") {
                         container.style.position = nodeStack.shift();
                         container = container.parentNode;
                     }
@@ -29143,7 +29152,7 @@ UE.ui = baidu.editor.ui = {};
                 for (var i = 0, ci; ci = list[i]; i++) {
                     buff[i] = this.formatHtml('<span unselectable="on" onclick="$$.editor.execCommand(&quot;elementpath&quot;, &quot;' + i + '&quot;);">' + ci + '</span>');
                 }
-                bottom.innerHTML = '<div class="edui-editor-breadcrumb" onmousedown="return false;">' + this.editor.getLang('elementPathTip') + ': ' + buff.join(' &gt; ') + '</div>';
+                bottom.innerHTML = '<div class="edui-editor-breadcrumb" onmousedown="return false;">' + this.editor.getLang("elementPathTip") + ': ' + buff.join(' &gt; ') + '</div>';
 
             } else {
                 bottom.style.display = 'none'
@@ -29167,10 +29176,10 @@ UE.ui = baidu.editor.ui = {};
                 editor = this.editor,
                 editorHolder = editor.container,
                 editorDocument = editor.document,
-                toolbarBox = this.getDom('toolbarbox'),
-                bottombar = this.getDom('bottombar'),
-                scale = this.getDom('scale'),
-                scalelayer = this.getDom('scalelayer');
+                toolbarBox = this.getDom("toolbarbox"),
+                bottombar = this.getDom("bottombar"),
+                scale = this.getDom("scale"),
+                scalelayer = this.getDom("scalelayer");
 
             var isMouseMove = false,
                 position = null,
@@ -29188,12 +29197,12 @@ UE.ui = baidu.editor.ui = {};
                     minEditorHeight = editor.options.minFrameHeight + toolbarBox.offsetHeight + bottombar.offsetHeight;
                 }
 
-                scalelayer.style.cssText = 'position:absolute;left:0;display:;top:0;background-color:#41ABFF;opacity:0.4;filter: Alpha(opacity=40);width:' + editorHolder.offsetWidth + 'px;height:'
-                    + editorHolder.offsetHeight + 'px;z-index:' + (editor.options.zIndex + 1);
+                scalelayer.style.cssText = "position:absolute;left:0;display:;top:0;background-color:#41ABFF;opacity:0.4;filter: Alpha(opacity=40);width:" + editorHolder.offsetWidth + "px;height:"
+                    + editorHolder.offsetHeight + "px;z-index:" + (editor.options.zIndex + 1);
 
-                domUtils.on(doc, 'mousemove', move);
-                domUtils.on(editorDocument, 'mouseup', up);
-                domUtils.on(doc, 'mouseup', up);
+                domUtils.on(doc, "mousemove", move);
+                domUtils.on(editorDocument, "mouseup", up);
+                domUtils.on(doc, "mouseup", up);
             }
 
             var me = this;
@@ -29226,7 +29235,7 @@ UE.ui = baidu.editor.ui = {};
                 }
                 if (scaleHeight >= minEditorHeight) {
                     isMouseMove = true;
-                    scalelayer.style.height = scaleHeight + 'px';
+                    scalelayer.style.height = scaleHeight + "px";
                 }
             }
 
@@ -29239,12 +29248,12 @@ UE.ui = baidu.editor.ui = {};
                     editor.setHeight(scalelayer.offsetHeight - bottombar.offsetHeight - toolbarBox.offsetHeight - 2,true);
                 }
                 if (scalelayer) {
-                    scalelayer.style.display = 'none';
+                    scalelayer.style.display = "none";
                 }
                 clearSelection();
-                domUtils.un(doc, 'mousemove', move);
-                domUtils.un(editorDocument, 'mouseup', up);
-                domUtils.un(doc, 'mouseup', up);
+                domUtils.un(doc, "mousemove", move);
+                domUtils.un(editorDocument, "mouseup", up);
+                domUtils.un(doc, "mouseup", up);
             }
 
             function clearSelection() {
@@ -29256,15 +29265,15 @@ UE.ui = baidu.editor.ui = {};
 
             this.enableScale = function () {
                 //trace:2868
-                if (editor.queryCommandState('source') == 1)    return;
-                scale.style.display = '';
+                if (editor.queryCommandState("source") == 1)    return;
+                scale.style.display = "";
                 this.scaleEnabled = true;
-                domUtils.on(scale, 'mousedown', down);
+                domUtils.on(scale, "mousedown", down);
             };
             this.disableScale = function () {
-                scale.style.display = 'none';
+                scale.style.display = "none";
                 this.scaleEnabled = false;
-                domUtils.un(scale, 'mousedown', down);
+                domUtils.un(scale, "mousedown", down);
             };
         },
         isFullScreen:function () {
@@ -29325,10 +29334,10 @@ UE.ui = baidu.editor.ui = {};
         var editor = new UE.Editor(options);
         editor.options.editor = editor;
         utils.loadFile(document, {
-            href:editor.options.themePath + editor.options.theme + '/css/ueditor.custom.css',
-            tag:'link',
-            type:'text/css',
-            rel:'stylesheet'
+            href:editor.options.themePath + editor.options.theme + "/css/ueditor.css",
+            tag:"link",
+            type:"text/css",
+            rel:"stylesheet"
         });
 
         var oldRender = editor.render;
@@ -29338,7 +29347,7 @@ UE.ui = baidu.editor.ui = {};
                 instances[holder] = editor;
             }
             utils.domReady(function () {
-                editor.langIsReady ? renderUI() : editor.addListener('langReady', renderUI);
+                editor.langIsReady ? renderUI() : editor.addListener("langReady", renderUI);
                 function renderUI() {
                     editor.setOpt({
                         labelMap:editor.options.labelMap || editor.getLang('labelMap')
@@ -29378,7 +29387,7 @@ UE.ui = baidu.editor.ui = {};
                         }
 
                     }
-                    domUtils.addClass(holder, 'edui-' + editor.options.theme);
+                    domUtils.addClass(holder, "edui-" + editor.options.theme);
                     editor.ui.render(holder);
                     var opt = editor.options;
                     //给实例添加一个编辑器的容器引用
@@ -29414,7 +29423,7 @@ UE.ui = baidu.editor.ui = {};
                     editor.container.style.width = opt.initialFrameWidth + (/%$/.test(opt.initialFrameWidth) ? '' : 'px');
                     editor.container.style.zIndex = opt.zIndex;
                     oldRender.call(editor, editor.ui.getDom('iframeholder'));
-                    editor.fireEvent('afteruiready');
+                    editor.fireEvent("afteruiready");
                 }
             })
         };
@@ -29463,7 +29472,7 @@ UE.ui = baidu.editor.ui = {};
 
     UE.registerUI = function(uiName,fn,index,editorId){
         utils.each(uiName.split(/\s+/), function (name) {
-           baidu.editor.ui[name] = {
+            UE._customizeUI[name] = {
                 id : editorId,
                 execFn:fn,
                 index:index
@@ -29482,11 +29491,6 @@ UE.registerUI('message', function(editor) {
     var holder;
     var _messageItems = [];
     var me = editor;
-
-    me.setOpt('enableMessageShow', true);
-    if (me.getOpt('enableMessageShow') === false) {
-        return;
-    }
 
     me.addListener('ready', function(){
         holder = document.getElementById(me.ui.id + '_message_holder');
@@ -29530,7 +29534,6 @@ UE.registerUI('message', function(editor) {
     });
 
     function updateHolderPos(){
-        if (!holder || !me.ui) return;
         var toolbarbox = me.ui.getDom('toolbarbox');
         if (toolbarbox) {
             holder.style.top = toolbarbox.offsetHeight + 3 + 'px';

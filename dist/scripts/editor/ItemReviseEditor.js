@@ -10,6 +10,8 @@ define(['scripts/editor/editorTpl', 'scripts/fetch', 'scripts/tips'], function (
     this.$itemEditor = null;
     this.ueditor = null;
 
+    this.initContent = '';
+
     this.init();
   }
 
@@ -31,7 +33,7 @@ define(['scripts/editor/editorTpl', 'scripts/fetch', 'scripts/tips'], function (
       this.$itemEditor.on('click', '.hook-cancel-save', function () {
         _this.hide();
       }).on('click', '.hook-delete', function () {
-        console.log(_this.$detailItem.data('revise-count'));
+        // console.log(this.$detailItem.data('revise-count'))
         fetch.deleteParagraphRevises({
           proId: _this.proId,
           paraCode: _this.paraCode
@@ -44,10 +46,19 @@ define(['scripts/editor/editorTpl', 'scripts/fetch', 'scripts/tips'], function (
           _this.hide();
         });
       }).on('click', '.hook-submit', function () {
+        var content = _this.ueditor.getContent();
+
+        if (content === _this.initContent) {
+          tips.show({
+            type: 'warning',
+            content: '请对内容进行修改后提交'
+          });
+          return false;
+        }
         fetch.saveParagraphRevises({
           id: _this.proId,
           paraCode: _this.paraCode,
-          content: _this.ueditor.getContent()
+          content: content
         }).then(function (message) {
           tips.show(message);
 
@@ -61,9 +72,11 @@ define(['scripts/editor/editorTpl', 'scripts/fetch', 'scripts/tips'], function (
     show: function show(paraCode, content) {
       this.$detailItem = $('.detail-item[data-paracode=' + paraCode + ']');
       this.paraCode = paraCode;
+
       // this.addItem()
 
       this.ueditor.setContent(content);
+      this.initContent = this.ueditor.getContent();
       this.$itemEditor.fadeIn(100);
       // this.itemLists(listPage)
     },
