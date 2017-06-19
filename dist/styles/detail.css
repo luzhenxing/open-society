@@ -152,6 +152,7 @@ a:active {
 }
 .detail-item .detail-item-inner {
   font-size: 16px;
+  line-height: 1.5;
 }
 .detail-item .detail-item-inner img {
   vertical-align: top;

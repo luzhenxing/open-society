@@ -3,5 +3,5 @@
 define(function () {
   // return `bearer ${$.cookie('x-authorization')}`
 
-  return "bearer eyjhbgcioijiuzuxmij9.eyjzdwiioiixmzawmdawmdawmcisimp0asi6ijg2ndcyodi2ntk3mzg2njq5niisinnjb3blcyi6wyivokdfvcjdlcjpc3mioijodhrwoi8vb3n3b3jklmnvbsisimlhdci6mtq5nzg1mze5oswizxhwijoxndk3ody3ntk5fq.5alszu_gue3v9hu9z1kuqiby-ecqerfcv4p8zcfnbic4ll3bqeq_7ud9rudc8t75dpx8xuzc-hxnnbdm3whk4q";
+  return "bearer eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiIxMzAwMDAwMDAwMCIsImp0aSI6Ijg2NDcyODI2NTk3Mzg2NjQ5NiIsInNjb3BlcyI6WyIvOkdFVCJdLCJpc3MiOiJodHRwOi8vb3N3b3JkLmNvbSIsImlhdCI6MTQ5Nzg2MjEwMywiZXhwIjoxNDk3ODc2NTAzfQ.aEJOaffrlVsGVdxwOyCMRttlCWJ8ZlZ9g8WBsEz4H5jSyA9pcVe676O3dgUpZj-m1tisUXmDKabBvPyUI5MqaA";
 });
