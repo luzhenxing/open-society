@@ -150,6 +150,9 @@ a:active {
 .detail-item.current .detail-item-inner {
   background: #ebfff6;
 }
+.detail-item .detail-item-inner {
+  font-size: 16px;
+}
 .detail-item .detail-item-inner img {
   vertical-align: top;
   border: 0;

@@ -1,5 +1,5 @@
 define(() => {
-  // return `Bearer ${$.cookie('X-Authorization')}`
+  // return `bearer ${$.cookie('x-authorization')}`
 
-  return `Bearer eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiIxMzAwMDAwMDAwMCIsImp0aSI6Ijg2NDcyODI2NTk3Mzg2NjQ5NiIsInNjb3BlcyI6WyIvOkdFVCJdLCJpc3MiOiJodHRwOi8vb3N3b3JkLmNvbSIsImlhdCI6MTQ5NzY3ODYyMSwiZXhwIjoxNDk3NjkzMDIxfQ.bNt0mRvaP-tz6DNnf2gHEYKbh9ZY0wuiuGUMXWYvSERAGfPr5knbCjSKp_7gDIJchTjJm6BZFhmNCy3pxwj2Mw`
+  return `bearer eyjhbgcioijiuzuxmij9.eyjzdwiioiixmzawmdawmdawmcisimp0asi6ijg2ndcyodi2ntk3mzg2njq5niisinnjb3blcyi6wyivokdfvcjdlcjpc3mioijodhrwoi8vb3n3b3jklmnvbsisimlhdci6mtq5nzg1mze5oswizxhwijoxndk3ody3ntk5fq.5alszu_gue3v9hu9z1kuqiby-ecqerfcv4p8zcfnbic4ll3bqeq_7ud9rudc8t75dpx8xuzc-hxnnbdm3whk4q`
 })
