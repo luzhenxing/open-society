@@ -122,9 +122,8 @@ define(['scripts/editor/editorTpl', 'scripts/urls', 'scripts/fetch', 'scripts/to
             }
             fetch.tempSaveRevises({
               "id": window.PID,
-              "paraCode": this.paraCode
-              // "userId": window.userId,
-              // "userName": window.userName
+              "paraCode": this.paraCode,
+              "currPage": window.currPage
             }).then(message => {
               tips.show(message)
             })
