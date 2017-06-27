@@ -21,6 +21,11 @@ define(() => {
     $projectNameWrapper.removeClass('has-error')
     if ($projectName.val().trim() === '') {
       $projectNameWrapper.addClass('has-error')
+      $('#projectName-error-txt').text('请填写名称')
+      valid = false
+    } else if (strlen($projectName.val().trim()) > 70) {
+      $projectNameWrapper.addClass('has-error')
+      $('#projectName-error-txt').text('项目名称最长为70个字符，35个汉字')
       valid = false
     }
   }

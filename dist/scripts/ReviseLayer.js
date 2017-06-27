@@ -69,6 +69,19 @@ define(['scripts/fetch'], function (fetch) {
           _this.currentPage = page;
           _this.fetchList();
         }
+      }).on('click', '.hook-fold, .hook-unfold', function () {
+        var $this = $(this),
+            $more = $this.closest('.more');
+
+        if ($this.hasClass('hook-fold')) {
+          $more.addClass('fold');
+
+          if (!$more.hasClass('loaded')) {
+            _this.fetchMoreList($more);
+          }
+        } else {
+          $more.removeClass('fold');
+        }
       });
 
       $.fn.scrollUnique = function () {
@@ -102,8 +115,19 @@ define(['scripts/fetch'], function (fetch) {
       var top = this.$sourceDom.position().top;
       this.$layer.css({ top: top });
     },
-    fetchList: function fetchList() {
+    fetchMoreList: function fetchMoreList(dom) {
       var _this2 = this;
+
+      fetch.paragraphRevisesMore(dom.data('id')).then(function (data) {
+        console.log('fetchMoreList');
+        if (!!data) {
+          dom.find('.hook-more-content').html(_this2.moreInner(data));
+          dom.addClass('loaded');
+        }
+      });
+    },
+    fetchList: function fetchList() {
+      var _this3 = this;
 
       var url = this.currentType == 'add' ? 'reviseList' : 'paragraphRevisesList',
           data = {
@@ -116,10 +140,17 @@ define(['scripts/fetch'], function (fetch) {
       $content.html('<div class="loading"><img src="/images/loading.svg" /></div>');
 
       fetch[url](data).then(function (data) {
-        $content.html(_this2.itemInner(data));
+        $content.html(_this3.itemInner(data));
         // console.log(this.$layer.find('.item-pager'))
-        _this2.$layer.find('.item-pager').html(_this2.pagerInner(data));
+        _this3.$layer.find('.item-pager').html(_this3.pagerInner(data));
       });
+    },
+    moreInner: function moreInner(data) {
+      var inner = '';
+      data.forEach(function (list) {
+        inner += '<p>' + list.content + '</p>';
+      });
+      return inner;
     },
     itemInner: function itemInner(_ref) {
       var sliceList = _ref.sliceList;
@@ -127,10 +158,20 @@ define(['scripts/fetch'], function (fetch) {
       if (!sliceList) {
         return false;
       }
+
+      var fold = function fold(moreId) {
+        var inner = '';
+        if (!!moreId && moreId !== '') {
+          inner = '\n            <div class="more" data-id="' + moreId + '">\n              <div class="hook-more-content">\n                <div class="loading"><img src="/images/loading.svg" /></div>\n              </div>\n              <p class="more-fold">\n                <a href="javascript:;" class="hook-fold">\u5C55\u5F00<i class="iconfont icon-xiangxiajiantou"></i></a>\n                <a href="javascript:;" class="hook-unfold">\u6536\u8D77<i class="iconfont icon-xiangshangjiantou"></i></a>\n              </p>     \n            </div>\n          ';
+        }
+
+        return inner;
+      };
+
       var inner = '<dl class="item">';
 
       sliceList.forEach(function (list) {
-        inner += '\n          <dt>\n            <img class="avatar" src="" alt="' + list.userName + '">\n            <span>' + list.userName + '</span>\n            <span class="time">' + list.createDate + '</span>\n            <div class="item-oper">\n              <a class="support hook-support" data-id="' + list.id + '" href="javascript:;">\n                <i class="iconfont icon-dianzan"></i>\n              </a>\n              <a>\n                <i class="iconfont icon-guanlizhe"></i> <span>3</span>\n              </a>\n              <a>\n                <i class="iconfont icon-canyuzhe"></i> <span>2</span>\n              </a>\n            </div>\n          </dt>\n          <dd>\n            <div class="item-inner">\n              ' + list.content + '\n            </div>\n          </dd>\n        ';
+        inner += '\n          <dt>\n            <img class="avatar" src="" alt="' + list.userName + '">\n            <span>' + list.userName + '</span>\n            <span class="time">' + list.createDate + '</span>\n            <div class="item-oper">\n              <a class="support hook-support" data-id="' + list.id + '" href="javascript:;">\n                <i class="iconfont icon-dianzan"></i>\n              </a>\n              <a>\n                <i class="iconfont icon-guanlizhe"></i> <span>3</span>\n              </a>\n              <a>\n                <i class="iconfont icon-canyuzhe"></i> <span>2</span>\n              </a>\n            </div>\n          </dt>\n          <dd>\n            <div class="item-inner">\n              ' + list.content + '\n              ' + fold(list.moreId) + '\n            </div>\n          </dd>\n        ';
       });
 
       inner += '</dl>';
@@ -153,8 +194,6 @@ define(['scripts/fetch'], function (fetch) {
       return inner;
     }
   };
-
-  function Pager() {}
 
   return ReviseLayer;
 });

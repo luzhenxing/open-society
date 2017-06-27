@@ -268,6 +268,7 @@ a:active {
   color: #21bd6d;
 }
 .detail-aside-layer .content dl.item dd {
+  border-bottom: 1px solid #e7e7e7;
   padding-bottom: 4px;
   text-align: justify;
 }
@@ -278,6 +279,36 @@ a:active {
   vertical-align: top;
   border: 0;
   max-width: 100%;
+}
+.detail-aside-layer .content dl.item dd .item-inner .hook-more-content p {
+  margin-top: 14px;
+}
+.detail-aside-layer .content dl.item .more {
+  margin-top: 4px;
+}
+.detail-aside-layer .content dl.item .more .hook-more-content {
+  display: none;
+}
+.detail-aside-layer .content dl.item .more .more-fold {
+  text-align: right;
+}
+.detail-aside-layer .content dl.item .more.fold .hook-more-content {
+  display: block;
+}
+.detail-aside-layer .content dl.item .more.fold .hook-fold {
+  display: none;
+}
+.detail-aside-layer .content dl.item .more.fold .hook-unfold {
+  display: inline;
+}
+.detail-aside-layer .content dl.item .more a {
+  color: #999;
+}
+.detail-aside-layer .content dl.item .more .iconfont {
+  font-size: 12px;
+}
+.detail-aside-layer .content dl.item .more .hook-unfold {
+  display: none;
 }
 .revise-layout {
   zoom: 1;

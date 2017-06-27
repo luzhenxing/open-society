@@ -235,6 +235,7 @@ a:active
             .icon-dianzan1
               color: #21BD6D
       dd
+        border-bottom: 1px solid #e7e7e7
         padding-bottom: 4px
         text-align: justify
         p
@@ -244,7 +245,30 @@ a:active
             vertical-align: top
             border: 0
             max-width: 100%
+          .hook-more-content
+            p
+              margin-top: 14px
 
+      .more
+        margin-top: 4px
+
+        .hook-more-content
+          display: none
+        .more-fold
+          text-align: right
+        &.fold
+          .hook-more-content
+            display: block
+          .hook-fold
+            display: none
+          .hook-unfold
+            display: inline
+        a
+          color: #999
+        .iconfont
+          font-size: 12px
+        .hook-unfold
+          display: none
 .revise-layout
   clearfix()
   margin-top: 40px

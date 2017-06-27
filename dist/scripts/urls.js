@@ -17,6 +17,7 @@ define(function () {
     tempSubmitRevises: origin + '/api/v1/temp-paras-revises',
     paragraphRevises: origin + '/api/v1/paragraph-revises',
     projectsFiles: origin + '/api/v1/projects/files',
-    revisesFiles: origin + '/api/v1/revises/files'
+    revisesFiles: origin + '/api/v1/revises/files',
+    paragraphRevisesMore: origin + '/api/v1/paras-revises/more/'
   };
 });

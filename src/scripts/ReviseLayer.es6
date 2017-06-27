@@ -86,6 +86,20 @@ define(['scripts/fetch'], (fetch) => {
             _this.fetchList()
           }
         })
+        .on('click', '.hook-fold, .hook-unfold', function() {
+          let $this = $(this),
+            $more = $this.closest('.more')
+
+          if ($this.hasClass('hook-fold')) {
+            $more.addClass('fold')
+
+            if (!$more.hasClass('loaded')) {
+              _this.fetchMoreList($more)
+            }
+          } else {
+            $more.removeClass('fold')
+          }
+        })
 
       $.fn.scrollUnique = function () {
         return $(this).each(function () {
@@ -121,6 +135,15 @@ define(['scripts/fetch'], (fetch) => {
       let top = this.$sourceDom.position().top
       this.$layer.css({top})
     },
+    fetchMoreList(dom) {
+      fetch.paragraphRevisesMore(dom.data('id')).then(data => {
+        console.log('fetchMoreList')
+        if (!!data) {
+          dom.find('.hook-more-content').html(this.moreInner(data))
+          dom.addClass('loaded')
+        }
+      })
+    },
     fetchList() {
       let url = this.currentType == 'add'
           ? 'reviseList'
@@ -142,10 +165,37 @@ define(['scripts/fetch'], (fetch) => {
 
       })
     },
+    moreInner(data) {
+      let inner = ''
+      data.forEach(list => {
+        inner += `<p>${list.content}</p>`
+      })
+      return inner
+    },
     itemInner({sliceList}) {
       if (!sliceList) {
         return false;
       }
+
+      const fold = (moreId) => {
+        let inner = ''
+        if (!!moreId && moreId !== '') {
+          inner = `
+            <div class="more" data-id="${moreId}">
+              <div class="hook-more-content">
+                <div class="loading"><img src="/images/loading.svg" /></div>
+              </div>
+              <p class="more-fold">
+                <a href="javascript:;" class="hook-fold">展开<i class="iconfont icon-xiangxiajiantou"></i></a>
+                <a href="javascript:;" class="hook-unfold">收起<i class="iconfont icon-xiangshangjiantou"></i></a>
+              </p>     
+            </div>
+          `
+        }
+
+        return inner
+      }
+
       let inner = '<dl class="item">'
 
       sliceList.forEach(list => {
@@ -169,6 +219,7 @@ define(['scripts/fetch'], (fetch) => {
           <dd>
             <div class="item-inner">
               ${list.content}
+              ${fold(list.moreId)}
             </div>
           </dd>
         `
@@ -209,10 +260,6 @@ define(['scripts/fetch'], (fetch) => {
       }
       return inner
     }
-  }
-
-  function Pager() {
-
   }
 
   return ReviseLayer

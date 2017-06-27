@@ -101,6 +101,11 @@ define(['scripts/urls', 'scripts/ajax'], function (urls, ajax) {
     // 段落的修订修改
     saveParagraphRevises: function saveParagraphRevises(data) {
       return ajax.putData(urls.paragraphRevises, data);
+    },
+
+    // 新增列表 更多(data) {
+    paragraphRevisesMore: function paragraphRevisesMore(id) {
+      return ajax.getData(urls.paragraphRevisesMore + id);
     }
   };
 });
