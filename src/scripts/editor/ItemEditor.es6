@@ -1,5 +1,5 @@
-define(
-  ['scripts/editor/editorTpl', 'scripts/urls', 'scripts/fetch', 'scripts/token',
+// 添加段落 编辑器
+define(['scripts/editor/editorTpl', 'scripts/urls', 'scripts/fetch', 'scripts/token',
     'scripts/tips'],
   (tpl, urls, fetch, token, tips) => {
     let isShowUEditor = false,
@@ -141,9 +141,14 @@ define(
               return false
             }
 
+            let $btn = this.$itemEditor.find('.hook-submit');
+            $btn.prop('disabled', true)
             fetch.saveProject(window.PROJECT_DATA).then(message => {
+              $btn.prop('disabled', false)
               tips.show(message)
               window.location = '/index'
+            }, () => {
+              $btn.prop('disabled', false)
             })
           })
 

@@ -84,6 +84,10 @@ define(['scripts/urls', 'scripts/ajax'], (urls, ajax) => {
     // 新增列表 更多(data) {
     paragraphRevisesMore(id) {
       return ajax.getData(urls.paragraphRevisesMore + id)
+    },
+    // 验证项目名称是否可用
+    checkExist(data) {
+      return ajax.postData(urls.checkExist, data)
     }
   }
 })

@@ -1,6 +1,6 @@
 'use strict';
 
-define(function () {
+define(['scripts/fetch', 'scripts/tips'], function (fetch, tips) {
   var valid = true,
       $projectNameWrapper = $('#projectName-wrapper'),
       projectIntroWrapper = $('#projectIntro-wrapper'),
@@ -123,7 +123,19 @@ define(function () {
       checkName();
       checkDesc();
       if (valid) {
-        promise.resolve(getData());
+        fetch.checkExist({
+          projectName: $projectName.val().trim()
+        }).then(function (data) {
+          if (data.nameexist) {
+            tips.show({
+              type: 'warning',
+              content: '已有相同名称的项目 请重新修改名称'
+            });
+            promise.reject();
+          } else {
+            promise.resolve(getData());
+          }
+        });
       }
       return promise;
     }

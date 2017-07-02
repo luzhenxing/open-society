@@ -1,5 +1,6 @@
 'use strict';
 
+// 添加段落 编辑器
 define(['scripts/editor/editorTpl', 'scripts/urls', 'scripts/fetch', 'scripts/token', 'scripts/tips'], function (tpl, urls, fetch, token, tips) {
   var isShowUEditor = false,
       listPage = 1;
@@ -141,9 +142,14 @@ define(['scripts/editor/editorTpl', 'scripts/urls', 'scripts/fetch', 'scripts/to
           return false;
         }
 
+        var $btn = _this2.$itemEditor.find('.hook-submit');
+        $btn.prop('disabled', true);
         fetch.saveProject(window.PROJECT_DATA).then(function (message) {
+          $btn.prop('disabled', false);
           tips.show(message);
           window.location = '/index';
+        }, function () {
+          $btn.prop('disabled', false);
         });
       });
 

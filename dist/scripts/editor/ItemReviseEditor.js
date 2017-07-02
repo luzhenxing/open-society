@@ -1,5 +1,6 @@
 'use strict';
 
+// 修订 编辑器
 define(['scripts/editor/editorTpl', 'scripts/fetch', 'scripts/tips'], function (tpl, fetch, tips) {
   function ItemReviseEditor() {
     this.name = 'ReviseEditor';
@@ -55,17 +56,26 @@ define(['scripts/editor/editorTpl', 'scripts/fetch', 'scripts/tips'], function (
           });
           return false;
         }
+        var $btn = _this.$itemEditor.find('.hook-submit');
+        $btn.prop('disabled', true);
         fetch.saveParagraphRevises({
           id: _this.proId,
           paraCode: _this.paraCode,
           content: content
         }).then(function (message) {
+          $btn.prop('disabled', false);
           tips.show(message);
 
           _this.$detailItem.data('revise-count', parseInt(_this.$detailItem.data('revise-count')) + 1);
 
-          _this.$detailItem.find('.hook-revise-list').trigger('click');
+          var $list = _this.$detailItem.find('.hook-revise-list');
+
+          $list.find('span').text('( ' + parseInt(_this.$detailItem.data('revise-count')) + ' )');
+
+          $list.trigger('click');
           _this.hide();
+        }, function () {
+          $btn.prop('disabled', false);
         });
       });
     },

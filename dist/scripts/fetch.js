@@ -106,6 +106,11 @@ define(['scripts/urls', 'scripts/ajax'], function (urls, ajax) {
     // 新增列表 更多(data) {
     paragraphRevisesMore: function paragraphRevisesMore(id) {
       return ajax.getData(urls.paragraphRevisesMore + id);
+    },
+
+    // 验证项目名称是否可用
+    checkExist: function checkExist(data) {
+      return ajax.postData(urls.checkExist, data);
     }
   };
 });

@@ -1,3 +1,4 @@
+// 添加列表 编辑器
 define(['scripts/editor/editorTpl', 'scripts/urls', 'scripts/fetch', 'scripts/token', 'scripts/tips'],
   (tpl, urls, fetch, token, tips) => {
 
@@ -137,18 +138,27 @@ define(['scripts/editor/editorTpl', 'scripts/urls', 'scripts/fetch', 'scripts/to
               })
               return false
             }
+            let $btn = this.$itemEditor.find('.hook-submit');
+            $btn.prop('disabled', true)
             fetch.saveRevises({
               "id": window.PID,
               "paraCode": this.paraCode
               // "userId": window.userId,
               // "userName": window.userName
             }).then(message => {
+              $btn.prop('disabled', false)
               tips.show(message)
               this.hide()
 
               $(`[data-paracode=${this.paraCode}]`).data('add-count', parseInt($(`[data-paracode=${this.paraCode}]`).data('add-count')) + 1)
 
-              $(`[data-paracode=${this.paraCode}]`).find('.hook-add-list').trigger('click')
+              let $list = $(`[data-paracode=${this.paraCode}]`).find('.hook-add-list')
+
+              $list.trigger('click')
+
+              $list.find('span').text(`( ${parseInt($(`[data-paracode=${this.paraCode}]`).data('add-count'))} )`)
+            }, () => {
+              $btn.prop('disabled', false)
             })
           })
 

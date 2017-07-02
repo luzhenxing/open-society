@@ -1,3 +1,4 @@
+// 修订 编辑器
 define(['scripts/editor/editorTpl', 'scripts/fetch', 'scripts/tips'],
   (tpl, fetch, tips) => {
     function ItemReviseEditor() {
@@ -56,19 +57,26 @@ define(['scripts/editor/editorTpl', 'scripts/fetch', 'scripts/tips'],
               })
               return false
             }
+            let $btn = this.$itemEditor.find('.hook-submit');
+            $btn.prop('disabled', true)
             fetch.saveParagraphRevises({
               id: this.proId,
               paraCode: this.paraCode,
               content
             }).then(message => {
+              $btn.prop('disabled', false)
               tips.show(message)
 
               this.$detailItem.data('revise-count', parseInt(this.$detailItem.data('revise-count')) + 1)
 
-              this.$detailItem
-                .find('.hook-revise-list')
-                .trigger('click')
+              let $list = this.$detailItem.find('.hook-revise-list')
+
+              $list.find('span').text(`( ${parseInt(this.$detailItem.data('revise-count'))} )`)
+
+              $list.trigger('click')
               this.hide()
+            }, () => {
+              $btn.prop('disabled', false)
             })
           })
       },

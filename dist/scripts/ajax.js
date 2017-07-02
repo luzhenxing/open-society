@@ -25,8 +25,8 @@ define(['scripts/token', 'scripts/tips'], function (token, tips) {
               type: 'warning',
               content: result.message
             });
-            throw new Error(result.message);
             promise.reject(result);
+            throw new Error(result.message);
           }
         }
       });

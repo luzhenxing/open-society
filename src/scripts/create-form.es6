@@ -1,4 +1,4 @@
-define(() => {
+define(['scripts/fetch', 'scripts/tips'], (fetch, tips) => {
   let valid = true,
     $projectNameWrapper = $('#projectName-wrapper'),
     projectIntroWrapper = $('#projectIntro-wrapper'),
@@ -122,7 +122,19 @@ define(() => {
       checkName()
       checkDesc()
       if (valid) {
-        promise.resolve(getData())
+        fetch.checkExist({
+          projectName: $projectName.val().trim()
+        }).then(data => {
+          if (data.nameexist) {
+            tips.show({
+              type: 'warning',
+              content: '已有相同名称的项目 请重新修改名称'
+            })
+            promise.reject()
+          } else {
+            promise.resolve(getData())
+          }
+        })
       }
       return promise
     }

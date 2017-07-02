@@ -1,5 +1,6 @@
 'use strict';
 
+// 添加列表 编辑器
 define(['scripts/editor/editorTpl', 'scripts/urls', 'scripts/fetch', 'scripts/token', 'scripts/tips'], function (tpl, urls, fetch, token, tips) {
 
   var isShowUEditor = false,
@@ -139,18 +140,27 @@ define(['scripts/editor/editorTpl', 'scripts/urls', 'scripts/fetch', 'scripts/to
           });
           return false;
         }
+        var $btn = _this2.$itemEditor.find('.hook-submit');
+        $btn.prop('disabled', true);
         fetch.saveRevises({
           "id": window.PID,
           "paraCode": _this2.paraCode
           // "userId": window.userId,
           // "userName": window.userName
         }).then(function (message) {
+          $btn.prop('disabled', false);
           tips.show(message);
           _this2.hide();
 
           $('[data-paracode=' + _this2.paraCode + ']').data('add-count', parseInt($('[data-paracode=' + _this2.paraCode + ']').data('add-count')) + 1);
 
-          $('[data-paracode=' + _this2.paraCode + ']').find('.hook-add-list').trigger('click');
+          var $list = $('[data-paracode=' + _this2.paraCode + ']').find('.hook-add-list');
+
+          $list.trigger('click');
+
+          $list.find('span').text('( ' + parseInt($('[data-paracode=' + _this2.paraCode + ']').data('add-count')) + ' )');
+        }, function () {
+          $btn.prop('disabled', false);
         });
       });
 
