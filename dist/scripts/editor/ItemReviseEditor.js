@@ -35,15 +35,21 @@ define(['scripts/editor/editorTpl', 'scripts/fetch', 'scripts/tips'], function (
         _this.hide();
       }).on('click', '.hook-delete', function () {
         // console.log(this.$detailItem.data('revise-count'))
+        var $btn = _this.$itemEditor.find('.hook-delete');
+        $btn.prop('disabled', true);
         fetch.deleteParagraphRevises({
           proId: _this.proId,
           paraCode: _this.paraCode
         }).then(function (message) {
+          $btn.prop('disabled', false);
           tips.show(message);
 
           _this.$detailItem.data('revise-count', parseInt(_this.$detailItem.data('revise-count')) + 1);
+          var $list = _this.$detailItem.find('.hook-revise-list');
 
-          _this.$detailItem.find('.hook-revise-list').trigger('click');
+          $list.find('span').text('( ' + parseInt(_this.$detailItem.data('revise-count')) + ' )');
+
+          $list.trigger('click');
           _this.hide();
         });
       }).on('click', '.hook-submit', function () {

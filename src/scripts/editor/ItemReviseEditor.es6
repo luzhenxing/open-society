@@ -33,17 +33,21 @@ define(['scripts/editor/editorTpl', 'scripts/fetch', 'scripts/tips'],
         })
           .on('click', '.hook-delete', () => {
             // console.log(this.$detailItem.data('revise-count'))
+            let $btn = this.$itemEditor.find('.hook-delete');
+            $btn.prop('disabled', true)
             fetch.deleteParagraphRevises({
               proId: this.proId,
               paraCode: this.paraCode
             }).then(message => {
+              $btn.prop('disabled', false)
               tips.show(message)
 
               this.$detailItem.data('revise-count', parseInt(this.$detailItem.data('revise-count')) + 1)
+              let $list = this.$detailItem.find('.hook-revise-list')
 
-              this.$detailItem
-                .find('.hook-revise-list')
-                .trigger('click')
+              $list.find('span').text(`( ${parseInt(this.$detailItem.data('revise-count'))} )`)
+
+              $list.trigger('click')
               this.hide()
             })
           })
