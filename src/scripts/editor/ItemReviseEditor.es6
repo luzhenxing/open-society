@@ -49,6 +49,8 @@ define(['scripts/editor/editorTpl', 'scripts/fetch', 'scripts/tips'],
 
               $list.trigger('click')
               this.hide()
+            }, () => {
+              $btn.prop('disabled', false)
             })
           })
           .on('click', '.hook-submit', () => {

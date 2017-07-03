@@ -51,6 +51,8 @@ define(['scripts/editor/editorTpl', 'scripts/fetch', 'scripts/tips'], function (
 
           $list.trigger('click');
           _this.hide();
+        }, function () {
+          $btn.prop('disabled', false);
         });
       }).on('click', '.hook-submit', function () {
         var content = _this.ueditor.getContent();
